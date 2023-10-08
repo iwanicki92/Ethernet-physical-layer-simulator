@@ -1,0 +1,3 @@
+from _typeshed import Incomplete
+
+def setup_logging(application_name: str = ..., config_file=..., logging_level: Incomplete | None = ...): ...

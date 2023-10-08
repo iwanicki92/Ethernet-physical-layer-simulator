@@ -11,8 +11,17 @@ authors = [
 ]
 keywords = ["ethernet", "simulator"]
 requires-python = ">=3.9"
+dependencies = [
+    "pyspice >= 1.5"
+]
 classifiers = [
     "Programming Language :: Python :: 3",
+]
+
+[project.optional-dependencies]
+dev = [
+    "hatch >= 1.7.0",
+    "matplotlib >= 3.8.0"
 ]
 
 [project.gui-scripts]
@@ -21,7 +30,11 @@ phyether = "phyether.phyether:main"
 [tool.hatch.build.targets.wheel]
 packages = ["src/phyether"]
 
+[tool.hatch.build.hooks.custom]
+enable-by-default = true
+
 [tool.mypy]
 python_version = "3.9"
 warn_return_any = true
 check_untyped_defs = true
+mypy_path = "$MYPY_CONFIG_FILE_DIR/stubs"

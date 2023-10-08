@@ -1,0 +1,1 @@
+from .SimulationType import LAST_VERSION as NGSPICE_SUPPORTED_VERSION
