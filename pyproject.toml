@@ -1,0 +1,27 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "phyether"
+version = "0.1.0"
+description = ""
+authors = [
+    { name = "Michał Iwanicki", email = "iwanicki92@gmail.com" },
+]
+keywords = ["ethernet", "simulator"]
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+]
+
+[project.gui-scripts]
+phyether = "phyether.phyether:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/phyether"]
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+check_untyped_defs = true
