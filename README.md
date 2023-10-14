@@ -2,14 +2,21 @@
 
 ## Instalation
 
+From main
+
 ```sh
-pip install <URL>
+pip install git+https://github.com/iwanicki92/Ethernet-physical-layer-simulator.git
 ```
 
-For development:
+From dev
 
 ```sh
-git clone <URL>
-cd Ethernet-physical-layer-simulator
-pip install -e .[dev]
+pip install git+https://github.com/iwanicki92/Ethernet-physical-layer-simulator.git@dev
+```
+
+## Development
+
+```sh
+git clone -b dev https://github.com/iwanicki92/Ethernet-physical-layer-simulator.git
+pip install -e ./phyether[dev]
 ```

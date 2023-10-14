@@ -5,7 +5,7 @@ from PySpice.Probe.WaveForm import TransientAnalysis
 from PySpice.Spice.Netlist import Circuit
 from PySpice.Unit import *  # pylint: disable=unused-wildcard-import, wildcard-import
 
-from .dac import DAC
+from phyether.dac import DAC
 
 Logging.setup_logging(logging_level='ERROR')
 
