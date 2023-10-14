@@ -32,6 +32,7 @@ phyether = "phyether.phyether:main"
 [tool.hatch.build.targets.wheel]
 packages = ["src/phyether"]
 
+# uses hatch_build.py to include ngspice.dll and license when installing on Windows
 [tool.hatch.build.hooks.custom]
 enable-by-default = true
 
