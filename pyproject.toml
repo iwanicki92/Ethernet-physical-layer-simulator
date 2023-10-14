@@ -12,7 +12,9 @@ authors = [
 keywords = ["ethernet", "simulator"]
 requires-python = ">=3.9"
 dependencies = [
-    "pyspice >= 1.5"
+    "pyspice >= 1.5",
+    "galois >= 0.3.0",
+    "numpy >= 1.21.0"
 ]
 classifiers = [
     "Programming Language :: Python :: 3",

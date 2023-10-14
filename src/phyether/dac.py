@@ -1,9 +1,11 @@
-from typing import Any, Iterable, Sequence
+from typing import Iterable, Sequence
 
-from PySpice.Unit import * # pylint: disable=unused-wildcard-import, wildcard-import
+from PySpice.Unit import *  # pylint: disable=unused-wildcard-import, wildcard-import
+
 
 class DAC:
-    def __init__(self, rise_time: float, on_time: float, high_symbol: int, max_voltage: int=2) -> None:
+    def __init__(self, rise_time: float, on_time: float,
+                 high_symbol: int, max_voltage: int = 2) -> None:
         """Convert symbols from digital to analog (piecewise linear)
 
         Formula for symbol to voltage conversion:

@@ -1,12 +1,13 @@
 from typing import Iterable
 
+from PySpice.Logging import Logging
 from PySpice.Probe.WaveForm import TransientAnalysis
 from PySpice.Spice.Netlist import Circuit
 from PySpice.Unit import *  # pylint: disable=unused-wildcard-import, wildcard-import
 
 from .dac import DAC
 
-# Logging.setup_logging(logging_level='DEBUG')
+Logging.setup_logging(logging_level='ERROR')
 
 
 class TwistedPair:
