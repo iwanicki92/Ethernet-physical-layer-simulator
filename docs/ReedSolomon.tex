@@ -1,0 +1,52 @@
+\section{Kodowanie korekcyjne Reeda-Solomona}
+\subsection{Wstęp}
+
+Kodowanie korekcyjne Reeda-Solomona zostało stworzone przez Irvina S. Reeda oraz Gustava Solomona w 1960 roku~\cite[]{Reed-Solomon-original}
+
+Kody Reeda-Solomona charakteryzują się 3 parametrami, rozmiarem alfabetu $q$ interpretowanym w ciele skończonym $\mathbb{F}_q$, długością wiadomości do zakodowania $k$ oraz długością słowa kodowego $n$ gdzie $k < n \leq q$ oraz $q=p^n$ gdzie $p$ to liczba pierwsza a $n \in \mathbb{N}^+$
+
+\subsection{Wykorzystanie w standardach Ethernetowych}
+
+Różne kody Reeda-Solomona są wykorzystywane w wielu standardach Ethernet, wyróżnione w tablicy~\ref{table:kodowania}
+
+\begingroup
+\hyphenpenalty10000
+\exhyphenpenalty10000
+\begin{table}[h]
+\captionof{table}{Kodowania RS w różnych standardach~\cite{Ethernet}}\label{table:kodowania}
+\centering
+    \begin{tabular}{m{3cm} m{9cm}}
+    \toprule
+    Kodowanie RS    & Standardy                                                         \\
+    \midrule
+    RS(528,514)     & 10GBASE-R, 25GBASE-R, 100GBASE-CR4, 100GBASE-KR4, 100GBASE-SR4    \\
+    \midrule
+    RS(544,514)     & 50GBASE-R, 100GBASE-KP4, 100GBASE-CR2, 100GBASE-SR2, 100GBASE-DR, 100GBASE-FR1, 100GBASE-LR1, 200GBASE-R, 400GBASE-R \\
+    \midrule
+    RS(450,406)     & 1000BASE-T1                                                       \\
+    \midrule
+    RS(192,186)     & 25GBASE-T, 40GBASE-T                                              \\
+    \midrule
+    RS(360,326)     & 2.5GBASE-T1, 5GBASE-T1, 10GBASE-T1                                \\
+    \bottomrule
+    \end{tabular}
+\end{table}
+\endgroup
+
+\subsection{Tworzenie kodu}
+Istnieje wiele różnych sposobów tworzenia kodu które tworzą kod o innych właściwościach.
+
+
+\subsubsection{Oryginalny sposób}
+Sposób kodowania przedstawiony w pracy Reeda i Solomona polega na stworzeniu wielomianu $p_m(x)=\sum_{i=0}^{k-1}m_{i}x^i$, gdzie $m_i\in\mathbb{F}_q$ to $i$\nobreakdash-ty element wiadomości, po czym za pomocą tego wielomianu obliczane jest słowo kodowe $C(m)=(p_m(a_0), p_m(a_1), \ldots, p_m(a_{n-1}))$ gdzie $a_i$ to różne elementy ciała $\mathbb{F}_q$.
+
+\subsubsection{Kod systematyczny}
+Za pomocą niewielkiej modyfikacji można stworzyć kod systematyczny czyli taki w którym słowo kodowe zawiera w sobie kodowaną wiadomość.
+Żeby stworzyć kod systematyczny musimy zmodyfikować sposób tworzenia wielomianu w taki sposób by $p_m(x_i)=m_i$ dla $i \in \{0,1,\ldots,k-1\}$.
+
+Jednym ze sposobów stworzenia takiego wielomianu jest użycie metody interpolacji wielomianów. Słowo kodowe wygenerowane z tego wielomianu będzie zawierało wiadomość w pierwszych k elementach.
+\[C(m)=(p_m(a_0), p_m(a_1), \ldots, p_m(a_{n-1}))=(m_0, m_1, \ldots, m_{k-1}, p_m(a_k), p_m(a_{k+1}), \ldots, p_m(a_{n-1}))\]
+
+\subsection{Dekodowanie}
+\subsubsection{Algorytm Berlekampa-Welcha}
+W roku 1986 Lloyd R. Welch oraz Elwyn R. Berlekamp uzyskali patent na dekoder umożliwiający uzyskanie oryginalnego wielomianu $p_m(x)$ oraz wielomianu $E(x)$ który zwraca 0 dla punktów $x$ w których nastąpiło przekłamanie~\cite{Berlekamp-Welch}
