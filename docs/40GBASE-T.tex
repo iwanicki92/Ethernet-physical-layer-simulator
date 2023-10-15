@@ -19,11 +19,11 @@ W ciągu każdej sekundy przesyłanych jest 3200 milionów symboli co przekłada
 
 PCS pobiera dane od warstwy MAC przez interfejs XLGMII. Jest to tzw. Media-Independent Interface, który powstał po to aby warstwy MAC oraz PHY były niezależne od siebie - pozwala pracę kontrolera MAC z warstwą PHY, bez względu na to jakie medium jest w użyciu.
 
-Dane trafiają z XLGMII do PCS przez wektor TXD<63:0> i gromadzone są w 64-bitowe bloki. Po zebraniu 50 takich bloków, pierwsze 48 z nich transkodowane są w 512-bitowe bloki, a pozostałe są do nich dołączane. Dane są następnie skramblowane i dołączany jest do nich bit pomocniczy (auxiliary bit), po czym dzielone są na dwa zbiory - pierwszy z nich trafia do kodera Reed-Solomona, a drugi jest przetwarzany przez koder LDPC (Low density parity check). Otrzymuje się w ten sposób 512*3 bitów zakodowanych przez RS-FEC oraz 512*4 bitów - LDPC, które łączone są w 7-bitowe grupy u0, u1, u2, c0, c1, c2, c3.
+Dane trafiają z XLGMII do PCS przez wektor TXD<63:0> i gromadzone są w 64-bitowe bloki. Po zebraniu 50 takich bloków, pierwsze 48 z nich transkodowane są w 512-bitowe bloki, a pozostałe są do nich dołączane. Dane są następnie skramblowane i dołączany jest do nich bit pomocniczy (auxiliary bit), po czym dzielone są na dwa zbiory --- pierwszy z nich trafia do kodera Reed-Solomona, a drugi jest przetwarzany przez koder LDPC (Low density parity check). Otrzymuje się w ten sposób $512*3$ bitów zakodowanych przez RS-FEC oraz $512*4$ bitów --- LDPC, które łączone są w 7-bitowe grupy  $u_0$, $u_1$, $u_2$, $c_0$, $c_1$, $c_2$, $c_3$.
 
 
 \subsubsection{Mapowanie ramki LDPC na DSQ128}
-Zamianę 7-bitów u0, u1, u2, c0, c1, c2, c3 pokazuje poniższy algorytm:
+Zamianę 7-bitów $u_0$, $u_1$, $u_2$, $c_0$, $c_1$, $c_2$, $c_3$ pokazuje poniższy algorytm:
 
 Krok 1:
 \begin{align*}
@@ -60,15 +60,15 @@ Otrzymane w ten sposób symbole są transmitowane na odpowiednich parach skrętk
 \begin{table}[h]
     \centering
     \resizebox{\textwidth}{!}{%
-    \begin{tabular}{ c | c c c c c c c |}
+    \begin{tabular}{c | c c c c c c c |}
         \cmidrule{2-8}
         Pair A & PAM16$_1$<0> & PAM16$_2$<0> & PAM16$_1$<4> & PAM16$_2$<4> & \ldots & PAM16$_1$<508> & PAM16$_2$<508> \\
         \cmidrule{2-8}
-        Pair A & PAM16$_1$<1> & PAM16$_2$<1> & PAM16$_1$<5> & PAM16$_2$<5> & \ldots & PAM16$_1$<509> & PAM16$_2$<509> \\
+        Pair B & PAM16$_1$<1> & PAM16$_2$<1> & PAM16$_1$<5> & PAM16$_2$<5> & \ldots & PAM16$_1$<509> & PAM16$_2$<509> \\
         \cmidrule{2-8}
-        Pair A & PAM16$_1$<2> & PAM16$_2$<2> & PAM16$_1$<6> & PAM16$_2$<6> & \ldots & PAM16$_1$<510> & PAM16$_2$<510> \\
+        Pair C & PAM16$_1$<2> & PAM16$_2$<2> & PAM16$_1$<6> & PAM16$_2$<6> & \ldots & PAM16$_1$<510> & PAM16$_2$<510> \\
         \cmidrule{2-8}
-        Pair A & PAM16$_1$<3> & PAM16$_2$<3> & PAM16$_1$<7> & PAM16$_2$<7> & \ldots & PAM16$_1$<511> & PAM16$_2$<511> \\
+        Pair D & PAM16$_1$<3> & PAM16$_2$<3> & PAM16$_1$<7> & PAM16$_2$<7> & \ldots & PAM16$_1$<511> & PAM16$_2$<511> \\
         \cmidrule{2-8}
     \end{tabular}}
 \end{table}
