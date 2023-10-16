@@ -1,5 +1,17 @@
 # Simulator of selected Ethernet physical layer solutions
 
+## Requirements
+
+* Python, tested on version 3.9
+
+Linux:
+
+* libngspice
+
+    ```sh
+    sudo apt install libngspice0
+    ```
+
 ## Instalation
 
 From main
