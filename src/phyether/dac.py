@@ -1,9 +1,15 @@
 from typing import Iterable, Sequence
 
-from PySpice.Unit import *  # pylint: disable=unused-wildcard-import, wildcard-import
+from PySpice.Unit import *
+from PySpice.Unit.Unit import UnitValue  # pylint: disable=unused-wildcard-import, wildcard-import
 
 
 class DAC:
+    """Digital to analog converter
+
+    Converts digital symbols to voltages or piecewise linear function
+    """
+
     def __init__(self, rise_time: float, on_time: float,
                  high_symbol: int, max_voltage: int = 2) -> None:
         """Convert symbols from digital to analog (piecewise linear)
@@ -17,11 +23,16 @@ class DAC:
             high_symbol (int): highest symbol value in data
             max_voltage (int): voltage for max_symbol
         """
-        self.rise_time = u_ns(rise_time)
-        self.on_time = u_ns(on_time)
+        self.rise_time: UnitValue = u_ns(rise_time)
+        self.on_time: UnitValue = u_ns(on_time)
+        self.high_symbol = high_symbol
         self.quotient = max_voltage / high_symbol
 
-    def to_voltage(self, data: Iterable[int]) -> Iterable[float]:
+    @property
+    def symbol_time(self) -> UnitValue:
+        return self.rise_time + self.on_time
+
+    def to_voltage(self, data: Iterable[int]) -> Iterable[UnitValue]:
         """Change digital data into voltages.
 
         Args:
@@ -32,7 +43,7 @@ class DAC:
         """
         return [u_V(symbol * self.quotient) for symbol in data]
 
-    def to_pwl(self, data: Iterable[int]) -> Sequence[tuple[float, float]]:
+    def to_pwl(self, data: Iterable[int]) -> Sequence[tuple[UnitValue, UnitValue]]:
         """Turn data into PWL form.
 
         Args:
@@ -42,12 +53,12 @@ class DAC:
             Sequence[tuple[float, float]]: PWL data
         """
         voltages = self.to_voltage(data)
-        pwl: list[tuple[float, float]] = [(0, 0)]
+        pwl: list[tuple[UnitValue, UnitValue]] = [(u_ns(0), u_V(0))]
         time = self.rise_time
         for voltage in voltages:
-            pwl.append((time, voltage))
-            pwl.append((time + self.on_time, voltage))
-            time = time + self.on_time + self.rise_time
-        pwl.append((time, 0))
+            pwl.append((time, u_V(voltage)))
+            pwl.append((time + self.on_time, u_V(voltage)))
+            time = time + self.symbol_time
+        pwl.append((time, u_V(0)))
 
         return pwl
