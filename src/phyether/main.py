@@ -30,3 +30,6 @@ def main():
         print(ex)
 
     print("Starting phyether...")
+
+if __name__ == "__main__":
+    main()

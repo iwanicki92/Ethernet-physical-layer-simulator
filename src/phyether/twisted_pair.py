@@ -1,6 +1,6 @@
 from math import sqrt
 import random
-from typing import Iterable, Literal, Optional,  overload
+from typing import Iterable, Literal, Optional, overload
 
 from PySpice.Logging import Logging
 from PySpice.Probe.WaveForm import TransientAnalysis

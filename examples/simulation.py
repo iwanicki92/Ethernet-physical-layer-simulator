@@ -9,7 +9,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.ticker import EngFormatter
 import numpy
 
-from phyether import phyether
+from phyether import main
 from phyether.dac import DAC
 from phyether.twisted_pair import TwistedPair
 
@@ -17,7 +17,7 @@ root = tkinter.Tk()
 root.wm_title("Simulation")
 root.bind("<Escape>", lambda _: root.destroy())
 
-phyether.init()
+main.init()
 pair = TwistedPair(dac=DAC(1, 3, 4), output_impedance=85, length=50, resistance=0.5, transmission_type='lossy')
 
 fig = plt.figure(figsize=(18, 6))

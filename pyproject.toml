@@ -27,7 +27,7 @@ dev = [
 ]
 
 [project.gui-scripts]
-phyether = "phyether.phyether:main"
+phyether = "phyether.main:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/phyether"]
