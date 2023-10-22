@@ -15,7 +15,7 @@ class EthernetGuiApp(QMainWindow):
         self.input_message = ""
         self.output_message = ""
         self.rs = RS_Original(192, 186)
-        self.convertion_state: Literal["text", "bytes"] = "text"
+        self.conversion_state: Literal["text", "bytes"] = "text"
 
     def init_ui(self):
         self.setWindowTitle("Simple Encoder/Decoder")
@@ -64,8 +64,8 @@ class EthernetGuiApp(QMainWindow):
         msg_box.exec()
 
     def convert(self):
-        if self.convertion_state == "text":
-            self.convertion_state = "bytes"
+        if self.conversion_state == "text":
+            self.conversion_state = "bytes"
             self.convert_button.setText("Convert bytes -> text")
             list_of_bytes = string_to_list(self.input_text_field.toPlainText())
             self.input_text_field.setPlainText(self._list_to_string(list_of_bytes))
@@ -80,7 +80,7 @@ class EthernetGuiApp(QMainWindow):
                 output_string = iterable_to_string(output_bytes)
                 self.input_text_field.setPlainText(input_string)
                 self.output_text_field.setPlainText(output_string)
-                self.convertion_state = "text"
+                self.conversion_state = "text"
                 self.convert_button.setText("Convert text -> bytes")
             except ValueError as ex:
                 print(ex)
@@ -102,7 +102,7 @@ class EthernetGuiApp(QMainWindow):
         print(f"input_text: {input_text}")
         try:
             encoded_text: Union[str, list[int]]
-            if self.convertion_state == "text":
+            if self.conversion_state == "text":
                 encoded_text = self.rs.encode(input_text)
                 self.output_text_field.setPlainText(encoded_text)
             else:
@@ -113,7 +113,7 @@ class EthernetGuiApp(QMainWindow):
             self.create_msg_box("Couldn't encode: " + str(ex), "Encoding error!")
 
     def decode(self):
-        if self.convertion_state == "text":
+        if self.conversion_state == "text":
             input_text: Union[str, list[int]] = self.output_text_field.toPlainText()
         else:
             try:
