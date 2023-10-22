@@ -2,6 +2,8 @@ import platform
 
 from PySpice.Spice.NgSpice.Shared import NgSpiceShared
 
+from phyether import gui
+
 def init():
     if platform.system() == "Windows":
         from pathlib import Path
@@ -30,6 +32,7 @@ def main():
         print(ex)
 
     print("Starting phyether...")
+    gui.main()
 
 if __name__ == "__main__":
     main()

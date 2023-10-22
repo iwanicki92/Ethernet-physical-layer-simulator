@@ -1,10 +1,11 @@
 import sys
-from PyQt6.QtWidgets import QMessageBox, QStyle, QApplication, QMainWindow, QWidget, QPushButton, QLineEdit, QTextEdit, QVBoxLayout, QHBoxLayout, QFormLayout
+from typing import Literal, Union
+from PyQt5.QtWidgets import (QMessageBox, QApplication, QMainWindow, QWidget,
+                             QPushButton, QLineEdit, QTextEdit, QVBoxLayout,
+                             QHBoxLayout, QFormLayout)
 
-import numpy as np
-
-from util import iterable_to_string, string_to_list
-from reed_solomon import RS_Original, corrupt_message
+from phyether.util import iterable_to_string, string_to_list
+from phyether.reed_solomon import RS_Original
 
 class EthernetGuiApp(QMainWindow):
     def __init__(self):
@@ -14,6 +15,7 @@ class EthernetGuiApp(QMainWindow):
         self.input_message = ""
         self.output_message = ""
         self.rs = RS_Original(192, 186)
+        self.convertion_state: Literal["text", "bytes"] = "text"
 
     def init_ui(self):
         self.setWindowTitle("Simple Encoder/Decoder")
@@ -28,26 +30,21 @@ class EthernetGuiApp(QMainWindow):
         # Left side - inputs
         input_form = QFormLayout()
         self.input_text_field = QTextEdit()
-        self.input_number_field = QLineEdit()
         input_form.addRow("Input:", self.input_text_field)
-        input_form.addRow("Number of errors:", self.input_number_field)
-        load_button = QPushButton("Load message")
-        input_form.addWidget(load_button)
 
         # Center - buttons
         button_layout = QVBoxLayout()
         encode_button = QPushButton("Encode")
-        switch_button = QPushButton("<--")
+        self.convert_button = QPushButton("Convert text -> bytes")
         decode_button = QPushButton("Decode")
         button_layout.addWidget(encode_button)
         button_layout.addSpacing(-75)
-        button_layout.addWidget(switch_button)
+        button_layout.addWidget(self.convert_button)
         button_layout.addSpacing(-75)
         button_layout.addWidget(decode_button)
 
         # Right side - output
         self.output_text_field = QTextEdit()
-        self.output_text_field.setReadOnly(True)
 
         main_layout.addLayout(input_form)
         main_layout.addLayout(button_layout)
@@ -55,61 +52,91 @@ class EthernetGuiApp(QMainWindow):
 
         # Connect the buttons to their respective functions
         encode_button.clicked.connect(self.encode)
-        switch_button.clicked.connect(self.switch_messages)
+        self.convert_button.clicked.connect(self.convert)
         decode_button.clicked.connect(self.decode)
-        load_button.clicked.connect(self.load)
 
-    # Set input message to output message and delete output
-    def switch_messages(self):
-        self.input_message, self.output_message = self.output_message, ""
-        self.input_text_field.setPlainText(self.input_message)
-        self.output_text_field.setPlainText(self.output_message)
-
-    # Load message from input
-    def load(self):
-        self.input_message = self.input_text_field.toPlainText()
-
-    # Encode using Reed-Solomon and corrupt
-    def encode(self):
-        input_text = self.input_message
-        try:
-            input_number_of_errors = int(self.input_number_field.text())
-        except:
-            input_number_of_errors = 0
-            self.input_number_field.setText("0")
-
-        print(f"input_text: {input_text}, errors: {input_number_of_errors}")
-
-        print(f"Encoding message '{input_text}' with {input_number_of_errors} errors...")
-        encoded_text = self.rs.encode(input_text)
-        
-        if input_number_of_errors:
-            print("Corrupting...")
-            final_encoded_text = corrupt_message(encoded_text, input_number_of_errors, "beginning")
-        else:
-            final_encoded_text = encoded_text
-
-        self.output_message = final_encoded_text
-        self.output_text_field.setPlainText(final_encoded_text)
-        print(f"Encoded message: {self.output_text_field.toPlainText()}")
-
-    # Decode using Berlekamp-Welch
-    def decode(self):
-        input_text = self.input_message
-        
-        print(f"Decoding message {input_text}...")
-        decoded_text, errors = self.rs.decode(input_text)
-        errors = errors if errors != -1 else 0
-
+    def create_msg_box(self, text, title):
         msg_box = QMessageBox()
         msg_box.setIcon(QMessageBox.Icon.Information)
-        msg_box.setText(f"Message decoded, fixed {errors} errors.")
-        msg_box.setWindowTitle('Decode info')
+        msg_box.setText(text)
+        msg_box.setWindowTitle(title)
         msg_box.setStandardButtons(QMessageBox.StandardButton.Ok)
-        result = msg_box.exec()
+        msg_box.exec()
 
-        print(f"Decoded message: {decoded_text}")
-        self.output_text_field.setPlainText(decoded_text)
+    def convert(self):
+        if self.convertion_state == "text":
+            self.convertion_state = "bytes"
+            self.convert_button.setText("Convert bytes -> text")
+            list_of_bytes = string_to_list(self.input_text_field.toPlainText())
+            self.input_text_field.setPlainText(self._list_to_string(list_of_bytes))
+
+            list_of_bytes = string_to_list(self.output_text_field.toPlainText())
+            self.output_text_field.setPlainText(self._list_to_string(list_of_bytes))
+        else:
+            try:
+                input_bytes = self._list_from_string(self.input_text_field.toPlainText())
+                output_bytes = self._list_from_string(self.output_text_field.toPlainText())
+                input_string = iterable_to_string(input_bytes)
+                output_string = iterable_to_string(output_bytes)
+                self.input_text_field.setPlainText(input_string)
+                self.output_text_field.setPlainText(output_string)
+                self.convertion_state = "text"
+                self.convert_button.setText("Convert text -> bytes")
+            except ValueError as ex:
+                print(ex)
+                self.create_msg_box(f"Couldn't convert byte to text!" + str(ex), "conversion error")
+
+    def _list_from_string(self, string):
+        """convert str: "0 2 34 20..." to list[int]: [0, 2, 34, 20...]
+
+        :param string: string to convert
+        """
+        return [int(x) for x in string.split()]
+
+    def _list_to_string(self, list_to_convert):
+        return ' '.join(str(x) for x in list_to_convert)
+
+    # Encode using Reed-Solomon
+    def encode(self):
+        input_text = self.input_text_field.toPlainText()
+        print(f"input_text: {input_text}")
+        try:
+            encoded_text: Union[str, list[int]]
+            if self.convertion_state == "text":
+                encoded_text = self.rs.encode(input_text)
+                self.output_text_field.setPlainText(encoded_text)
+            else:
+                encoded_text = self.rs.encode(self._list_from_string(input_text))
+                self.output_text_field.setPlainText(self._list_to_string(encoded_text))
+            print(f"Encoded message: {self.output_text_field.toPlainText()}")
+        except Exception as ex:
+            self.create_msg_box("Couldn't encode: " + str(ex), "Encoding error!")
+
+    def decode(self):
+        if self.convertion_state == "text":
+            input_text: Union[str, list[int]] = self.output_text_field.toPlainText()
+        else:
+            try:
+                input_text = self._list_from_string(self.output_text_field.toPlainText())
+            except ValueError as ex:
+                self.create_msg_box("Couldn't convert bytes!: " + str(ex), "Conversion error!")
+                return
+
+        print(f"Decoding message {input_text}")
+        try:
+            decoded_text, errors = self.rs.decode(input_text)
+            print(f"Decoded message: {decoded_text}")
+            if isinstance(decoded_text, str):
+                self.input_text_field.setPlainText(decoded_text)
+            else:
+                self.input_text_field.setPlainText(self._list_to_string(decoded_text))
+            if errors == -1:
+                msg_box_message = "Message couldn't be decoded!"
+            else:
+                msg_box_message = f"Message decoded, fixed {errors} errors."
+            self.create_msg_box(msg_box_message, 'Decode info')
+        except ValueError as ex:
+            self.create_msg_box(f"Couldn't decode!: {ex}", "Decoding error!")
 
 def main():
     app = QApplication(sys.argv)

@@ -53,6 +53,8 @@ class RS_Original:
         if len(list_message) > self.message_length:
             raise ValueError(f"Message is {len(list_message)} symbols in size. "
                              f"Max is {self.message_length}")
+        if len(list_message) == 0:
+            raise ValueError("Message is empty! Can't encode nothing")
         if isinstance(message, str):
             return iterable_to_string(self.rs.encode(list_message))
         else:
@@ -77,6 +79,9 @@ class RS_Original:
         if len(codeword) > self.codeword_length:
             raise ValueError(f"Codeword is {len(codeword)} symbols in size. "
                              f"Max is {self.codeword_length}")
+        if len(codeword) <= self.parity_length + 1:
+            raise ValueError(f"Codeword can't be shorter than {self.parity_length + 1} = "
+                             f"{self.parity_length} parity symbols + 1 message symbol")
         decoded, errors = self.rs.decode(list_codeword, errors=True)
         if isinstance(codeword, str):
             return iterable_to_string(decoded), int(errors)
