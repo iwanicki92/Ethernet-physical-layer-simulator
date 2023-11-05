@@ -11,7 +11,7 @@ class DAC:
     """
 
     def __init__(self, rise_time: float, on_time: float,
-                 high_symbol: int, max_voltage: int = 2) -> None:
+                 high_symbol: int, symbol_step: int = 1, max_voltage: int = 2) -> None:
         """Convert symbols from digital to analog (piecewise linear)
 
         Formula for symbol to voltage conversion:
@@ -22,15 +22,21 @@ class DAC:
             on_time (float): duration of one symbol in nanoseconds
             high_symbol (int): highest symbol value in data
             max_voltage (int): voltage for max_symbol
+            symbol_step (int): difference between adjacent symbols
         """
         self.rise_time: UnitValue = u_ns(rise_time)
         self.on_time: UnitValue = u_ns(on_time)
         self.high_symbol = high_symbol
         self.quotient = max_voltage / high_symbol
+        self.symbol_step = symbol_step
 
     @property
     def symbol_time(self) -> UnitValue:
         return self.rise_time + self.on_time
+
+    @property
+    def possible_symbols(self) -> range:
+        return range(-self.high_symbol, self.high_symbol+1, self.symbol_step)
 
     def to_voltage(self, data: Iterable[int]) -> Iterable[UnitValue]:
         """Change digital data into voltages.
