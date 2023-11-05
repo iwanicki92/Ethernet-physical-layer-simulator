@@ -106,7 +106,7 @@ class TwistedPair:
         presignals = 0
         if presimulation_ratio:
             presignals = int(presimulation_ratio * self.delay/self.dac.symbol_time) + 5
-            possible_symbols = range(-self.dac.high_symbol, self.dac.high_symbol)
+            possible_symbols = self.dac.possible_symbols
             data_to_simulate = random.choices(
                 possible_symbols,
                 k=presignals - 1
