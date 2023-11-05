@@ -8,22 +8,40 @@
 \subsection{Położenie 40GBASE-T w modelu OSI}
 \includegraphics[scale=0.4]{25-40-gbase-osi}
 
+\subsection{Media-Independent Interface}
+MII czyli Media-Independent Interface to interfejs pomiędzy warstwą MAC oraz PHY. Powstał po to aby warstwy MAC oraz PHY były niezależne od siebie - pozwala na pracę kontrolera MAC z warstwą PHY, bez względu na to jakie medium jest w użyciu.
+W technologii 40GBASE-T MII określany jest jako XLGMII. Składa się z dwóch wektorów 64-bitowych TXD i RXD - odpowiedzialne za przesył danych w obu kierunkach, dwóch wektorów 8-bitowych TXC i RXC - wykorzystywane do przesyłu sygnałów kontrolnych oraz TX\_CLK i RX\_CLK - którymi podawany jest sygnał zegara. XLGMII pozwala na przesył danych na poziomie 40 Gb/s, w obu kierunkach.
+
+\subsection{Warstwa PCS}\label{subsection:pcs}
+40GBASE-T PCS (Physical Coding Sublayer) jest warstwą odpowiedzialną m.in. za kodowanie i dekodowanie oraz skramblowanie i deskramblowanie. W jej skład wchodzą m.in. skrambler i deskrambler, kodery i dekodery RS-FEC i LDPC oraz układ mapujący bity na DSQ128.
+Dane trafiają z warstwy MAC do PCS przez XLGMII i gromadzone są w 64-bitowe bloki. Po zebraniu 50 takich bloków, pierwsze 48 z nich transkodowane są w 512-bitowe bloki, a pozostałe są do nich dołączane. Dane są następnie skramblowane i dołączany jest do nich bit pomocniczy (auxiliary bit), po czym dzielone są na dwa zbiory --- pierwszy z nich trafia do kodera Reed-Solomona, a drugi przetwarzany jest przez koder LDPC (Low density parity check). Otrzymuje się w ten sposób $512*3$ bitów zakodowanych przez RS-FEC oraz $512*4$ bitów --- LDPC, które łączone są w 7-bitowe grupy  ($u_0$, $u_1$, $u_2$), ($c_0$, $c_1$, $c_2$, $c_3$).
+
 \subsection{Modulacja w 40GBASE-T}
 \subsubsection{Wprowadzenie}
+Modulacja cyfrowa to technika zamiany bitów na sygnał oraz sygnału na bity. Najprostszą metodą byłoby używanie dodatniego napięcia dla bitu równego 1 i ujemnego napięcia dla 0. Technika ta nosi nazwę \textbf{NRZ (Non-Return-to-Zero)}. Nie jest ona wykorzystywana w praktyce --- nadając naprzemiennie 1 i 0 otrzymamy okres równy 2 bity, co oznacza że potrzebujemy pasma B/2 Hz przy prędkości B bit / s.
+
+W tej technice, aby nadawać sygnał szybciej, potrzebne są większe częstotliwości, które powodują większe zakłócenia oraz wymagają lepszego sprzętu.
+Chcąc nadawać z większą prędkością, nie zwiększając przy tym szerokości pasma, wykorzystuje się więcej poziomów napięcia --- mając np. 4 poziomy można wysłać 2 bity za pomocą jednego symbolu \cite{Computer-networks-Tanenbaum}.
+
 Technologia 40GBASE-T wykorzystuje 16-poziomową modulację PAM - mając 16 różnych poziomów amplitudy możemy zakodować 16 różnych wartości co daje nam 4 bity danych.
 Oprócz bitów niosących dane, przesyła się również bity pomocnicze (auxiliary bits), przez co w rzeczywistości jeden symbol PAM16 koduje 3,125 bitów informacji.
 W ciągu każdej sekundy przesyłanych jest 3200 milionów symboli co przekłada się na prędkość transmisji równą 10 Gb/s (3,125 bit/symbol * 3200 MBd) na każdej z czterech par skrętki, co sumarycznie daje transmisję 40 Gb/s.
 
-\subsubsection{Warstwa PCS}
-40GBASE-T PCS (Physical Coding Sublayer) jest warstwą odpowiedzialną m.in. za kodowanie i dekodowanie oraz skramblowanie i deskramblowanie.
+\subsubsection{Double Square Quadrature Amplitude Modulation}
+Jak opisano w \ref{subsection:pcs}, warstwa PCS koduje otrzymane dane w 7-bitowe grupy. W technologii 40GBASE-T symbole nadawane przez warstwę PMA wybierane są z konstelacji DSQ128 (Double Square Quadrature Amplitude Modulation).
 
-PCS pobiera dane od warstwy MAC przez interfejs XLGMII. Jest to tzw. Media-Independent Interface, który powstał po to aby warstwy MAC oraz PHY były niezależne od siebie - pozwala pracę kontrolera MAC z warstwą PHY, bez względu na to jakie medium jest w użyciu.
+Aby wyjaśnić czym jest DSQ128, pierw spójrzmy na modulację 64QAM. 64QAM (Quadrature Amplitude Modulation) to modulacja, która jest połączeniem modulacji amplitudy oraz fazy. Bity zamieniane są na symbole według diagramu konstelacji:
 
-Dane trafiają z XLGMII do PCS przez wektor TXD<63:0> i gromadzone są w 64-bitowe bloki. Po zebraniu 50 takich bloków, pierwsze 48 z nich transkodowane są w 512-bitowe bloki, a pozostałe są do nich dołączane. Dane są następnie skramblowane i dołączany jest do nich bit pomocniczy (auxiliary bit), po czym dzielone są na dwa zbiory --- pierwszy z nich trafia do kodera Reed-Solomona, a drugi jest przetwarzany przez koder LDPC (Low density parity check). Otrzymuje się w ten sposób $512*3$ bitów zakodowanych przez RS-FEC oraz $512*4$ bitów --- LDPC, które łączone są w 7-bitowe grupy  $u_0$, $u_1$, $u_2$, $c_0$, $c_1$, $c_2$, $c_3$.
+\includegraphics[scale=0.6]{64QAM-constellation-diagram}
 
+Diagam podzielony jest na 4 sekcje, każda z nich zawiera 16 maksymalnie oddzielonych od siebie punktów. Punkty znajdujące się obok siebie różnią się jednym bitem --- dzięki czemu, gdy odbiorca otrzyma zły symbol, najprawdopodobniej tylko jeden bit będzie przekłamany.
 
-\subsubsection{Mapowanie ramki LDPC na DSQ128}
-Zamianę 7-bitów $u_0$, $u_1$, $u_2$, $c_0$, $c_1$, $c_2$, $c_3$ pokazuje poniższy algorytm:
+DSQ128 jest złożeniem dwóch modulacji 64QAM i składa się z ośmiu sekcji, a każda z nich zawiera 16 punktów. Mając 7-bitową grupe ($u_0$, $u_1$, $u_2$), ($c_0$, $c_1$, $c_2$, $c_3$), pierwsze 3 bity definiują lewy dolny punkt w jednym z 8 regionów, natomiast na podstawie 4 kolejnych bitów wybierany jest jeden z 16 punktów w danym regionie. Proces ten opisany jest szczegółowo w \ref{mapowanie}
+
+\includegraphics[scale=0.4]{dsq128}
+
+\subsubsection{Mapowanie ramki LDPC na DSQ128}\label{mapowanie}
+Zamianę 7-bitów ($u_0$, $u_1$, $u_2$), ($c_0$, $c_1$, $c_2$, $c_3$) pokazuje poniższy algorytm:
 
 Krok 1:
 \begin{align*}
