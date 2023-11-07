@@ -32,11 +32,12 @@ class SimulatorCanvas(FigureCanvasQTAgg):
             transmission_type='lossy'
             )
 
+        self.labels = []
         self.axes = self.figure.add_subplot(111)
         self.axes.grid(True)
         self.draw()
 
-    def simulate(self, input):
+    def simulate(self, input, index):
         analysis = self.pair.simulate([
             int(symbol) for symbol in input.split()
             if symbol.removeprefix('-').isdecimal()
@@ -61,11 +62,14 @@ class SimulatorCanvas(FigureCanvasQTAgg):
         self.axes.set_xlabel('Time')
         self.axes.set_ylabel('Voltage (V)')
         self.axes.grid(True)
-        self.axes.legend(['v(in+, in-)', 'v(out+, out-)'], loc='upper right')
+        self.labels.append(f'{index}. v(in+, in-)')
+        self.labels.append(f'{index}. v(out+, out-)')
+        self.axes.legend(self.labels, loc='upper right')
         self.draw()
 
     def clear_plot(self):
         self.axes.cla()
+        self.labels = []
 
 class EthernetGuiApp(QMainWindow):
     def __init__(self):
@@ -195,10 +199,11 @@ class EthernetGuiApp(QMainWindow):
     def simulate(self):
         print("Simulating...")
         self.tp_canvas.clear_plot()
-        for tp_input in self.tp_input_fields:
+        for i in range(len(self.tp_input_fields)):
+            tp_input = self.tp_input_fields[i]
             simulator_parameters = tp_input.text()
             try:
-                self.tp_canvas.simulate(simulator_parameters)
+                self.tp_canvas.simulate(simulator_parameters, i + 1)
             except Exception as ex:
                 self.create_msg_box(f"Simulation failed: {ex}", "Simulation error!")
 
