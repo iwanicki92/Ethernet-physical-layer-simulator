@@ -103,7 +103,6 @@ class TwistedPair(SubCircuit):
             data_to_simulate.extend(data)
         return presignals, self.dac.to_pwl(data_to_simulate)
 
-
     def simulate(self, data: Iterable[int], presimulation_ratio: int = 0,
                  voltage_offset: float = 0) -> TransientAnalysis:
         """_summary_
