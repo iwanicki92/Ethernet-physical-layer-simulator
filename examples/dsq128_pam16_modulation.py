@@ -1,12 +1,14 @@
 import tkinter
-from typing import cast
+from typing import Mapping, cast
 
 from PySpice.Probe.WaveForm import WaveForm
+from matplotlib.axes import Axes
 
 import matplotlib.pyplot as plt
 from matplotlib.backends._backend_tk import NavigationToolbar2Tk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.ticker import EngFormatter
+
 import numpy
 
 from phyether import main
@@ -15,19 +17,19 @@ from phyether.twisted_pair import TwistedPair
 
 from bitarray import bitarray
 
-def _bits_to_dsq128(bits : bitarray) -> (int, int):
+def _bits_to_dsq128(bits : bitarray) -> tuple[int, int]:
     """
     converts 7-bit frame into 2D DSQ128 symbol
     """
 
-    assert(len(bits) == 7) 
+    assert(len(bits) == 7)
     u = bits[0:3]
     c = bits[3:]
 
     # Step 1
     x13 = -u[0] & u[2]
     x12 = u[0] ^ u[2]
-    x11 = c[0] 
+    x11 = c[0]
     x10 = c[0] ^ c[1]
     x23 = (u[1] & u[2]) + (u[0] & -u[1])
     x22 = u[1] ^ u[2]
@@ -60,23 +62,24 @@ pairs = [
     TwistedPair(dac=DAC(1, 3, high_symbol=15, symbol_step=2, max_voltage=2.5), output_impedance=85, length=30, resistance=0.5, transmission_type='lossy')
 ]
 
-fig, axs = plt.subplots(2, 2, figsize=(36, 12), sharex=True, sharey=True)
+fig, axs = plt.subplots(2, 2, figsize=(18, 8), sharex=True, sharey=True)
 plt.figure(figsize=(36, 12))
-ax_indexes = [
+ax_indexes: list[tuple[int, int]] = [
     (0,0),
     (1,0),
     (0,1),
     (1,1)
 ]
 
-def _prep_plots(axs):
-    for i in range(len(ax_indexes)):
-        axs[ax_indexes[i]].cla()
-        axs[ax_indexes[i]].set_title("Pair {}".format(str(i+1)))
-        axs[ax_indexes[i]].grid()
-        axs[ax_indexes[i]].set(xlabel="Time (ns)")
-        axs[ax_indexes[i]].set(ylabel="Voltage (V)")
-        axs[ax_indexes[i]].set_ylim(-3, 3)
+def _prep_plots(axs: Mapping[tuple[int, int], Axes]):
+    for i, ax_index in enumerate(ax_indexes):
+        axs[ax_index].cla()
+        axs[ax_index].set_title("Pair {}".format(str(i+1)))
+        axs[ax_index].grid()
+        axs[ax_index].set(xlabel="Time")
+        axs[ax_index].set(ylabel="Voltage (V)")
+        axs[ax_index].set_ylim(-3, 3)
+        axs[ax_index].xaxis.set_major_formatter(EngFormatter(unit='s'))
 
 
 _prep_plots(axs)
@@ -117,7 +120,7 @@ canvas.draw()
 
 button_simulate = tkinter.Button(master=root, text="Simulate", command=update_simulation)
 
-label = tkinter.Label(master=root, text="Wpisz 28 bitow oddzielonych spacjami np.: 1 0 1 0 1 1 0 1 0 1 0 1 1 0 1 0 1 0 1 1 0 1 0 1 0 1 1 0")
+label = tkinter.Label(master=root, text="Wpisz 28 bitów oddzielonych spacjami np.: 1 0 1 0 1 1 0 1 0 1 0 1 1 0 1 0 1 0 1 1 0 1 0 1 0 1 1 0")
 label.pack(side=tkinter.TOP, fill='x')
 input_field.pack(side=tkinter.TOP, fill='x')
 button_simulate.pack(side=tkinter.TOP)
@@ -125,4 +128,3 @@ toolbar.pack(side=tkinter.BOTTOM, fill=tkinter.X)
 canvas.get_tk_widget().pack(side=tkinter.TOP, fill=tkinter.BOTH, expand=True)
 
 tkinter.mainloop()
-
