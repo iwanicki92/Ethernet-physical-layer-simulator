@@ -3,7 +3,12 @@ from typing import Literal, Union
 from PyQt5.QtWidgets import (QMessageBox, QApplication, QMainWindow,
                              QWidget,QPushButton, QLineEdit, QTextEdit,
                              QVBoxLayout, QHBoxLayout, QFormLayout, 
-                             QDockWidget, QTabWidget, QScrollArea)
+                             QDockWidget, QTabWidget, QScrollArea,
+                             QLabel, QSpinBox, QRadioButton, QFrame,
+                             QDoubleSpinBox
+                             )
+from PyQt5.QtCore import Qt
+
 import matplotlib
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 from matplotlib.ticker import EngFormatter
@@ -17,6 +22,50 @@ from reed_solomon import RS_Original
 
 matplotlib.use('QtAgg')
 
+class SimulationFormWidget(QFrame):
+    def __init__(self, label="1. Simulation params"):
+        super().__init__()
+        self.setFrameShape(QFrame.Box)
+        self.setLineWidth(1)
+
+        self.form = QWidget()
+        self.form_layout = QFormLayout(self.form)
+
+        self.label = QLabel(label)
+        self.values = QLineEdit()
+        self.form_layout.addRow(label, self.values)
+        
+        # Create six number inputs using QSpinBox
+        self.parameter_labels = [
+            {"label" : "Voltage offset", "type" : "float", "default": 0},
+            {"label" : "Output impedance", "type" : "float", "default": 100},
+            {"label" : "Length", "type" : "int", "default": 1},
+            {"label" : "Resistance", "type" : "float", "default": 0.188},
+            {"label" : "Inductance", "type" : "float", "default": 525},
+            {"label" : "Capacitance", "type" : "float", "default": 52},
+        ]
+        self.number_inputs = []
+        for i, parameter in enumerate(self.parameter_labels):
+            if parameter["type"] == "float":
+                self.number_inputs.append(QDoubleSpinBox())
+            elif parameter["type"] == "int":
+                self.number_inputs.append(QSpinBox())
+            self.number_inputs[i].setMaximum(1000)
+            self.number_inputs[i].setValue(parameter['default'])
+            self.form_layout.addRow(parameter['label'], self.number_inputs[i])
+
+        self.radio_button = QWidget()
+        self.radio_layout = QHBoxLayout()
+        self.option1 = QRadioButton("lossy")
+        self.option1.setChecked()
+        self.radio_layout.addWidget(self.option1)
+        self.radio_button.setLayout(self.radio_layout)
+        self.form_layout.addRow("Select an option:", self.radio_button)
+
+        self.frame_layout = QVBoxLayout(self)
+        self.frame_layout.addWidget(self.form)
+
+        print(f"Created SimulationFormWidget, label = {label}")
 
 class SimulatorCanvas(FigureCanvasQTAgg):
     def __init__(self):
@@ -36,8 +85,10 @@ class SimulatorCanvas(FigureCanvasQTAgg):
         self.axes = self.figure.add_subplot(111)
         self.axes.grid(True)
         self.draw()
+        print("Created canvas")
 
     def simulate(self, input, index):
+        print("Canvas simulating...")
         analysis = self.pair.simulate([
             int(symbol) for symbol in input.split()
             if symbol.removeprefix('-').isdecimal()
@@ -68,6 +119,7 @@ class SimulatorCanvas(FigureCanvasQTAgg):
         self.draw()
 
     def clear_plot(self):
+        print("Canvas clearing...")
         self.axes.cla()
         self.labels = []
 
@@ -81,6 +133,7 @@ class EthernetGuiApp(QMainWindow):
         self.rs = RS_Original(192, 186)
         self.conversion_state: Literal["text", "bytes"] = "text"
         self.tabs = [QWidget() for i in range(4)]
+        self.tp_simulation_forms = [SimulationFormWidget("1. Simulation parameters")]
 
     def init_ui(self):
         self.setWindowTitle("Simple Encoder/Decoder")
@@ -162,6 +215,7 @@ class EthernetGuiApp(QMainWindow):
         pass
 
     def init_twisted_pair(self):
+        self.tp_simulation_forms = [SimulationFormWidget("1. Simulation parameters")]
         self.tp_scroll_area = QScrollArea()
         self.tp_scroll_area.setWidgetResizable(True)
 
@@ -169,17 +223,16 @@ class EthernetGuiApp(QMainWindow):
         self.tp_params_widget = QWidget()
         self.tp_simulation_form = QFormLayout(self.tp_params_widget)
 
-        # Create and add multiple copies of self.simulation_input_field
-        self.tp_input_fields = [QLineEdit()]
-        self.tp_simulation_form.addRow(f"1. simulation parameters:", self.tp_input_fields[0])
-
         self.tp_add_button = QPushButton("Add")
         self.tp_simulation_form.addWidget(self.tp_add_button)
-        self.tp_add_button.clicked.connect(self.add_params)
+        self.tp_add_button.clicked.connect(self.add_simulation_form)
         
-        simulate_button = QPushButton("Simulate")
-        self.tp_simulation_form.addWidget(simulate_button)
-        simulate_button.clicked.connect(self.simulate)
+        self.tp_simulate_button = QPushButton("Simulate")
+        self.tp_simulation_form.addWidget(self.tp_simulate_button)
+        self.tp_simulate_button.clicked.connect(self.simulate)
+
+        for i, sim_form in enumerate(self.tp_simulation_forms):
+            self.tp_simulation_form.insertRow(i, sim_form)
 
         # Set the widget for the scroll area
         self.tp_scroll_area.setWidget(self.tp_params_widget)
@@ -191,17 +244,19 @@ class EthernetGuiApp(QMainWindow):
         self.tp_canvas = SimulatorCanvas()
         self.content_layout.addWidget(self.tp_canvas)
 
-    def add_params(self):
-        self.tp_input_fields.append(QLineEdit())
-        input_index = len(self.tp_input_fields)
-        self.tp_simulation_form.insertRow(input_index - 1, f"{input_index}. simulation parameters:", self.tp_input_fields[-1])
+    def add_simulation_form(self):
+        index = len(self.tp_simulation_forms)
+        self.tp_simulation_forms.append(SimulationFormWidget(f"{index + 1}. Simulation parameters"))
+        self.tp_simulation_form.insertRow(index, self.tp_simulation_forms[-1])
+        
+        # self.tp_simulation_form.insertRow(input_index - 1, f"{input_index}. simulation parameters:", self.tp_simulation_forms[-1])
 
     def simulate(self):
         print("Simulating...")
         self.tp_canvas.clear_plot()
-        for i in range(len(self.tp_input_fields)):
-            tp_input = self.tp_input_fields[i]
-            simulator_parameters = tp_input.text()
+        for i in range(len(self.tp_simulation_forms)):
+            simulation_form = self.tp_simulation_forms[i]
+            simulator_parameters = simulation_form.text_input.text()
             try:
                 self.tp_canvas.simulate(simulator_parameters, i + 1)
             except Exception as ex:
