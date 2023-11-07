@@ -8,7 +8,7 @@ from PySpice.Spice.Netlist import Circuit
 from PySpice.Unit import *
 from PySpice.Unit.Unit import UnitValue  # pylint: disable=unused-wildcard-import, wildcard-import
 
-from phyether.dac import DAC
+from dac import DAC
 
 Logging.setup_logging(logging_level='DEBUG')
 

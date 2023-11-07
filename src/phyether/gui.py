@@ -2,17 +2,17 @@ import sys
 from typing import Literal, Union
 from PyQt5.QtWidgets import (QMessageBox, QApplication, QMainWindow,
                              QWidget,QPushButton, QLineEdit, QTextEdit,
-                             QVBoxLayout, QHBoxLayout, QFormLayout)
+                             QVBoxLayout, QHBoxLayout, QFormLayout, QDockWidget, QTabWidget)
 import matplotlib
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 from matplotlib.ticker import EngFormatter
 
 from PySpice.Probe.WaveForm import WaveForm
-from phyether.dac import DAC
-from phyether.twisted_pair import TwistedPair
+from dac import DAC
+from twisted_pair import TwistedPair
 
-from phyether.util import iterable_to_string, string_to_list
-from phyether.reed_solomon import RS_Original
+from util import iterable_to_string, string_to_list
+from reed_solomon import RS_Original
 
 matplotlib.use('QtAgg')
 
@@ -75,6 +75,7 @@ class EthernetGuiApp(QMainWindow):
         self.output_message = ""
         self.rs = RS_Original(192, 186)
         self.conversion_state: Literal["text", "bytes"] = "text"
+        self.tabs = [QWidget() for i in range(4)]
 
     def init_ui(self):
         self.setWindowTitle("Simple Encoder/Decoder")
@@ -83,27 +84,54 @@ class EthernetGuiApp(QMainWindow):
         central_widget = QWidget(self)
         self.setCentralWidget(central_widget)
 
-        # Vertical layout to stack elements vertically
-        main_layout = QVBoxLayout(central_widget)
+        self.main_layout = QVBoxLayout(central_widget)
+        self.change_tab(0)
 
-        # Top layout for the existing elements (input, buttons, output)
+    def clear_main_layout(self, index=0):
+        central_widget = QWidget(self)
+        self.setCentralWidget(central_widget)
+        self.main_layout = QVBoxLayout(central_widget)
+
+        self.tabs = [QWidget() for i in range(4)]
+        self.tab_widget = QTabWidget()
+        self.tab_widget.addTab(self.tabs[0], "Reed-Solomon")
+        self.tab_widget.addTab(self.tabs[1], "PAM16")
+        self.tab_widget.addTab(self.tabs[2], "PAM")
+        self.tab_widget.addTab(self.tabs[3], "Twisted-pair simulation")
+
+        self.content_layout = QVBoxLayout(self.tabs[index])
+        self.tab_widget.setCurrentIndex(index)
+        self.tab_widget.currentChanged.connect(self.change_tab)
+        self.main_layout.addWidget(self.tab_widget)
+
+    def change_tab(self, index):
+        print("Changed tab:", index)
+        self.clear_main_layout(index)
+        if index == 0:
+            self.init_reed_solomon()
+        elif index == 1:
+            self.init_pam16()
+        elif index == 2:
+            self.init_pam()
+        elif index == 3:
+            self.init_twisted_pair()
+
+    def init_reed_solomon(self):
         top_layout = QHBoxLayout()
-
-        # Left side - inputs
         input_form = QFormLayout()
         self.input_text_field = QTextEdit()
         input_form.addRow("Input:", self.input_text_field)
 
         # Center - buttons
         button_layout = QVBoxLayout()
-        encode_button = QPushButton("Encode")
+        self.encode_button = QPushButton("Encode")
         self.convert_button = QPushButton("Convert text -> bytes")
-        decode_button = QPushButton("Decode")
-        button_layout.addWidget(encode_button)
+        self.decode_button = QPushButton("Decode")
+        button_layout.addWidget(self.encode_button)
         button_layout.addSpacing(-75)
         button_layout.addWidget(self.convert_button)
         button_layout.addSpacing(-75)
-        button_layout.addWidget(decode_button)
+        button_layout.addWidget(self.decode_button)
 
         # Right side - output
         self.output_text_field = QTextEdit()
@@ -112,10 +140,23 @@ class EthernetGuiApp(QMainWindow):
         top_layout.addLayout(button_layout)
         top_layout.addWidget(self.output_text_field)
 
-        # Add the top layout and the new widget to the main layout
-        main_layout.addLayout(top_layout)
+        # Buttons
+        self.encode_button.clicked.connect(self.encode)
+        self.convert_button.clicked.connect(self.convert)
+        self.decode_button.clicked.connect(self.decode)
 
-        # Simulator below
+        # Add the top layout and the new widget to the main layout
+        self.content_layout.addLayout(top_layout)
+
+    def init_pam16(self):
+        self.pam_input_field = QLineEdit()
+        pam16_form = QFormLayout()
+        pam16_form.addRow("PAM16 parameters:", self.pam_input_field)
+
+    def init_pam(self):
+        pass
+
+    def init_twisted_pair(self):
         self.simulation_input_field = QLineEdit()
         simulation_form = QFormLayout()
         simulation_form.addRow("Simulation parameters:", self.simulation_input_field)
@@ -125,14 +166,9 @@ class EthernetGuiApp(QMainWindow):
         simulate_button.clicked.connect(self.simulate)
 
         self.canvas = SimulatorCanvas()
-        main_layout.addWidget(self.canvas)
+        self.content_layout.addWidget(self.canvas)
 
-        main_layout.addLayout(simulation_form)
-
-        # Connect the buttons to their respective functions
-        encode_button.clicked.connect(self.encode)
-        self.convert_button.clicked.connect(self.convert)
-        decode_button.clicked.connect(self.decode)
+        self.content_layout.addLayout(simulation_form)
 
     def simulate(self):
         print("Simulating...")
