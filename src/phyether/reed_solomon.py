@@ -5,7 +5,7 @@ from galois import Array, GF, Poly, ReedSolomon, lagrange_poly
 import numpy as np
 from numpy.linalg import LinAlgError
 
-from util import iterable_to_string, string_to_bytes, string_to_list
+from phyether.util import iterable_to_string, string_to_bytes, string_to_list
 
 
 class RS_Original:

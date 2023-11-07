@@ -1,8 +1,10 @@
+from collections import namedtuple
+from dataclasses import dataclass
 import sys
-from typing import Literal, Union
+from typing import Literal, NamedTuple, TypedDict, Union
 from PyQt5.QtWidgets import (QMessageBox, QApplication, QMainWindow,
                              QWidget,QPushButton, QLineEdit, QTextEdit,
-                             QVBoxLayout, QHBoxLayout, QFormLayout, 
+                             QVBoxLayout, QHBoxLayout, QFormLayout,
                              QDockWidget, QTabWidget, QScrollArea,
                              QLabel, QSpinBox, QRadioButton, QFrame,
                              QDoubleSpinBox
@@ -14,11 +16,11 @@ from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 from matplotlib.ticker import EngFormatter
 
 from PySpice.Probe.WaveForm import WaveForm
-from dac import DAC
-from twisted_pair import TwistedPair
+from phyether.dac import DAC
+from phyether.twisted_pair import TwistedPair
 
-from util import iterable_to_string, string_to_list
-from reed_solomon import RS_Original
+from phyether.util import iterable_to_string, string_to_list
+from phyether.reed_solomon import RS_Original
 
 matplotlib.use('QtAgg')
 
@@ -34,9 +36,14 @@ class SimulationFormWidget(QFrame):
         self.label = QLabel(label)
         self.values = QLineEdit()
         self.form_layout.addRow(label, self.values)
-        
+
+        class Parameters(TypedDict):
+            label: str
+            type: str
+            default: object
+
         # Create six number inputs using QSpinBox
-        self.parameter_labels = [
+        self.parameter_labels: list[Parameters] = [
             {"label" : "Voltage offset", "type" : "float", "default": 0},
             {"label" : "Output impedance", "type" : "float", "default": 100},
             {"label" : "Length", "type" : "int", "default": 1},
@@ -44,7 +51,7 @@ class SimulationFormWidget(QFrame):
             {"label" : "Inductance", "type" : "float", "default": 525},
             {"label" : "Capacitance", "type" : "float", "default": 52},
         ]
-        self.number_inputs = []
+        self.number_inputs: list[QWidget] = []
         for i, parameter in enumerate(self.parameter_labels):
             if parameter["type"] == "float":
                 self.number_inputs.append(QDoubleSpinBox())
@@ -78,7 +85,8 @@ class SimulatorCanvas(FigureCanvasQTAgg):
             resistance=0.5,
             inductance=400,
             capacitance=70,
-            transmission_type='lossy'
+            transmission_type='lossy',
+            name="pair"
             )
 
         self.labels = []
@@ -133,7 +141,7 @@ class EthernetGuiApp(QMainWindow):
         self.rs = RS_Original(192, 186)
         self.conversion_state: Literal["text", "bytes"] = "text"
         self.tabs = [QWidget() for i in range(4)]
-        self.tp_simulation_forms = [SimulationFormWidget("1. Simulation parameters")]
+        self.tp_simulation_forms = [SimulationFormWidget("1. Simulation signals")]
 
     def init_ui(self):
         self.setWindowTitle("Simple Encoder/Decoder")
@@ -226,7 +234,7 @@ class EthernetGuiApp(QMainWindow):
         self.tp_add_button = QPushButton("Add")
         self.tp_simulation_form.addWidget(self.tp_add_button)
         self.tp_add_button.clicked.connect(self.add_simulation_form)
-        
+
         self.tp_simulate_button = QPushButton("Simulate")
         self.tp_simulation_form.addWidget(self.tp_simulate_button)
         self.tp_simulate_button.clicked.connect(self.simulate)
@@ -248,7 +256,7 @@ class EthernetGuiApp(QMainWindow):
         index = len(self.tp_simulation_forms)
         self.tp_simulation_forms.append(SimulationFormWidget(f"{index + 1}. Simulation parameters"))
         self.tp_simulation_form.insertRow(index, self.tp_simulation_forms[-1])
-        
+
         # self.tp_simulation_form.insertRow(input_index - 1, f"{input_index}. simulation parameters:", self.tp_simulation_forms[-1])
 
     def simulate(self):

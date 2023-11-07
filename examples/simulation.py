@@ -18,7 +18,7 @@ root.wm_title("Simulation")
 root.bind("<Escape>", lambda _: root.destroy())
 
 main.init()
-pair = TwistedPair(dac=DAC(1, 3, 4), output_impedance=85, length=50, resistance=0.5, transmission_type='lossy')
+pair = TwistedPair(dac=DAC(1, 3, 4), output_impedance=85, length=50, resistance=0.5, transmission_type='lossy', name="pair")
 
 fig = plt.figure(figsize=(18, 6))
 canvas = FigureCanvasTkAgg(fig, master=root)  # A tk.DrawingArea
