@@ -57,7 +57,7 @@ class SimulationFormWidget(QFrame):
         self.radio_button = QWidget()
         self.radio_layout = QHBoxLayout()
         self.option1 = QRadioButton("lossy")
-        self.option1.setChecked()
+        self.option1.setChecked(True)
         self.radio_layout.addWidget(self.option1)
         self.radio_button.setLayout(self.radio_layout)
         self.form_layout.addRow("Select an option:", self.radio_button)
@@ -256,7 +256,7 @@ class EthernetGuiApp(QMainWindow):
         self.tp_canvas.clear_plot()
         for i in range(len(self.tp_simulation_forms)):
             simulation_form = self.tp_simulation_forms[i]
-            simulator_parameters = simulation_form.text_input.text()
+            simulator_parameters = simulation_form.values.text()
             try:
                 self.tp_canvas.simulate(simulator_parameters, i + 1)
             except Exception as ex:
