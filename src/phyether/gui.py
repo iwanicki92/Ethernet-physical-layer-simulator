@@ -50,8 +50,6 @@ class SimulatorCanvas(FigureCanvasQTAgg):
         vx_in_transformed = analysis.time[
             analysis.time<(analysis.time[-1] - self.pair.transmission_delay)
             ]
-
-        self.axes.cla()
         self.axes.plot(
             vx_in_transformed,
             v_in[:len(vx_in_transformed)],
@@ -66,6 +64,8 @@ class SimulatorCanvas(FigureCanvasQTAgg):
         self.axes.legend(['v(in+, in-)', 'v(out+, out-)'], loc='upper right')
         self.draw()
 
+    def clear_plot(self):
+        self.axes.cla()
 
 class EthernetGuiApp(QMainWindow):
     def __init__(self):
@@ -189,12 +189,12 @@ class EthernetGuiApp(QMainWindow):
 
     def add_params(self):
         self.tp_input_fields.append(QLineEdit())
-        # self.tp_simulation_form.addRow(f"Simulation parameters:", self.tp_input_fields[-1])
         input_index = len(self.tp_input_fields)
         self.tp_simulation_form.insertRow(input_index - 1, f"{input_index}. simulation parameters:", self.tp_input_fields[-1])
 
     def simulate(self):
         print("Simulating...")
+        self.tp_canvas.clear_plot()
         for tp_input in self.tp_input_fields:
             simulator_parameters = tp_input.text()
             try:
