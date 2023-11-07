@@ -2,7 +2,8 @@ import sys
 from typing import Literal, Union
 from PyQt5.QtWidgets import (QMessageBox, QApplication, QMainWindow,
                              QWidget,QPushButton, QLineEdit, QTextEdit,
-                             QVBoxLayout, QHBoxLayout, QFormLayout, QDockWidget, QTabWidget)
+                             QVBoxLayout, QHBoxLayout, QFormLayout, 
+                             QDockWidget, QTabWidget, QScrollArea)
 import matplotlib
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 from matplotlib.ticker import EngFormatter
@@ -157,26 +158,49 @@ class EthernetGuiApp(QMainWindow):
         pass
 
     def init_twisted_pair(self):
-        self.simulation_input_field = QLineEdit()
-        simulation_form = QFormLayout()
-        simulation_form.addRow("Simulation parameters:", self.simulation_input_field)
+        self.tp_scroll_area = QScrollArea()
+        self.tp_scroll_area.setWidgetResizable(True)
 
+        # Create a widget to hold your simulation parameters
+        self.tp_params_widget = QWidget()
+        self.tp_simulation_form = QFormLayout(self.tp_params_widget)
+
+        # Create and add multiple copies of self.simulation_input_field
+        self.tp_input_fields = [QLineEdit()]
+        self.tp_simulation_form.addRow(f"1. simulation parameters:", self.tp_input_fields[0])
+
+        self.tp_add_button = QPushButton("Add")
+        self.tp_simulation_form.addWidget(self.tp_add_button)
+        self.tp_add_button.clicked.connect(self.add_params)
+        
         simulate_button = QPushButton("Simulate")
-        simulation_form.addWidget(simulate_button)
+        self.tp_simulation_form.addWidget(simulate_button)
         simulate_button.clicked.connect(self.simulate)
 
-        self.canvas = SimulatorCanvas()
-        self.content_layout.addWidget(self.canvas)
+        # Set the widget for the scroll area
+        self.tp_scroll_area.setWidget(self.tp_params_widget)
 
-        self.content_layout.addLayout(simulation_form)
+        # Add the scroll area to the content layout
+        self.content_layout.addWidget(self.tp_scroll_area)
+
+        # Add your canvas
+        self.tp_canvas = SimulatorCanvas()
+        self.content_layout.addWidget(self.tp_canvas)
+
+    def add_params(self):
+        self.tp_input_fields.append(QLineEdit())
+        # self.tp_simulation_form.addRow(f"Simulation parameters:", self.tp_input_fields[-1])
+        input_index = len(self.tp_input_fields)
+        self.tp_simulation_form.insertRow(input_index - 1, f"{input_index}. simulation parameters:", self.tp_input_fields[-1])
 
     def simulate(self):
         print("Simulating...")
-        simulator_parameters = self.simulation_input_field.text()
-        try:
-            self.canvas.simulate(simulator_parameters)
-        except Exception as ex:
-            self.create_msg_box(f"Simulation failed: {ex}", "Simulation error!")
+        for tp_input in self.tp_input_fields:
+            simulator_parameters = tp_input.text()
+            try:
+                self.tp_canvas.simulate(simulator_parameters)
+            except Exception as ex:
+                self.create_msg_box(f"Simulation failed: {ex}", "Simulation error!")
 
     def create_msg_box(self, text, title):
         msg_box = QMessageBox()
