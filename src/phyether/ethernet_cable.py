@@ -56,7 +56,7 @@ class EthernetCable:
         self.B = TwistedPair(**kwargs, name="B")
         self.C = TwistedPair(**kwargs, name="C")
         self.D = TwistedPair(**kwargs, name="D")
-        self.pairs = {self.A, self.B, self.C, self.D}
+        self.pairs = [self.A, self.B, self.C, self.D]
         self.transmission_delay = self.A.delay
         for pair in self.pairs:
             self.circuit.subcircuit(pair)

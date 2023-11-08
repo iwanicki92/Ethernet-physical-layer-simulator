@@ -1,7 +1,5 @@
-from collections import namedtuple
-from dataclasses import dataclass
 import sys
-from typing import Literal, NamedTuple, TypedDict, Union
+from typing import Literal, TypedDict, Union, cast
 from PyQt5.QtWidgets import (QMessageBox, QApplication, QMainWindow,
                              QWidget,QPushButton, QLineEdit, QTextEdit,
                              QVBoxLayout, QHBoxLayout, QFormLayout,
@@ -9,15 +7,18 @@ from PyQt5.QtWidgets import (QMessageBox, QApplication, QMainWindow,
                              QLabel, QSpinBox, QRadioButton, QFrame,
                              QDoubleSpinBox
                              )
-from PyQt5.QtCore import Qt
 
 import matplotlib
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 from matplotlib.ticker import EngFormatter
 
 from PySpice.Probe.WaveForm import WaveForm
+import numpy
+
+from numpy.typing import NDArray
+
 from phyether.dac import DAC
-from phyether.twisted_pair import TwistedPair
+from phyether.ethernet_cable import EthernetCable
 
 from phyether.util import iterable_to_string, string_to_list
 from phyether.reed_solomon import RS_Original
@@ -25,7 +26,7 @@ from phyether.reed_solomon import RS_Original
 matplotlib.use('QtAgg')
 
 class SimulationFormWidget(QFrame):
-    def __init__(self, label="1. Simulation params"):
+    def __init__(self, label="Simulation parameters", index = 1):
         super().__init__()
         self.setFrameShape(QFrame.Box)
         self.setLineWidth(1)
@@ -33,9 +34,7 @@ class SimulationFormWidget(QFrame):
         self.form = QWidget()
         self.form_layout = QFormLayout(self.form)
 
-        self.label = QLabel(label)
-        self.values = QLineEdit()
-        self.form_layout.addRow(label, self.values)
+        self.form_layout.addRow(QLabel(f'{index}. {label}'))
 
         class Parameters(TypedDict):
             label: str
@@ -78,58 +77,67 @@ class SimulatorCanvas(FigureCanvasQTAgg):
     def __init__(self):
         super().__init__()
 
-        self.pair = TwistedPair(
+        self.cable = EthernetCable(
             dac=DAC(1, 3, 4),
-            output_impedance=90,
+            output_impedance=85,
             length=50,
             resistance=0.5,
             inductance=400,
             capacitance=70,
-            transmission_type='lossy',
-            name="pair"
+            transmission_type='lossy'
             )
 
-        self.labels = []
-        self.axes = self.figure.add_subplot(111)
-        self.axes.grid(True)
+        self.axes: NDArray = cast(NDArray, self.figure.subplots(4, 1, sharex=True, sharey=False))
+        self.figure.text(0.5, 0.04, 'Time', ha='center')
+        self.figure.text(0.04, 0.5, 'Voltage (V)', va='center', rotation='vertical')
+        for i in range(4):
+            self.axes[i].grid(True)
         self.draw()
         print("Created canvas")
 
-    def simulate(self, input, index):
+    def simulate(self, input: dict[str, str], index: int):
         print("Canvas simulating...")
-        analysis = self.pair.simulate([
-            int(symbol) for symbol in input.split()
-            if symbol.removeprefix('-').isdecimal()
-            ], 3)
-        v_in: WaveForm = analysis['vin+'] - analysis['vin-']
-        v_out: WaveForm = analysis['vout+'] - analysis['vout-']
+        pair_input: dict[str, list[int]] = {}
+        for pair in ['A', 'B', 'C', 'D']:
+            pair_input[pair] = [int(symbol)
+                                for symbol in input[pair].split()
+                                if symbol.removeprefix('-').isdecimal()]
 
-        vx_out_transformed = analysis.time - self.pair.transmission_delay
-        vx_out_transformed = vx_out_transformed[vx_out_transformed>=0]
-        # trim v_in where nothing happens after shifting v_out
-        vx_in_transformed = analysis.time[
-            analysis.time<(analysis.time[-1] - self.pair.transmission_delay)
-            ]
-        self.axes.plot(
-            vx_in_transformed,
-            v_in[:len(vx_in_transformed)],
-            vx_out_transformed,
-            v_out[-len(vx_out_transformed):]
+        analysis = self.cable.simulate((pair_input['A'],
+                                        pair_input['B'],
+                                        pair_input['C'],
+                                        pair_input['D']), 0)
+
+        for index, pair in enumerate(['A', 'B', 'C', 'D']):
+            v_in: WaveForm = analysis[f'{pair}_vin+'] - analysis[f'{pair}_vin-']
+            v_out: WaveForm = analysis[f'{pair}_vout+'] - analysis[f'{pair}_vout-']
+
+            vx_out_transformed = cast(numpy.ndarray, analysis.time - self.cable.transmission_delay)
+            vx_out_transformed = vx_out_transformed[vx_out_transformed>=0]
+            # trim v_in where nothing happens after shifting v_out
+            vx_in_transformed = analysis.time[
+                analysis.time<(analysis.time[-1] - self.cable.transmission_delay)]
+
+            self.axes[index].plot(
+                vx_in_transformed,
+                v_in[:len(vx_in_transformed)],
+                'blue',
+                vx_out_transformed,
+                v_out[-len(vx_out_transformed):],
+                'red'
             )
-        self.axes.xaxis.set_major_formatter(EngFormatter(unit='s'))
 
-        self.axes.set_xlabel('Time')
-        self.axes.set_ylabel('Voltage (V)')
-        self.axes.grid(True)
-        self.labels.append(f'{index}. v(in+, in-)')
-        self.labels.append(f'{index}. v(out+, out-)')
-        self.axes.legend(self.labels, loc='upper right')
         self.draw()
 
     def clear_plot(self):
         print("Canvas clearing...")
-        self.axes.cla()
-        self.labels = []
+        for ax_index, pair in enumerate(['A', 'B', 'C', 'D']):
+            self.axes[ax_index].cla()
+            self.axes[ax_index].text(0, 1, f"Pair {pair}")
+            self.axes[ax_index].grid()
+            self.axes[ax_index].set_ylim(-3, 3)
+            self.axes[ax_index].xaxis.set_major_formatter(EngFormatter(unit='s'))
+            self.axes[ax_index].legend(['v(in+, in-)', 'v(out+, out-)'], loc='upper right')
 
 class EthernetGuiApp(QMainWindow):
     def __init__(self):
@@ -141,7 +149,7 @@ class EthernetGuiApp(QMainWindow):
         self.rs = RS_Original(192, 186)
         self.conversion_state: Literal["text", "bytes"] = "text"
         self.tabs = [QWidget() for i in range(4)]
-        self.tp_simulation_forms = [SimulationFormWidget("1. Simulation signals")]
+        self.tp_simulation_forms = [SimulationFormWidget("Simulation parameters", 1)]
 
     def init_ui(self):
         self.setWindowTitle("Simple Encoder/Decoder")
@@ -223,7 +231,7 @@ class EthernetGuiApp(QMainWindow):
         pass
 
     def init_twisted_pair(self):
-        self.tp_simulation_forms = [SimulationFormWidget("1. Simulation parameters")]
+        self.tp_simulation_forms = [SimulationFormWidget("Simulation parameters", 1)]
         self.tp_scroll_area = QScrollArea()
         self.tp_scroll_area.setWidgetResizable(True)
 
@@ -235,10 +243,6 @@ class EthernetGuiApp(QMainWindow):
         self.tp_simulation_form.addWidget(self.tp_add_button)
         self.tp_add_button.clicked.connect(self.add_simulation_form)
 
-        self.tp_simulate_button = QPushButton("Simulate")
-        self.tp_simulation_form.addWidget(self.tp_simulate_button)
-        self.tp_simulate_button.clicked.connect(self.simulate)
-
         for i, sim_form in enumerate(self.tp_simulation_forms):
             self.tp_simulation_form.insertRow(i, sim_form)
 
@@ -248,13 +252,23 @@ class EthernetGuiApp(QMainWindow):
         # Add the scroll area to the content layout
         self.content_layout.addWidget(self.tp_scroll_area)
 
+        self.values: dict[str, QLineEdit] = {}
+        for pair in ['A', 'B', 'C', 'D']:
+            self.values[pair] = QLineEdit()
+            self.content_layout.addWidget(QLabel(f"Pair {pair} signals"))
+            self.content_layout.addWidget(self.values[pair])
+
+        self.tp_simulate_button = QPushButton("Simulate")
+        self.content_layout.addWidget(self.tp_simulate_button)
+        self.tp_simulate_button.clicked.connect(self.simulate)
+
         # Add your canvas
         self.tp_canvas = SimulatorCanvas()
         self.content_layout.addWidget(self.tp_canvas)
 
     def add_simulation_form(self):
         index = len(self.tp_simulation_forms)
-        self.tp_simulation_forms.append(SimulationFormWidget(f"{index + 1}. Simulation parameters"))
+        self.tp_simulation_forms.append(SimulationFormWidget("Simulation parameters", index + 1))
         self.tp_simulation_form.insertRow(index, self.tp_simulation_forms[-1])
 
         # self.tp_simulation_form.insertRow(input_index - 1, f"{input_index}. simulation parameters:", self.tp_simulation_forms[-1])
@@ -262,11 +276,10 @@ class EthernetGuiApp(QMainWindow):
     def simulate(self):
         print("Simulating...")
         self.tp_canvas.clear_plot()
-        for i in range(len(self.tp_simulation_forms)):
-            simulation_form = self.tp_simulation_forms[i]
-            simulator_parameters = simulation_form.values.text()
+        simulator_signals = {pair: qline.text() for pair, qline in self.values.items()}
+        for i, form in enumerate(self.tp_simulation_forms):
             try:
-                self.tp_canvas.simulate(simulator_parameters, i + 1)
+                self.tp_canvas.simulate(simulator_signals, i + 1)
             except Exception as ex:
                 self.create_msg_box(f"Simulation failed: {ex}", "Simulation error!")
 
