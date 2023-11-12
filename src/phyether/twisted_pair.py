@@ -13,7 +13,7 @@ from phyether.dac import DAC
 Logging.setup_logging(logging_level='DEBUG')
 
 class TwistedPair(SubCircuit):
-    __nodes__ = ('vin+', 'vin-', 'vout+', 'vout-', 'offset')
+    __nodes__ = ('vin+', 'vin-', 'vout+', 'vout-', 'offset+')
 
     @property
     def delay(self):
@@ -28,7 +28,7 @@ class TwistedPair(SubCircuit):
                  inductance: float = 525,
                  capacitance: float = 52,
                  transmission_type: Literal['lossy'],
-                 name: str
+                 name: str = "pair"
                  ) -> None:
         """Lossy transmission line
 
@@ -50,7 +50,7 @@ class TwistedPair(SubCircuit):
                  characteristic_impedance: float = 100,
                  transmission_delay: float = 5,
                  transmission_type: Literal['lossless'],
-                 name: str
+                 name: str = "pair"
                  ) -> None:
         """Losseless transmission line
 
@@ -71,7 +71,7 @@ class TwistedPair(SubCircuit):
                  capacitance: Optional[float] = 52,
                  transmission_delay: Optional[float] = 5,
                  transmission_type: Literal['lossy', 'lossless'],
-                 name: str
+                 name: str = "pair"
                  ) -> None:
         SubCircuit.__init__(self, name, *self.__nodes__)
         self.dac = dac
@@ -90,7 +90,7 @@ class TwistedPair(SubCircuit):
                 impedance=u_Ohm(characteristic_impedance),
                 time_delay=self.transmission_delay)
         self.R('res+', 'vin+', 'offset+', u_GOhm(1000))
-        self.R('res-', 'vin-', 'offset+', u_GOhm(1000))
+        self.R('res-', 'offset+', 'vin-', u_GOhm(1000))
 
     def _get_pwl(self, data: Iterable[int],
                  presimulation_ratio: int
