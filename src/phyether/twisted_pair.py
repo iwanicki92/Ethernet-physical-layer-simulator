@@ -28,7 +28,7 @@ class TwistedPair(SubCircuit):
                  inductance: float = 525,
                  capacitance: float = 52,
                  transmission_type: Literal['lossy'],
-                 name: str
+                 name: str = "pair"
                  ) -> None:
         """Lossy transmission line
 
@@ -50,7 +50,7 @@ class TwistedPair(SubCircuit):
                  characteristic_impedance: float = 100,
                  transmission_delay: float = 5,
                  transmission_type: Literal['lossless'],
-                 name: str
+                 name: str = "pair"
                  ) -> None:
         """Losseless transmission line
 
@@ -71,7 +71,7 @@ class TwistedPair(SubCircuit):
                  capacitance: Optional[float] = 52,
                  transmission_delay: Optional[float] = 5,
                  transmission_type: Literal['lossy', 'lossless'],
-                 name: str
+                 name: str = "pair"
                  ) -> None:
         SubCircuit.__init__(self, name, *self.__nodes__)
         self.dac = dac

@@ -18,8 +18,8 @@ import numpy
 
 from phyether.dac import DAC
 from phyether.gui.util import DoubleSpinBoxNoWheel, SpinBoxNoWheel
+from phyether.twisted_pair import TwistedPair
 from phyether.util import DictMapping
-from phyether.ethernet_cable import EthernetCable
 
 matplotlib.use('QtAgg')
 
@@ -39,7 +39,7 @@ class SimulationInitArgs(DictMapping):
 
 @define(kw_only=True, slots=False)
 class SimulationRunArgs(DictMapping):
-    presimulation_ratio: int = 0
+    presimulation_ratio: int = 2
     voltage_offset: int = 0
 
 
@@ -58,20 +58,13 @@ class PairSimulation(QObject):
     @pyqtSlot()
     def simulate(self):
         print("Canvas simulating...")
-        cable = EthernetCable(**self.init_args)
-        pair_input: dict[str, list[int]] = {}
-        for pair in ['A', 'B', 'C', 'D']:
-            pair_input[pair] = [int(symbol)
-                                for symbol in self.input.split()
+        twisted_pair = TwistedPair(**self.init_args)
+        symbols = [int(symbol) for symbol in self.input.split()
                                 if symbol.removeprefix('-').isdecimal()]
 
         try:
-            analysis = cable.simulate(
-                (pair_input['A'], pair_input['A'],
-                pair_input['A'], pair_input['A']),
-                presimulation_ratio=0, voltage_offset=0
-                )
-            self.simulation_signal.emit(analysis, cable.transmission_delay)
+            analysis = twisted_pair.simulate(symbols, **self.run_args)
+            self.simulation_signal.emit(analysis, twisted_pair.transmission_delay)
         except Exception:
             self.error_signal.emit()
 
@@ -142,8 +135,8 @@ class SimulatorCanvas(FigureCanvasQTAgg):
         self.thread: QThread = QThread(self)
 
     def draw_plot(self, analysis: TransientAnalysis, transmission_delay: float):
-        v_in: WaveForm = analysis['A_vin+'] - analysis['A_vin-']
-        v_out: WaveForm = analysis['A_vout+'] - analysis['A_vout-']
+        v_in: WaveForm = analysis['vin+'] - analysis['vin-']
+        v_out: WaveForm = analysis['vout+'] - analysis['vout-']
 
         vx_out_transformed = cast(numpy.ndarray, analysis.time - transmission_delay)
         vx_out_transformed = vx_out_transformed[vx_out_transformed>=0]

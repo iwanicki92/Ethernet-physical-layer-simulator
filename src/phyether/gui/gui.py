@@ -164,7 +164,7 @@ class EthernetGuiApp(QMainWindow):
                                           capacitance=args["capacitance"])
 
                 self.tp_canvas.simulate(self.simulator_signals.text(), i + 1, init,
-                    SimulationRunArgs(presimulation_ratio=0, voltage_offset=args["voltage_offset"]) # type: ignore
+                    SimulationRunArgs(voltage_offset=args["voltage_offset"]) # type: ignore
                 )
             except Exception as ex:
                 self.create_msg_box(f"Simulation failed: {ex}", "Simulation error!")
