@@ -1,4 +1,5 @@
-from typing import Iterable, Sequence
+import random
+from typing import Iterable, Optional, Sequence
 
 from PySpice.Unit import *
 from PySpice.Unit.Unit import UnitValue  # pylint: disable=unused-wildcard-import, wildcard-import
@@ -68,3 +69,9 @@ class DAC:
         pwl.append((time, u_V(0)))
 
         return pwl
+
+    def random_signals(self, number_of_signals: int) -> list[int]:
+            return random.choices(
+                self.possible_symbols,
+                k=number_of_signals - 1
+                ) + [0]
