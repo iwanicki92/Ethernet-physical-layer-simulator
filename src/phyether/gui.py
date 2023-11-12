@@ -1,5 +1,9 @@
 import sys
 from typing import Literal, TypedDict, Union, cast
+from PySpice.Spice.NgSpice.Shared import NgSpiceCommandError
+from attr import define
+
+from PyQt5.QtCore import QObject, QThread, pyqtSlot, pyqtSignal
 from PyQt5.QtWidgets import (QMessageBox, QApplication, QMainWindow,
                              QWidget,QPushButton, QLineEdit, QTextEdit,
                              QVBoxLayout, QHBoxLayout, QFormLayout,
@@ -8,22 +12,76 @@ from PyQt5.QtWidgets import (QMessageBox, QApplication, QMainWindow,
                              QDoubleSpinBox
                              )
 
+
 import matplotlib
+from matplotlib.axes import Axes
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 from matplotlib.ticker import EngFormatter
 
-from PySpice.Probe.WaveForm import WaveForm
-import numpy
+from PySpice.Probe.WaveForm import TransientAnalysis, WaveForm
 
-from numpy.typing import NDArray
+import numpy
 
 from phyether.dac import DAC
 from phyether.ethernet_cable import EthernetCable
 
-from phyether.util import iterable_to_string, string_to_list
+from phyether.util import DictMapping, iterable_to_string, string_to_list
 from phyether.reed_solomon import RS_Original
 
 matplotlib.use('QtAgg')
+
+
+@define(kw_only=True, slots=False)
+class SimulationInitArgs(DictMapping):
+    dac: DAC
+    transmission_type: Literal['lossy', 'lossless']
+    output_impedance: float = 100
+    characteristic_impedance: float = 100
+    length: int = 1
+    resistance: float = 0.188
+    inductance: float = 525
+    capacitance: float = 52
+    transmission_delay: float = 5
+
+
+@define(kw_only=True, slots=False)
+class SimulationRunArgs(DictMapping):
+    presimulation_ratio: int = 0
+    voltage_offset: int = 0
+
+
+class PairSimulation(QObject):
+    simulation_signal = pyqtSignal(TransientAnalysis, float)
+    error_signal = pyqtSignal()
+
+    def __init__(self, init_args: SimulationInitArgs,
+                 run_args: SimulationRunArgs,
+                 input: str) -> None:
+        super().__init__()
+        self.init_args = init_args
+        self.run_args = run_args
+        self.input = input
+
+    @pyqtSlot()
+    def simulate(self):
+        print("Canvas simulating...")
+        cable = EthernetCable(**self.init_args)
+        pair_input: dict[str, list[int]] = {}
+        for pair in ['A', 'B', 'C', 'D']:
+            pair_input[pair] = [int(symbol)
+                                for symbol in self.input.split()
+                                if symbol.removeprefix('-').isdecimal()]
+
+        try:
+            analysis = cable.simulate(
+                (pair_input['A'], pair_input['A'],
+                pair_input['A'], pair_input['A']),
+                presimulation_ratio=0, voltage_offset=0
+                )
+            self.simulation_signal.emit(analysis, cable.transmission_delay)
+        except Exception:
+            self.error_signal.emit()
+
 
 class SimulationFormWidget(QFrame):
     def __init__(self, label="Simulation parameters", index = 1):
@@ -38,27 +96,29 @@ class SimulationFormWidget(QFrame):
 
         class Parameters(TypedDict):
             label: str
+            arg: str
             type: str
             default: object
 
         # Create six number inputs using QSpinBox
         self.parameter_labels: list[Parameters] = [
-            {"label" : "Voltage offset", "type" : "float", "default": 0},
-            {"label" : "Output impedance", "type" : "float", "default": 100},
-            {"label" : "Length", "type" : "int", "default": 1},
-            {"label" : "Resistance", "type" : "float", "default": 0.188},
-            {"label" : "Inductance", "type" : "float", "default": 525},
-            {"label" : "Capacitance", "type" : "float", "default": 52},
+            {"label" : "Voltage offset", "arg": "voltage_offset", "type" : "float", "default": 0},
+            {"label" : "Output impedance", "arg": "output_impedance", "type" : "float", "default": 100},
+            {"label" : "Length", "arg": "length", "type" : "int", "default": 2},
+            {"label" : "Resistance", "arg": "resistance", "type" : "float", "default": 0.188},
+            {"label" : "Inductance", "arg": "inductance", "type" : "float", "default": 525},
+            {"label" : "Capacitance", "arg": "capacitance", "type" : "float", "default": 52},
         ]
-        self.number_inputs: list[QWidget] = []
+        self.number_inputs: dict[str, Union[QDoubleSpinBox, QSpinBox]] = {}
         for i, parameter in enumerate(self.parameter_labels):
+            arg = parameter["arg"]
             if parameter["type"] == "float":
-                self.number_inputs.append(QDoubleSpinBox())
+                self.number_inputs[arg] = QDoubleSpinBox()
             elif parameter["type"] == "int":
-                self.number_inputs.append(QSpinBox())
-            self.number_inputs[i].setMaximum(1000)
-            self.number_inputs[i].setValue(parameter['default'])
-            self.form_layout.addRow(parameter['label'], self.number_inputs[i])
+                self.number_inputs[arg] = QSpinBox()
+            self.number_inputs[arg].setMaximum(1000)
+            self.number_inputs[arg].setValue(parameter['default']) # type: ignore
+            self.form_layout.addRow(parameter['label'], self.number_inputs[arg])
 
         self.radio_button = QWidget()
         self.radio_layout = QHBoxLayout()
@@ -76,68 +136,70 @@ class SimulationFormWidget(QFrame):
 class SimulatorCanvas(FigureCanvasQTAgg):
     def __init__(self):
         super().__init__()
-
-        self.cable = EthernetCable(
-            dac=DAC(1, 3, 4),
-            output_impedance=85,
-            length=50,
-            resistance=0.5,
-            inductance=400,
-            capacitance=70,
-            transmission_type='lossy'
-            )
-
-        self.axes: NDArray = cast(NDArray, self.figure.subplots(4, 1, sharex=True, sharey=False))
+        self.axes: Axes = cast(Axes, self.figure.subplots (1, 1))
         self.figure.text(0.5, 0.04, 'Time', ha='center')
         self.figure.text(0.04, 0.5, 'Voltage (V)', va='center', rotation='vertical')
-        for i in range(4):
-            self.axes[i].grid(True)
+        self.axes.grid(True)
         self.draw()
         print("Created canvas")
 
-    def simulate(self, input: dict[str, str], index: int):
-        print("Canvas simulating...")
-        pair_input: dict[str, list[int]] = {}
-        for pair in ['A', 'B', 'C', 'D']:
-            pair_input[pair] = [int(symbol)
-                                for symbol in input[pair].split()
-                                if symbol.removeprefix('-').isdecimal()]
+        self.simulation: Union[PairSimulation, None] = None
+        self.thread: QThread = QThread(self)
 
-        analysis = self.cable.simulate((pair_input['A'],
-                                        pair_input['B'],
-                                        pair_input['C'],
-                                        pair_input['D']), 0)
+    def draw_plot(self, analysis: TransientAnalysis, transmission_delay: float):
+        v_in: WaveForm = analysis['A_vin+'] - analysis['A_vin-']
+        v_out: WaveForm = analysis['A_vout+'] - analysis['A_vout-']
 
-        for index, pair in enumerate(['A', 'B', 'C', 'D']):
-            v_in: WaveForm = analysis[f'{pair}_vin+'] - analysis[f'{pair}_vin-']
-            v_out: WaveForm = analysis[f'{pair}_vout+'] - analysis[f'{pair}_vout-']
+        vx_out_transformed = cast(numpy.ndarray, analysis.time - transmission_delay)
+        vx_out_transformed = vx_out_transformed[vx_out_transformed>=0]
+        # trim v_in where nothing happens after shifting v_out
+        vx_in_transformed = analysis.time[
+            analysis.time<(analysis.time[-1] - transmission_delay)]
 
-            vx_out_transformed = cast(numpy.ndarray, analysis.time - self.cable.transmission_delay)
-            vx_out_transformed = vx_out_transformed[vx_out_transformed>=0]
-            # trim v_in where nothing happens after shifting v_out
-            vx_in_transformed = analysis.time[
-                analysis.time<(analysis.time[-1] - self.cable.transmission_delay)]
-
-            self.axes[index].plot(
-                vx_in_transformed,
-                v_in[:len(vx_in_transformed)],
-                'blue',
-                vx_out_transformed,
-                v_out[-len(vx_out_transformed):],
-                'red'
-            )
-
+        self.axes.plot(
+            vx_in_transformed,
+            v_in[:len(vx_in_transformed)],
+            'blue',
+            vx_out_transformed,
+            v_out[-len(vx_out_transformed):],
+            'red'
+        )
+        self.axes.legend(['v(in+, in-)', 'v(out+, out-)'], loc='upper right')
         self.draw()
+        self.thread.exit()
+
+    def simulation_error(self):
+        msg_box = QMessageBox()
+        msg_box.setIcon(QMessageBox.Icon.Information)
+        msg_box.setText("There was error during simulation, change parameters")
+        msg_box.setWindowTitle("Error")
+        msg_box.setStandardButtons(QMessageBox.StandardButton.Ok)
+        msg_box.exec()
+        self.thread.exit()
+
+    def simulate(self, input: str, index: int,
+                 init_args: SimulationInitArgs, run_args: SimulationRunArgs):
+        if self.thread.isRunning():
+            self.thread.requestInterruption()
+            self.thread.exit()
+            return
+
+        self.simulation = PairSimulation(init_args=init_args,
+                                         run_args=run_args,
+                                         input=input)
+        self.thread = QThread(self)
+        self.simulation.simulation_signal.connect(self.draw_plot)
+        self.simulation.error_signal.connect(self.simulation_error)
+        self.simulation.moveToThread(self.thread)
+        self.thread.started.connect(self.simulation.simulate) # type: ignore
+        self.thread.start()
 
     def clear_plot(self):
         print("Canvas clearing...")
-        for ax_index, pair in enumerate(['A', 'B', 'C', 'D']):
-            self.axes[ax_index].cla()
-            self.axes[ax_index].text(0, 1, f"Pair {pair}")
-            self.axes[ax_index].grid()
-            self.axes[ax_index].set_ylim(-3, 3)
-            self.axes[ax_index].xaxis.set_major_formatter(EngFormatter(unit='s'))
-            self.axes[ax_index].legend(['v(in+, in-)', 'v(out+, out-)'], loc='upper right')
+        self.axes.cla()
+        self.axes.grid()
+        self.axes.set_ylim(-3, 3)
+        self.axes.xaxis.set_major_formatter(EngFormatter(unit='s'))
 
 class EthernetGuiApp(QMainWindow):
     def __init__(self):
@@ -252,11 +314,9 @@ class EthernetGuiApp(QMainWindow):
         # Add the scroll area to the content layout
         self.content_layout.addWidget(self.tp_scroll_area)
 
-        self.values: dict[str, QLineEdit] = {}
-        for pair in ['A', 'B', 'C', 'D']:
-            self.values[pair] = QLineEdit()
-            self.content_layout.addWidget(QLabel(f"Pair {pair} signals"))
-            self.content_layout.addWidget(self.values[pair])
+        self.simulator_signals = QLineEdit()
+        self.content_layout.addWidget(QLabel(f"Twisted pair signals"))
+        self.content_layout.addWidget(self.simulator_signals)
 
         self.tp_simulate_button = QPushButton("Simulate")
         self.content_layout.addWidget(self.tp_simulate_button)
@@ -276,10 +336,20 @@ class EthernetGuiApp(QMainWindow):
     def simulate(self):
         print("Simulating...")
         self.tp_canvas.clear_plot()
-        simulator_signals = {pair: qline.text() for pair, qline in self.values.items()}
         for i, form in enumerate(self.tp_simulation_forms):
+            args = {key: val.value() for key, val in form.number_inputs.items() }
             try:
-                self.tp_canvas.simulate(simulator_signals, i + 1)
+                init = SimulationInitArgs(dac=DAC(1, 2, 15),
+                                          transmission_type="lossy",
+                                          output_impedance=args["output_impedance"],
+                                          length=args["length"], # type: ignore
+                                          resistance=args["resistance"],
+                                          inductance=args["inductance"],
+                                          capacitance=args["capacitance"])
+
+                self.tp_canvas.simulate(self.simulator_signals.text(), i + 1, init,
+                    SimulationRunArgs(presimulation_ratio=0, voltage_offset=args["voltage_offset"]) # type: ignore
+                )
             except Exception as ex:
                 self.create_msg_box(f"Simulation failed: {ex}", "Simulation error!")
 
