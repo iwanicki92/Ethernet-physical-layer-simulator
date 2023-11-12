@@ -1,6 +1,17 @@
 from typing import Iterable
 from collections.abc import Mapping
 
+def list_from_string(string):
+    """convert str: "0 2 34 20..." to list[int]: [0, 2, 34, 20...]
+
+    :param string: string to convert
+    """
+    return [int(x) for x in string.split()]
+
+def list_to_string(list_to_convert):
+    """convert list[int]: [1,2,3,...] to string: "1 2 3 ..."
+    """
+    return ' '.join(str(x) for x in list_to_convert)
 
 def iterable_to_string(iterable: Iterable[int]) -> str:
     """Decodes iterable as string. Each element is treated as utf-8 byte
