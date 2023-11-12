@@ -17,6 +17,7 @@ from PySpice.Probe.WaveForm import TransientAnalysis, WaveForm
 import numpy
 
 from phyether.dac import DAC
+from phyether.gui.util import DoubleSpinBoxNoWheel, SpinBoxNoWheel
 from phyether.util import DictMapping
 from phyether.ethernet_cable import EthernetCable
 
@@ -105,9 +106,9 @@ class SimulationFormWidget(QFrame):
         for i, parameter in enumerate(self.parameter_labels):
             arg = parameter["arg"]
             if parameter["type"] == "float":
-                self.number_inputs[arg] = QDoubleSpinBox()
+                self.number_inputs[arg] = DoubleSpinBoxNoWheel()
             elif parameter["type"] == "int":
-                self.number_inputs[arg] = QSpinBox()
+                self.number_inputs[arg] = SpinBoxNoWheel()
             self.number_inputs[arg].setMaximum(1000)
             self.number_inputs[arg].setValue(parameter['default']) # type: ignore
             self.form_layout.addRow(parameter['label'], self.number_inputs[arg])
@@ -126,6 +127,8 @@ class SimulationFormWidget(QFrame):
         print(f"Created SimulationFormWidget, label = {label}")
 
 class SimulatorCanvas(FigureCanvasQTAgg):
+    simulation_stopped_signal = pyqtSignal()
+
     def __init__(self):
         super().__init__()
         self.axes: Axes = cast(Axes, self.figure.subplots (1, 1))
@@ -158,7 +161,7 @@ class SimulatorCanvas(FigureCanvasQTAgg):
         )
         self.axes.legend(['v(in+, in-)', 'v(out+, out-)'], loc='upper right')
         self.draw()
-        self.thread.exit()
+        self._stop_simulation()
 
     def simulation_error(self):
         msg_box = QMessageBox()
@@ -167,7 +170,11 @@ class SimulatorCanvas(FigureCanvasQTAgg):
         msg_box.setWindowTitle("Error")
         msg_box.setStandardButtons(QMessageBox.StandardButton.Ok)
         msg_box.exec()
+        self._stop_simulation()
+
+    def _stop_simulation(self):
         self.thread.exit()
+        self.simulation_stopped_signal.emit()
 
     def simulate(self, input: str, index: int,
                  init_args: SimulationInitArgs, run_args: SimulationRunArgs):

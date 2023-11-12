@@ -138,6 +138,7 @@ class EthernetGuiApp(QMainWindow):
 
         # Add your canvas
         self.tp_canvas = SimulatorCanvas()
+        self.tp_canvas.simulation_stopped_signal.connect(lambda: self.tp_simulate_button.setDisabled(False))
         self.content_layout.addWidget(self.tp_canvas)
 
     def add_simulation_form(self):
@@ -149,6 +150,7 @@ class EthernetGuiApp(QMainWindow):
 
     def simulate(self):
         print("Simulating...")
+        self.tp_simulate_button.setDisabled(True)
         self.tp_canvas.clear_plot()
         for i, form in enumerate(self.tp_simulation_forms):
             args = {key: val.value() for key, val in form.number_inputs.items() }
@@ -166,6 +168,7 @@ class EthernetGuiApp(QMainWindow):
                 )
             except Exception as ex:
                 self.create_msg_box(f"Simulation failed: {ex}", "Simulation error!")
+                self.tp_simulate_button.setDisabled(False)
 
     def create_msg_box(self, text, title):
         msg_box = QMessageBox()
