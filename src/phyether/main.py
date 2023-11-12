@@ -2,7 +2,7 @@ import platform
 
 from PySpice.Spice.NgSpice.Shared import NgSpiceShared
 
-from phyether import gui
+from phyether.gui import gui
 
 def init():
     if platform.system() == "Windows":
