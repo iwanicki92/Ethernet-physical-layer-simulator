@@ -13,7 +13,7 @@ from phyether.dac import DAC
 Logging.setup_logging(logging_level='DEBUG')
 
 class TwistedPair(SubCircuit):
-    __nodes__ = ('vin+', 'vin-', 'vout+', 'vout-', 'offset')
+    __nodes__ = ('vin+', 'vin-', 'vout+', 'vout-', 'offset+')
 
     @property
     def delay(self):
@@ -90,7 +90,7 @@ class TwistedPair(SubCircuit):
                 impedance=u_Ohm(characteristic_impedance),
                 time_delay=self.transmission_delay)
         self.R('res+', 'vin+', 'offset+', u_GOhm(1000))
-        self.R('res-', 'vin-', 'offset+', u_GOhm(1000))
+        self.R('res-', 'offset+', 'vin-', u_GOhm(1000))
 
     def _get_pwl(self, data: Iterable[int],
                  presimulation_ratio: int

@@ -1,5 +1,5 @@
 import sys
-from typing import Literal, Union
+from typing import Literal, Optional, Union
 
 from PyQt5.QtWidgets import (QMessageBox, QApplication, QMainWindow,
                              QWidget,QPushButton, QLineEdit, QTextEdit,
@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import (QMessageBox, QApplication, QMainWindow,
                              )
 
 from phyether.dac import DAC
-from phyether.gui.simulation import (SimulationFormWidget, SimulationInitArgs,
+from phyether.gui.simulation import (SimulationArgs, SimulationDisplay, SimulationFormWidget, SimulationInitArgs,
                                      SimulationRunArgs, SimulatorCanvas,
                                      )
 from phyether.util import iterable_to_string, string_to_list
@@ -151,24 +151,30 @@ class EthernetGuiApp(QMainWindow):
     def simulate(self):
         print("Simulating...")
         self.tp_simulate_button.setDisabled(True)
-        self.tp_canvas.clear_plot()
+        simulation_args: list[SimulationArgs] = []
         for i, form in enumerate(self.tp_simulation_forms):
             args = {key: val.value() for key, val in form.number_inputs.items() }
-            try:
-                init = SimulationInitArgs(dac=DAC(1, 2, 15),
-                                          transmission_type="lossy",
-                                          output_impedance=args["output_impedance"],
-                                          length=args["length"], # type: ignore
-                                          resistance=args["resistance"],
-                                          inductance=args["inductance"],
-                                          capacitance=args["capacitance"])
+            init = SimulationInitArgs(dac=DAC(1, 2, 15),
+                                        transmission_type="lossy",
+                                        output_impedance=args["output_impedance"],
+                                        length=args["length"], # type: ignore
+                                        resistance=args["resistance"],
+                                        inductance=args["inductance"],
+                                        capacitance=args["capacitance"])
+            run = SimulationRunArgs(voltage_offset=args["voltage_offset"]) # type: ignore
+            simulation_args.append(SimulationArgs(init_args=init,
+                                                  run_args=run,
+                                                  input=self.simulator_signals.text()))
 
-                self.tp_canvas.simulate(self.simulator_signals.text(), i + 1, init,
-                    SimulationRunArgs(voltage_offset=args["voltage_offset"]) # type: ignore
-                )
-            except Exception as ex:
-                self.create_msg_box(f"Simulation failed: {ex}", "Simulation error!")
-                self.tp_simulate_button.setDisabled(False)
+        try:
+            self.tp_canvas.set_display_params({
+                0: {SimulationDisplay.VOUT_PLUS, SimulationDisplay.VOUT_MINUS, SimulationDisplay.VOUT},
+                1: {SimulationDisplay.VOUT}
+                })
+            self.tp_canvas.simulate(simulation_args)
+        except Exception as ex:
+            self.create_msg_box(f"Simulation failed: {ex}", "Simulation error!")
+            self.tp_simulate_button.setDisabled(False)
 
     def create_msg_box(self, text, title):
         msg_box = QMessageBox()

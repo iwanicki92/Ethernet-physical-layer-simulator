@@ -1,4 +1,5 @@
-from typing import Literal, TypedDict, Union, cast
+from enum import Enum
+from typing import Literal, Optional, TypedDict, Union, cast
 from attr import define
 
 from PyQt5.QtCore import QObject, QThread, pyqtSlot, pyqtSignal
@@ -12,7 +13,7 @@ from matplotlib.axes import Axes
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 from matplotlib.ticker import EngFormatter
 
-from PySpice.Probe.WaveForm import TransientAnalysis, WaveForm
+from PySpice.Probe.WaveForm import TransientAnalysis
 
 import numpy
 
@@ -43,30 +44,52 @@ class SimulationRunArgs(DictMapping):
     voltage_offset: int = 0
 
 
+@define(kw_only=True, slots=False)
+class SimulationArgs(DictMapping):
+    init_args: SimulationInitArgs
+    run_args: SimulationRunArgs
+    input: str
+
+
+class SimulationDisplay(str, Enum):
+    VIN = "vin+, vin-"
+    VIN_PLUS = "vin+"
+    VIN_MINUS = "vin-"
+    VOUT = "vout+, vout-"
+    VOUT_PLUS = "vout+"
+    VOUT_MINUS = "vout-"
+
+
 class PairSimulation(QObject):
     simulation_signal = pyqtSignal(TransientAnalysis, float)
+    simulation_finished_signal = pyqtSignal()
     error_signal = pyqtSignal()
 
-    def __init__(self, init_args: SimulationInitArgs,
-                 run_args: SimulationRunArgs,
-                 input: str) -> None:
+    def __init__(self, sim_args: list[SimulationArgs]) -> None:
         super().__init__()
-        self.init_args = init_args
-        self.run_args = run_args
-        self.input = input
+        self.sim_args = sim_args
+
+    def simulate_one(self,
+                     init_args: SimulationInitArgs,
+                     run_args: SimulationRunArgs,
+                     input: str):
+        twisted_pair = TwistedPair(**init_args)
+        symbols = [int(symbol) for symbol in input.split()
+                                if symbol.removeprefix('-').isdecimal()]
+
+        try:
+            analysis = twisted_pair.simulate(symbols, **run_args)
+            self.simulation_signal.emit(analysis, twisted_pair.transmission_delay)
+        except Exception:
+            self.error_signal.emit()
+
 
     @pyqtSlot()
     def simulate(self):
         print("Canvas simulating...")
-        twisted_pair = TwistedPair(**self.init_args)
-        symbols = [int(symbol) for symbol in self.input.split()
-                                if symbol.removeprefix('-').isdecimal()]
-
-        try:
-            analysis = twisted_pair.simulate(symbols, **self.run_args)
-            self.simulation_signal.emit(analysis, twisted_pair.transmission_delay)
-        except Exception:
-            self.error_signal.emit()
+        for one_sim_args in self.sim_args:
+            self.simulate_one(**one_sim_args)
+        self.simulation_finished_signal.emit()
 
 
 class SimulationFormWidget(QFrame):
@@ -131,30 +154,70 @@ class SimulatorCanvas(FigureCanvasQTAgg):
         self.draw()
         print("Created canvas")
 
-        self.simulation: Union[PairSimulation, None] = None
+        self.simulation: Optional[PairSimulation] = None
         self.thread: QThread = QThread(self)
+        self.simulations: list[tuple[TransientAnalysis, float]] = []
+        self._display_params: dict[int, set[SimulationDisplay]] = {}
 
-    def draw_plot(self, analysis: TransientAnalysis, transmission_delay: float):
-        v_in: WaveForm = analysis['vin+'] - analysis['vin-']
-        v_out: WaveForm = analysis['vout+'] - analysis['vout-']
+    def set_display_params(self, display_params: dict[int, set[SimulationDisplay]]):
+        self._display_params = display_params
+        self._draw_plot()
 
-        vx_out_transformed = cast(numpy.ndarray, analysis.time - transmission_delay)
-        vx_out_transformed = vx_out_transformed[vx_out_transformed>=0]
-        # trim v_in where nothing happens after shifting v_out
-        vx_in_transformed = analysis.time[
-            analysis.time<(analysis.time[-1] - transmission_delay)]
+    def _add_simulation(self, analysis: TransientAnalysis, transmission_delay: float):
+        index = len(self.simulations)
+        self.simulations.append((analysis, transmission_delay))
+        print(f"Draw simulation: {index + 1}")
+        self._draw_add(self.simulations[-1],
+                       self._display_params.get(index, set()),
+                       index)
 
-        self.axes.plot(
-            vx_in_transformed,
-            v_in[:len(vx_in_transformed)],
-            'blue',
-            vx_out_transformed,
-            v_out[-len(vx_out_transformed):],
-            'red'
-        )
-        self.axes.legend(['v(in+, in-)', 'v(out+, out-)'], loc='upper right')
+    def _get_vin_x(self, analysis, delay):
+        return analysis.time[analysis.time<(analysis.time[-1] - delay)]
+
+    def _draw_add(self,
+                  simulation: tuple[TransientAnalysis, float],
+                  display_params: set[SimulationDisplay],
+                  index: int):
+        analysis, transmission_delay = simulation
+        for display_param in display_params:
+            plot_x = None
+            plot_y = None
+
+            if display_param == SimulationDisplay.VIN:
+                plot_x = self._get_vin_x(analysis, transmission_delay)
+                plot_y = (analysis['vin+'] - analysis['vin-'])[:len(plot_x)]
+            elif display_param == SimulationDisplay.VOUT:
+                plot_x = cast(numpy.ndarray, analysis.time - transmission_delay)
+                plot_x = plot_x[plot_x>=0]
+                plot_y = (analysis['vout+'] - analysis['vout-'])[-len(plot_x):]
+            elif display_param == SimulationDisplay.VIN_PLUS:
+                plot_x = self._get_vin_x(analysis, transmission_delay)
+                plot_y = analysis['vin+'][:len(plot_x)]
+            elif display_param == SimulationDisplay.VIN_MINUS:
+                plot_x = plot_x = self._get_vin_x(analysis, transmission_delay)
+                plot_y = analysis['vin-'][:len(plot_x)]
+            elif display_param == SimulationDisplay.VOUT_PLUS:
+                plot_x = cast(numpy.ndarray, analysis.time - transmission_delay)
+                plot_x = plot_x[plot_x>=0]
+                plot_y = analysis['vout+'][-len(plot_x):]
+            elif display_param == SimulationDisplay.VOUT_MINUS:
+                plot_x = cast(numpy.ndarray, analysis.time - transmission_delay)
+                plot_x = plot_x[plot_x>=0]
+                plot_y = analysis['vout-'][-len(plot_x):]
+
+            if plot_x is not None and plot_y is not None:
+                plot_y = plot_y[:len(plot_x)]
+                self.axes.plot(plot_x, plot_y,
+                               label=f'sim {index}: {display_param.value}')
+        self.axes.legend()
         self.draw()
-        self._stop_simulation()
+
+    def _draw_plot(self):
+        self.clear_plot()
+        for index, simulation in enumerate(self.simulations):
+            self._draw_add(simulation,
+                           self._display_params.get(index, set()),
+                           index)
 
     def simulation_error(self):
         msg_box = QMessageBox()
@@ -166,22 +229,20 @@ class SimulatorCanvas(FigureCanvasQTAgg):
         self._stop_simulation()
 
     def _stop_simulation(self):
+        print("Simulation finished")
         self.thread.exit()
         self.simulation_stopped_signal.emit()
 
-    def simulate(self, input: str, index: int,
-                 init_args: SimulationInitArgs, run_args: SimulationRunArgs):
-        if self.thread.isRunning():
-            self.thread.requestInterruption()
-            self.thread.exit()
-            return
-
-        self.simulation = PairSimulation(init_args=init_args,
-                                         run_args=run_args,
-                                         input=input)
+    def simulate(self, sim_args: list[SimulationArgs]):
+        print("Simulating")
+        self.simulations.clear()
+        self.simulating = True
+        self.clear_plot()
+        self.simulation = PairSimulation(sim_args)
         self.thread = QThread(self)
-        self.simulation.simulation_signal.connect(self.draw_plot)
+        self.simulation.simulation_signal.connect(self._add_simulation)
         self.simulation.error_signal.connect(self.simulation_error)
+        self.simulation.simulation_finished_signal.connect(self._stop_simulation)
         self.simulation.moveToThread(self.thread)
         self.thread.started.connect(self.simulation.simulate) # type: ignore
         self.thread.start()
@@ -190,5 +251,4 @@ class SimulatorCanvas(FigureCanvasQTAgg):
         print("Canvas clearing...")
         self.axes.cla()
         self.axes.grid()
-        self.axes.set_ylim(-3, 3)
         self.axes.xaxis.set_major_formatter(EngFormatter(unit='s'))
