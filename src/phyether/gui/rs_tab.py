@@ -1,5 +1,5 @@
 from enum import Enum, auto
-from typing import Optional, Union, cast
+from typing import Callable, Optional, Union, cast
 
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QWidget, QAbstractButton, QLineEdit
@@ -20,6 +20,7 @@ class RSTab(QWidget, Ui_RS_Form):
         super().__init__()
         self.setupUi(self)
         self.current_format = Format.TEXT
+        # TODO: Add validation to input fields
 
     def get_format(self) -> Format:
         if self.text_radioButton.isChecked():
@@ -90,30 +91,59 @@ class RSTab(QWidget, Ui_RS_Form):
         list_of_bytes = string_to_list(line_edit.text())
         line_edit.setText(list_to_string(list_of_bytes))
 
+    def _hex_to_dec(self, line_edit: QLineEdit):
+        line_hex = line_edit.text()
+        line_edit.setText(' '.join(
+            [str(int(hex_num, 16)) for hex_num in line_hex.split()])
+            )
+
+    def _bin_to_dec(self, line_edit: QLineEdit):
+        line_hex = line_edit.text()
+        line_edit.setText(' '.join(
+            [str(int(hex_num, 2)) for hex_num in line_hex.split()])
+            )
+
     def _dec_to_text(self, line_edit: QLineEdit):
-        input_bytes = list_from_string(line_edit.text())
-        input_string = iterable_to_string(input_bytes)
-        line_edit.setText(input_string)
+        line_bytes = list_from_string(line_edit.text())
+        line_string = iterable_to_string(line_bytes)
+        line_edit.setText(line_string)
+
+    def _dec_to_hex(self, line_edit: QLineEdit):
+        line_bytes = list_from_string(line_edit.text())
+        line_edit.setText(' '.join([f'{dec:02x}' for dec in line_bytes]))
+
+    def _dec_to_bin(self, line_edit: QLineEdit):
+        line_bytes = list_from_string(line_edit.text())
+        line_edit.setText(' '.join([f'{dec:08b}' for dec in line_bytes]))
+
 
     def convert(self):
-        # TODO: Add other conversions
         new_format = self.get_format()
         if self.current_format == new_format:
             return
-        if self.current_format == Format.TEXT and new_format == Format.DEC:
-            self.current_format = Format.DEC
-            self._text_to_dec(self.input_lineEdit)
-            self._text_to_dec(self.encoded_lineEdit)
-            self._text_to_dec(self.errors_lineEdit)
-            self._text_to_dec(self.decoded_lineEdit)
-        elif self.current_format == Format.DEC and new_format == Format.TEXT:
-            try:
-                self.current_format = Format.TEXT
-                self._dec_to_text(self.input_lineEdit)
-                self._dec_to_text(self.encoded_lineEdit)
-                self._dec_to_text(self.errors_lineEdit)
-                self._dec_to_text(self.decoded_lineEdit)
-            except ValueError as ex:
+        line_edits: list[QLineEdit] = [self.input_lineEdit, self.encoded_lineEdit,
+                  self.errors_lineEdit, self.decoded_lineEdit]
+        converters: dict[tuple[Format, Format], list[Callable[[QLineEdit], None]]] = {
+            (Format.TEXT, Format.HEX) : [self._text_to_dec, self._dec_to_hex],
+            (Format.TEXT, Format.DEC) : [self._text_to_dec],
+            (Format.TEXT, Format.BIN) : [self._text_to_dec, self._dec_to_bin],
+            (Format.DEC, Format.TEXT) : [self._dec_to_text],
+            (Format.DEC, Format.HEX) : [self._dec_to_hex],
+            (Format.DEC, Format.BIN) : [self._dec_to_bin],
+            (Format.HEX, Format.TEXT) : [self._hex_to_dec, self._dec_to_text],
+            (Format.HEX, Format.DEC) : [self._hex_to_dec],
+            (Format.HEX, Format.BIN) : [self._hex_to_dec, self._dec_to_bin],
+            (Format.BIN, Format.TEXT) : [self._bin_to_dec, self._dec_to_text],
+            (Format.BIN, Format.HEX) : [self._bin_to_dec, self._dec_to_hex],
+            (Format.BIN, Format.DEC) : [self._bin_to_dec],
+            }
+        converter = converters.get((self.current_format, new_format), [])
+        try:
+            for line_edit in line_edits:
+                for converter_func in converter:
+                    converter_func(line_edit)
+        except Exception as ex:
                 print(ex)
-                create_msg_box(f"Couldn't convert byte to text!: {ex}",
+                create_msg_box(f"Couldn't convert format!: {ex}",
                                "conversion error")
+        self.current_format = new_format
