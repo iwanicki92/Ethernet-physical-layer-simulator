@@ -2,6 +2,7 @@ from enum import Enum, auto
 from typing import Any, Callable, Optional, Union, cast
 
 from PyQt5.QtCore import pyqtSlot, QRegularExpression
+from PyQt5.QtGui import QRegularExpressionValidator, QValidator
 from PyQt5.QtWidgets import QWidget, QAbstractButton, QLineEdit
 
 from phyether.gui.ui.rs_widget import Ui_RS_Form
@@ -20,11 +21,28 @@ class Format(Enum):
     DEC = auto()
     BIN = auto()
 
+class NoValidation(QValidator):
+    def validate(self, a0: str, a1: int):
+        return QValidator.State.Acceptable, a0, a1
+
 class RSTab(QWidget, Ui_RS_Form):
     def __init__(self) -> None:
         super().__init__()
         self.setupUi(self)
         self.current_format = Format.TEXT
+
+        dec_regex = QRegularExpression(r"^(2[0-4][0-9]|25[0-5]|[0-1][0-9]{1,2}|[0-9]{1,2})(\s+(2[0-4][0-9]|25[0-5]|[0-1][0-9]{1,2}|[0-9]{1,2}))*\s?")
+        # "^pattern(\s+pattern)*\s?" pattern rozdzielony spacjami mogący się kończyć spacją
+        hex_regex = QRegularExpression(r"^[[:xdigit:]]{2}(\s+[[:xdigit:]]{2})*\s?")
+        bin_regex = QRegularExpression(r"^[01]{8}(\s+[01]{8})*\s?")
+
+        # validators for different format and max input size
+        self.validators: dict[Format, tuple[QValidator, int]] = {
+            Format.TEXT: (NoValidation(self), 256),
+            Format.DEC: (QRegularExpressionValidator(dec_regex, self), 256 * 4),
+            Format.HEX: (QRegularExpressionValidator(hex_regex, self), 256 * 3),
+            Format.BIN: (QRegularExpressionValidator(bin_regex, self), 256 * 9)
+            }
 
         self.encode_decode_converters = {
             Format.TEXT: (lambda x: x, lambda x: x),
@@ -47,6 +65,15 @@ class RSTab(QWidget, Ui_RS_Form):
             (Format.BIN, Format.HEX) : [self._bin_to_dec, self._dec_to_hex],
             (Format.BIN, Format.DEC) : [self._bin_to_dec],
             }
+
+        self.update_validators()
+
+    def update_validators(self):
+        validator, size = self.validators[self.get_format()]
+        self.input_lineEdit.setValidator(validator)
+        self.input_lineEdit.setMaxLength(size)
+        self.errors_lineEdit.setValidator(validator)
+        self.errors_lineEdit.setMaxLength(size)
 
     def get_format(self) -> Format:
         if self.text_radioButton.isChecked():
@@ -114,6 +141,7 @@ class RSTab(QWidget, Ui_RS_Form):
 
     def convert(self):
         new_format = self.get_format()
+        self.update_validators()
         if self.current_format == new_format:
             return
         line_edits: list[QLineEdit] = [self.input_lineEdit, self.encoded_lineEdit,
