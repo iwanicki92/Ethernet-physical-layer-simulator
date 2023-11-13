@@ -18,7 +18,7 @@ from PySpice.Probe.WaveForm import TransientAnalysis
 import numpy
 
 from phyether.dac import DAC
-from phyether.gui.util import DoubleSpinBoxNoWheel, SpinBoxNoWheel
+from phyether.gui.util import DoubleSpinBoxNoWheel, SpinBoxNoWheel, create_msg_box
 from phyether.twisted_pair import TwistedPair
 from phyether.util import DictMapping
 
@@ -220,12 +220,7 @@ class SimulatorCanvas(FigureCanvasQTAgg):
                            index)
 
     def simulation_error(self):
-        msg_box = QMessageBox()
-        msg_box.setIcon(QMessageBox.Icon.Information)
-        msg_box.setText("There was error during simulation, change parameters")
-        msg_box.setWindowTitle("Error")
-        msg_box.setStandardButtons(QMessageBox.StandardButton.Ok)
-        msg_box.exec()
+        create_msg_box("There was error during simulation, change parameters", "error")
         self._stop_simulation()
 
     def _stop_simulation(self):
