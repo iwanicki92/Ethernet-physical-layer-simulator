@@ -1,17 +1,27 @@
-from typing import Iterable
+from typing import Iterable, Literal
 from collections.abc import Mapping
 
-def list_from_string(string):
+def list_from_string(string: str, base: int = 10):
     """convert str: "0 2 34 20..." to list[int]: [0, 2, 34, 20...]
 
     :param string: string to convert
+    :param base: what base are numbers in string
     """
-    return [int(x) for x in string.split()]
+    return [int(x, base) for x in string.split()]
 
-def list_to_string(list_to_convert):
+def list_to_string(list_to_convert: list[int], base: Literal[2, 10, 16] = 10):
     """convert list[int]: [1,2,3,...] to string: "1 2 3 ..."
+
+    :param list_to_convert: list with integers to convert
     """
-    return ' '.join(str(x) for x in list_to_convert)
+    if base == 2:
+        int_to_base = lambda x: f'{x:08b}'
+    elif base == 10:
+        int_to_base = lambda x: f'{x}'
+    else:
+        int_to_base = lambda x: f'{x:02x}'
+
+    return ' '.join(int_to_base(x) for x in list_to_convert)
 
 def iterable_to_string(iterable: Iterable[int]) -> str:
     """Decodes iterable as string. Each element is treated as utf-8 byte
