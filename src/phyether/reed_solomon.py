@@ -1,6 +1,6 @@
 from typing import Union, cast, overload
 
-from galois import Array, GF, Poly, ReedSolomon, lagrange_poly
+from galois import Array, GF, FieldArray, Poly, ReedSolomon, lagrange_poly
 
 import numpy as np
 from numpy.linalg import LinAlgError
@@ -9,7 +9,8 @@ from phyether.util import iterable_to_string, string_to_bytes, string_to_list
 
 
 class RS_Original:
-    def __init__(self, codeword_length: int, message_length: int, field_order: int = 2**8):
+    def __init__(self, codeword_length: int, message_length: int, field_order: int = 2**8,
+                 systematic: bool = True):
         """_summary_
 
         :param codeword_length: Length of generated codeword in symbols
@@ -32,61 +33,108 @@ class RS_Original:
         self.rs = ReedSolomon(
             n=field_order - 1,
             k=field_order - self.parity_length - 1,
-            field=self.gf)
+            field=self.gf, systematic=systematic)
 
     @overload
-    def encode(self, message: str) -> str:
+    def expand_message(self, message: str, size: int) -> tuple[int, str]:
         ...
 
     @overload
-    def encode(self, message: list[int]) -> list[int]:
+    def expand_message(self, message: list[int], size: int) -> tuple[int, list[int]]:
         ...
 
-    def encode(self, message: Union[str, list[int]]) -> Union[str, list[int]]:
+    def expand_message(self, message: Union[str, list[int]],
+                       size: int) -> tuple[int, Union[str, list[int]]]:
+        if isinstance(message, str):
+            message_bytes = string_to_bytes(message)
+            original_size = len(message_bytes)
+            message = list(message_bytes.rjust(size, b'\xff'))
+            return original_size, iterable_to_string(message)
+        else:
+            original_size = len(message)
+            message = ([255] * (size - len(message))) + message
+            return original_size, message
+
+    def shorten_codeword(self, codeword: Union[str, list[int]],
+                         original_message_size: int) -> Union[str, list[int]]:
+
+        return codeword[-(original_message_size + self.parity_length):]
+
+
+    @overload
+    def encode(self, message: str, custom: bool = False) -> str:
+        ...
+
+    @overload
+    def encode(self, message: list[int], custom: bool = False) -> list[int]:
+        ...
+
+    def encode(self, message: Union[str, list[int]], custom: bool = False) -> Union[str, list[int]]:
         """encode message
 
         :param message: message to encode
+        :param custom: use custom, slow, non BCH berlekamp-welch algorithm
         :return: return encoded message
         """
-        # TODO: check message length
+        if custom:
+            return self.encode_custom(message)
+        message_size = len(message)
+        max_length = self.message_length
+        if not self.rs.is_systematic:
+            message_size, message = self.expand_message(message, self.rs.k)
+            max_length = self.rs.k
         list_message = string_to_list(message) if isinstance(message, str) else message
-        if len(list_message) > self.message_length:
+        if len(list_message) > max_length:
             raise ValueError(f"Message is {len(list_message)} symbols in size. "
                              f"Max is {self.message_length}")
         if len(list_message) == 0:
             raise ValueError("Message is empty! Can't encode nothing")
         if isinstance(message, str):
-            return iterable_to_string(self.rs.encode(list_message))
+            codeword: Union[str, list[int]] = iterable_to_string(self.rs.encode(list_message))
         else:
-            encoded_list: list[int] = self.rs.encode(list_message).tolist()
-            return encoded_list
+            codeword = self.rs.encode(list_message).tolist()
+        return codeword
 
     @overload
-    def decode(self, codeword: str) -> tuple[str, int]:
+    def decode(self, codeword: str, custom: bool = False,
+               force: bool = False) -> tuple[str, int, bool]:
         ...
 
     @overload
-    def decode(self, codeword: list[int]) -> tuple[list[int], int]:
+    def decode(self, codeword: list[int], custom: bool = False,
+               force: bool = False) -> tuple[list[int], int, bool]:
         ...
 
-    def decode(self, codeword: Union[str, list[int]]) -> tuple[Union[str, list[int]], int]:
+    def decode(self, codeword: Union[str, list[int]], custom: bool = False,
+               force: bool = False) -> tuple[Union[str, list[int]], int, bool]:
         """decode codeword
 
         :param codeword: codeword to decode
-        :return: decoded message
+        :param custom: use custom, slow, non BCH berlekamp-welch algorithm
+        :param force: try to force error fixing if custom is True
+        :return: (decoded message, found errors, if those errors were fixed)
         """
+        if custom:
+            return self.decode_custom(codeword, force)
+        codeword_size = len(codeword)
         list_codeword = string_to_list(codeword) if isinstance(codeword, str) else codeword
-        if len(codeword) > self.codeword_length:
+        max_length = self.codeword_length
+        if not self.rs.is_systematic:
+            codeword_size, list_codeword = self.expand_message(list_codeword, self.rs.n)
+            max_length = self.rs.n
+        if len(codeword) > max_length:
             raise ValueError(f"Codeword is {len(codeword)} symbols in size. "
                              f"Max is {self.codeword_length}")
-        if len(codeword) <= self.parity_length + 1:
+        if len(codeword) <= self.parity_length:
             raise ValueError(f"Codeword can't be shorter than {self.parity_length + 1} = "
                              f"{self.parity_length} parity symbols + 1 message symbol")
-        decoded, errors = self.rs.decode(list_codeword, errors=True)
+        decoded: Union[str, list[int], FieldArray]
+        decoded, fixed = self.rs.decode(list_codeword, errors=True)
         if isinstance(codeword, str):
-            return iterable_to_string(decoded), int(errors)
+            decoded = iterable_to_string(decoded)
         else:
-            return decoded.tolist(), int(errors)
+            decoded = decoded.tolist()
+        return decoded, int(fixed), True if fixed != -1 else False # type: ignore
 
     @overload
     def encode_custom(self, message: str) -> str:
@@ -99,13 +147,16 @@ class RS_Original:
     def encode_custom(self, message: Union[str, list[int]]) -> Union[str, list[int]]:
         """Encodes message. Message is padded with '\\0' if it's shorter than self.message_length
 
-        Args:
-            message (str | list[int]): message to encode
+        :param message: message to encode
         """
+        original_size: int
         if isinstance(message, str):
-            message = list(string_to_bytes(message).ljust(self.message_length, b'\0'))
+            message_bytes = string_to_bytes(message)
+            original_size = len(message_bytes)
+            message = list(message_bytes.ljust(self.message_length, b'\0'))
             return_string = True
         else:
+            original_size = len(message)
             message.extend([0] * (self.message_length - len(message)))
             return_string = False
         if len(message) > self.message_length:
@@ -116,48 +167,59 @@ class RS_Original:
             int(self.gf.primitive_element ** power)
             for power in range(self.message_length)
         ]
-        evaluation_points = message_evaluation_points + self.parity_evaluation_points
 
         p_m = lagrange_poly(self.gf(message_evaluation_points), self.gf(message))
-        encoded_message = p_m(evaluation_points)
+        encoded_message = p_m(message_evaluation_points[:original_size])
+        parity_message = p_m(self.parity_evaluation_points)
         if return_string:
-            return iterable_to_string(encoded_message)
+            return iterable_to_string(encoded_message) + iterable_to_string(parity_message)
         else:
-            return cast(list[int], encoded_message.tolist())
+            return cast(list[int], encoded_message.tolist() + parity_message.tolist())
 
     @overload
-    def decode_custom(self, codeword: str) -> tuple[str, int]:
+    def decode_custom(self, codeword: str, force: bool = False) -> tuple[str, int, bool]:
         ...
 
     @overload
-    def decode_custom(self, codeword: list[int]) -> tuple[list[int], int]:
+    def decode_custom(self, codeword: list[int],
+                      force: bool = False) -> tuple[list[int], int, bool]:
         ...
 
-    def decode_custom(self, codeword: Union[str, list[int]]) -> tuple[Union[str, list[int]], int]:
+    def decode_custom(self, codeword: Union[str, list[int]],
+                      force: bool = False) -> tuple[
+            Union[str, list[int]], int, bool]:
         """Decode codeword using berlekamp-welch algorithm
 
         :param codeword: codeword to encode
+        :param force: try to fix errors
         :raises ValueError: if len(codeword) != self.codeword_length
         :return: decoding_failed, decoded codeword
         """
+        original_size = len(codeword)
         if isinstance(codeword, str):
             codeword = string_to_list(codeword)
             return_string = True
         else:
             return_string = False
-        if len(codeword) != self.codeword_length:
+
+        if len(codeword) > self.codeword_length:
             raise ValueError(f"Codeword is {len(codeword)} symbols in size, "
                              f"it should be {self.codeword_length} symbols")
-        decoded, errors = self._berlekamp_welch(codeword)
-        if return_string:
-            return iterable_to_string(decoded), errors
         else:
-            return decoded.tolist(), errors
+            # extend codeword to correct length
+            codeword[-self.parity_length:1] = [0]*(self.codeword_length - len(codeword))
+        decoded, errors, fixed = self._berlekamp_welch(codeword, force)
+        decoded = decoded.tolist()[:original_size - self.parity_length]
+        if return_string:
+            return iterable_to_string(decoded), errors, fixed
+        else:
+            return decoded, errors, fixed # type: ignore
 
-    def _berlekamp_welch(self, codeword: list[int]) -> tuple[Array, int]:
+    def _berlekamp_welch(self, codeword: list[int], force: bool = False) -> tuple[Array, int, bool]:
         """Implementation of berlekamp-welch algorithm
 
         :param codeword:
+        :param force: fix errors even if polynomial division remainder wasn't 0
         :return: decoded message, errors
         """
         for e in range(self.max_errors, -1, -1):
@@ -175,15 +237,17 @@ class RS_Original:
                 continue
             break
         if e == 0:
-            return self.gf(codeword[:self.message_length]), 0
+            return self.gf(codeword[:self.message_length]), 0, True
         else:
             Q = Poly(x[:q + 1], self.gf)
             E = Poly([1] + x[q + 1:], self.gf)
             F, remainder = divmod(Q, E)
             message = codeword.copy()[:self.message_length]
             is_error = remainder != Poly.Zero(self.gf)
-            if not is_error:
+            num_errors = -1 if is_error else e
+            if not is_error or force:
                 errors = [i for i in range(self.message_length) if E(self.primitive_powers[i]) == 0]
+                num_errors = len(errors)
                 for error in errors:
                     message[error] = int(F(self.primitive_powers[error]))
-            return self.gf(message), -1 if is_error else e
+            return self.gf(message), num_errors, not is_error

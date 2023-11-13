@@ -100,8 +100,8 @@ qline_converters: dict[tuple[Format, Format], list[Callable[[QLineEdit], None]]]
 class EncodingWorker(QObject):
     # encoded message + encoded with errors
     encoded_signal = pyqtSignal(str, str)
-    # decoded message, errors found
-    decoded_signal = pyqtSignal(str, int)
+    # decoded message, errors found, were errors fixed
+    decoded_signal = pyqtSignal(str, int, bool)
     # error message and title
     error_signal = pyqtSignal(str, str)
 
@@ -143,7 +143,8 @@ class EncodingWorker(QObject):
     def encode(self):
         print("Encoding/decoding...")
         try:
-            reed_solomon = RS_Original(self.rs_args.n, self.rs_args.k, self.rs_args.gf)
+            reed_solomon = RS_Original(self.rs_args.n, self.rs_args.k,
+                                       self.rs_args.gf, self.rs_args.systematic)
             encoded = self._encode(reed_solomon)
             errors = encode_decode_converters[self.format][0](self.error_input)
             if self.format != Format.TEXT:
@@ -167,29 +168,35 @@ class EncodingWorker(QObject):
         except _DecodingException as ex:
             self.error_signal.emit(f"Couldn't decode!: {ex}", "Decoding error!")
         except Exception as ex:
+            print_exc()
             self.error_signal.emit(f"Error with RS arguments!: {ex}", "Error")
 
     def _encode(self, reed_solomon: RS_Original):
         print(f"Encoding message")
         input = encode_decode_converters[self.format][0](self.message_input)
-        print(f'{self.message_input=}, {input=}, {self.format=}')
         try:
-            encoded = reed_solomon.encode(input)
+            encoded = reed_solomon.encode(input, not self.rs_args.bch)
             print(f"{encoded=}")
             return encoded
         except Exception as ex:
-            raise _EncodingException from ex
+            print_exc()
+            raise _EncodingException(ex) from ex
 
     def _decode(self, encoded: Union[str, list[int]],
                 reed_solomon: RS_Original):
         print(f"Decoding message {encoded}")
         try:
-            decoded_message, errors = reed_solomon.decode(encoded)
+            decoded_message, errors, fixed = reed_solomon.decode(encoded,
+                                                                 not self.rs_args.bch,
+                                                                 self.rs_args.force)
+            decoded_message = decoded_message[-len(self.message_input):]
+            print(f'{len(self.message_input)=}')
             decoded = cast(str, encode_decode_converters[self.format][1](decoded_message))
-            self.decoded_signal.emit(decoded, errors)
+            self.decoded_signal.emit(decoded, errors, fixed)
             print(f"Decoded message: {decoded_message=}")
         except Exception as ex:
-            raise _DecodingException from ex
+            print_exc()
+            raise _DecodingException(ex) from ex
 
 
 class RSTab(QWidget, Ui_RS_Form):
@@ -309,13 +316,15 @@ class RSTab(QWidget, Ui_RS_Form):
         self.encoded_lineEdit.setText(encoded)
         self.encoded_err_lineEdit.setText(encoded_errors)
 
-    def _decoded(self, decoded: str, errors: int):
+    def _decoded(self, decoded: str, errors: int, fixed: bool):
         self.decoded_lineEdit.setText(decoded)
-        if errors == -1:
-            self.status_lineEdit.setText("Message couldn't be decoded!")
-            self.errors_found_lineEdit.setText("-")
-        else:
+        if fixed:
             self.status_lineEdit.setText(f"Message decoded")
+        else:
+            self.status_lineEdit.setText("Message couldn't be decoded!")
+        if errors == -1:
+            self.errors_found_lineEdit.setText("Too many errors")
+        else:
             self.errors_found_lineEdit.setText(str(errors))
         self.worker_thread.exit()
         self._toggle_enabled(True)
