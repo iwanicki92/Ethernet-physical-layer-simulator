@@ -1,4 +1,5 @@
 from enum import Enum, auto
+import itertools
 from traceback import print_exc
 from typing import Callable, Union, cast
 
@@ -97,8 +98,8 @@ qline_converters: dict[tuple[Format, Format], list[Callable[[QLineEdit], None]]]
 }
 
 class EncodingWorker(QObject):
-    # encoded message
-    encoded_signal = pyqtSignal(str)
+    # encoded message + encoded with errors
+    encoded_signal = pyqtSignal(str, str)
     # decoded message, errors found
     decoded_signal = pyqtSignal(str, int)
     # error message and title
@@ -142,9 +143,25 @@ class EncodingWorker(QObject):
     def encode(self):
         print("Encoding/decoding...")
         try:
-             reed_solomon = RS_Original(self.rs_args.n, self.rs_args.k, self.rs_args.gf)
-             encoded = self._encode(reed_solomon)
-             self._decode(encoded, reed_solomon)
+            reed_solomon = RS_Original(self.rs_args.n, self.rs_args.k, self.rs_args.gf)
+            encoded = self._encode(reed_solomon)
+            errors = encode_decode_converters[self.format][0](self.error_input)
+            if self.format != Format.TEXT:
+                resized_errors = itertools.chain(errors, itertools.repeat(0))
+                encoded_err: Union[str, list[int]]
+                encoded_err = [enc ^ err for enc, err in zip(encoded, resized_errors)]
+            else:
+                list_encoded = string_to_list(encoded)
+                resized_errors = itertools.chain(string_to_list(errors), itertools.repeat(0))
+                tmp_encoded = [
+                    enc ^ err for enc, err in zip(list_encoded, resized_errors)
+                    ]
+                encoded_err = iterable_to_string(tmp_encoded)
+            self.encoded_signal.emit(
+                encode_decode_converters[self.format][1](encoded),
+                encode_decode_converters[self.format][1](encoded_err)
+                )
+            self._decode(encoded_err, reed_solomon)
         except _EncodingException as ex:
             self.error_signal.emit(f"Couldn't encode!: {ex}", "Encoding error!")
         except _DecodingException as ex:
@@ -155,17 +172,16 @@ class EncodingWorker(QObject):
     def _encode(self, reed_solomon: RS_Original):
         print(f"Encoding message")
         input = encode_decode_converters[self.format][0](self.message_input)
+        print(f'{self.message_input=}, {input=}, {self.format=}')
         try:
             encoded = reed_solomon.encode(input)
             print(f"{encoded=}")
-            self.encoded_signal.emit(encode_decode_converters[self.format][1](encoded))
             return encoded
         except Exception as ex:
             raise _EncodingException from ex
 
     def _decode(self, encoded: Union[str, list[int]],
                 reed_solomon: RS_Original):
-        # TODO: add errors to encoding
         print(f"Decoding message {encoded}")
         try:
             decoded_message, errors = reed_solomon.decode(encoded)
@@ -207,7 +223,7 @@ class RSTab(QWidget, Ui_RS_Form):
                 bch=bch,
                 force=self.force_checkBox.isChecked() if not bch else False
                 ),
-            format=Format.TEXT,
+            format=self.get_format(),
             message_input=self.input_lineEdit.text(),
             error_input=self.errors_lineEdit.text())
 
@@ -266,7 +282,7 @@ class RSTab(QWidget, Ui_RS_Form):
                 bch=bch,
                 force=self.force_checkBox.isChecked() if not bch else False
                 ),
-            format=Format.TEXT,
+            format=self.get_format(),
             message_input=self.input_lineEdit.text(),
             error_input=self.errors_lineEdit.text())
 
@@ -276,7 +292,7 @@ class RSTab(QWidget, Ui_RS_Form):
         if self.current_format == new_format:
             return
         line_edits: list[QLineEdit] = [self.input_lineEdit, self.encoded_lineEdit,
-                  self.errors_lineEdit, self.decoded_lineEdit]
+                  self.errors_lineEdit, self.encoded_err_lineEdit, self.decoded_lineEdit]
 
         converter = qline_converters.get((self.current_format, new_format), [])
         try:
@@ -289,8 +305,9 @@ class RSTab(QWidget, Ui_RS_Form):
                                "conversion error")
         self.current_format = new_format
 
-    def _encoded(self, encoded: str):
+    def _encoded(self, encoded: str, encoded_errors: str):
         self.encoded_lineEdit.setText(encoded)
+        self.encoded_err_lineEdit.setText(encoded_errors)
 
     def _decoded(self, decoded: str, errors: int):
         self.decoded_lineEdit.setText(decoded)

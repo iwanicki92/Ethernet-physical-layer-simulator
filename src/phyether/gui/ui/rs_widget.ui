@@ -325,27 +325,6 @@
         <enum>QFrame::Panel</enum>
        </property>
        <layout class="QFormLayout" name="inputFormLayout">
-        <item row="3" column="0">
-         <widget class="QLabel" name="label_4">
-          <property name="text">
-           <string>decoded</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="errors_label">
-          <property name="text">
-           <string>errors</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="label_9">
-          <property name="text">
-           <string>encoded</string>
-          </property>
-         </widget>
-        </item>
         <item row="0" column="0">
          <widget class="QLabel" name="label_10">
           <property name="text">
@@ -360,6 +339,13 @@
           </property>
          </widget>
         </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_9">
+          <property name="text">
+           <string>encoded</string>
+          </property>
+         </widget>
+        </item>
         <item row="1" column="1">
          <widget class="QLineEdit" name="encoded_lineEdit">
           <property name="toolTip">
@@ -370,6 +356,13 @@
           </property>
          </widget>
         </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="errors_label">
+          <property name="text">
+           <string>errors</string>
+          </property>
+         </widget>
+        </item>
         <item row="2" column="1">
          <widget class="QLineEdit" name="errors_lineEdit">
           <property name="toolTip">
@@ -377,11 +370,32 @@
           </property>
          </widget>
         </item>
-        <item row="3" column="1">
+        <item row="4" column="0">
+         <widget class="QLabel" name="label_4">
+          <property name="text">
+           <string>decoded</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1">
          <widget class="QLineEdit" name="decoded_lineEdit">
           <property name="toolTip">
            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Message after decoding&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="label_8">
+          <property name="text">
+           <string>encoded + errors</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QLineEdit" name="encoded_err_lineEdit">
           <property name="readOnly">
            <bool>true</bool>
           </property>
