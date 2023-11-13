@@ -1,33 +1,33 @@
 import sys
-from typing import Literal, Optional, Union
+from typing import Optional
+from PyQt5 import QtGui
 
-from PyQt5.QtWidgets import (QMessageBox, QApplication, QMainWindow,
-                             QWidget,QPushButton, QLineEdit, QTextEdit,
-                             QVBoxLayout, QHBoxLayout, QFormLayout,
-                             QTabWidget, QScrollArea, QLabel,
+from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QPushButton,
+                             QLineEdit, QVBoxLayout, QFormLayout, QTabWidget,
+                             QScrollArea, QLabel,
                              )
 
 from phyether.dac import DAC
 from phyether.gui.rs_tab import RSTab
-from phyether.gui.simulation import (SimulationArgs, SimulationDisplay, SimulationFormWidget, SimulationInitArgs,
+from phyether.gui.simulation import (SimulationArgs, SimulationDisplay,
+                                     SimulationFormWidget, SimulationInitArgs,
                                      SimulationRunArgs, SimulatorCanvas,
                                      )
 from phyether.gui.util import create_msg_box
-from phyether.util import list_from_string, list_to_string, iterable_to_string, string_to_list
-from phyether.reed_solomon import RS_Original
 
 
 class EthernetGuiApp(QMainWindow):
     def __init__(self):
         super().__init__()
 
+        self.tabs: Optional[tuple[RSTab, QWidget, QWidget, QWidget]] = None
+        self.tp_simulation_forms: list[SimulationFormWidget]
         self.init_ui()
-        self.input_message = ""
-        self.output_message = ""
-        self.rs = RS_Original(192, 186)
-        self.conversion_state: Literal["text", "bytes"] = "text"
-        self.tabs = [QWidget() for i in range(4)]
-        self.tp_simulation_forms = [SimulationFormWidget("Simulation parameters", 1)]
+
+    def closeEvent(self, a0) -> None:
+        if self.tabs is not None:
+            self.tabs[0].on_close()
+        return super().closeEvent(a0)
 
     def init_ui(self):
         self.setWindowTitle("Simple Encoder/Decoder")
@@ -44,8 +44,13 @@ class EthernetGuiApp(QMainWindow):
         self.setCentralWidget(central_widget)
         self.main_layout = QVBoxLayout(central_widget)
 
-        self.tabs = [RSTab()] + [QWidget() for i in range(3)]
+        if self.tabs is not None:
+            self.tabs[0].on_close()
+        self.tabs = (RSTab(), QWidget(), QWidget(), QWidget())
         self.tab_widget = QTabWidget()
+        self.tab_widget.setStyleSheet("QTabBar::tab:hover {\
+                                      background-color: rgba(204, 204, 204, 178);\
+                                      }")
         self.tab_widget.addTab(self.tabs[0], "Reed-Solomon")
         self.tab_widget.addTab(self.tabs[1], "PAM16")
         self.tab_widget.addTab(self.tabs[2], "PAM")

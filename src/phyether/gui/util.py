@@ -8,7 +8,7 @@ class DoubleSpinBoxNoWheel(QDoubleSpinBox):
     def wheelEvent(self, event):
         event.ignore()
 
-def create_msg_box(text, title):
+def create_msg_box(text: str, title: str):
         msg_box = QMessageBox()
         msg_box.setIcon(QMessageBox.Icon.Information)
         msg_box.setText(text)
