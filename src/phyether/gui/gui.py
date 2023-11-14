@@ -30,23 +30,17 @@ class EthernetGuiApp(QMainWindow):
         return super().closeEvent(a0)
 
     def init_ui(self):
-        self.setWindowTitle("Simple Encoder/Decoder")
+        self.setWindowTitle("EthernetSimulator")
         self.setGeometry(100, 100, 1200, 800)
 
         central_widget = QWidget(self)
         self.setCentralWidget(central_widget)
 
         self.main_layout = QVBoxLayout(central_widget)
-        self.change_tab(0)
 
-    def clear_main_layout(self, index=0):
-        central_widget = QWidget(self)
-        self.setCentralWidget(central_widget)
-        self.main_layout = QVBoxLayout(central_widget)
-
-        if self.tabs is not None:
-            self.tabs[0].on_close()
         self.tabs = (RSTab(), QWidget(), QWidget(), QWidget())
+        self.init_pam16()
+        self.init_twisted_pair()
         self.tab_widget = QTabWidget()
         self.tab_widget.setStyleSheet("QTabBar::tab:hover {\
                                       background-color: rgba(204, 204, 204, 178);\
@@ -56,31 +50,53 @@ class EthernetGuiApp(QMainWindow):
         self.tab_widget.addTab(self.tabs[2], "PAM")
         self.tab_widget.addTab(self.tabs[3], "Twisted-pair simulation")
 
-        if index != 0:
-            self.content_layout = QVBoxLayout(self.tabs[index])
-        self.tab_widget.setCurrentIndex(index)
         self.tab_widget.currentChanged.connect(self.change_tab)
         self.main_layout.addWidget(self.tab_widget)
 
+    # def clear_main_layout(self, index=0):
+    #     central_widget = QWidget(self)
+    #     self.setCentralWidget(central_widget)
+    #     self.main_layout = QVBoxLayout(central_widget)
+
+    #     if self.tabs is not None:
+    #         self.tabs[0].on_close()
+    #     self.tabs = (RSTab(), QWidget(), QWidget(), QWidget())
+    #     self.tab_widget = QTabWidget()
+    #     self.tab_widget.setStyleSheet("QTabBar::tab:hover {\
+    #                                   background-color: rgba(204, 204, 204, 178);\
+    #                                   }")
+    #     self.tab_widget.addTab(self.tabs[0], "Reed-Solomon")
+    #     self.tab_widget.addTab(self.tabs[1], "PAM16")
+    #     self.tab_widget.addTab(self.tabs[2], "PAM")
+    #     self.tab_widget.addTab(self.tabs[3], "Twisted-pair simulation")
+
+    #     if index != 0:
+    #         self.content_layout = QVBoxLayout(self.tabs[index])
+    #     self.tab_widget.setCurrentIndex(index)
+    #     self.tab_widget.currentChanged.connect(self.change_tab)
+    #     self.main_layout.addWidget(self.tab_widget)
+
     def change_tab(self, index):
-        print("Changed tab:", index)
-        self.clear_main_layout(index)
-        if index == 1:
-            self.init_pam16()
-        elif index == 2:
-            self.init_pam()
-        elif index == 3:
-            self.init_twisted_pair()
+        self.tab_widget.setCurrentIndex(index)
+        # print("Changed tab:", index)
+        # self.clear_main_layout(index)
+        # if index == 1:
+        #     self.init_pam16()
+        # elif index == 2:
+        #     self.init_pam()
+        # elif index == 3:
+        #     self.init_twisted_pair()
 
     def init_pam16(self):
-        self.pam_input_field = QLineEdit()
-        pam16_form = QFormLayout()
-        pam16_form.addRow("PAM16 parameters:", self.pam_input_field)
+        self.tabs[1].setLayout(QVBoxLayout())
+        self.tabs[1].layout().addWidget(QLabel("PAM16 tab placeholder"))
 
     def init_pam(self):
         pass
 
     def init_twisted_pair(self):
+        self.tabs[3].setLayout(QVBoxLayout())
+
         self.tp_simulation_forms = [SimulationFormWidget("Simulation parameters", 1)]
         self.tp_scroll_area = QScrollArea()
         self.tp_scroll_area.setWidgetResizable(True)
@@ -100,20 +116,20 @@ class EthernetGuiApp(QMainWindow):
         self.tp_scroll_area.setWidget(self.tp_params_widget)
 
         # Add the scroll area to the content layout
-        self.content_layout.addWidget(self.tp_scroll_area)
+        self.tabs[3].layout().addWidget(self.tp_scroll_area)
 
         self.simulator_signals = QLineEdit()
-        self.content_layout.addWidget(QLabel(f"Twisted pair signals"))
-        self.content_layout.addWidget(self.simulator_signals)
+        self.tabs[3].layout().addWidget(QLabel(f"Twisted pair signals"))
+        self.tabs[3].layout().addWidget(self.simulator_signals)
 
         self.tp_simulate_button = QPushButton("Simulate")
-        self.content_layout.addWidget(self.tp_simulate_button)
+        self.tabs[3].layout().addWidget(self.tp_simulate_button)
         self.tp_simulate_button.clicked.connect(self.simulate)
 
         # Add your canvas
         self.tp_canvas = SimulatorCanvas()
         self.tp_canvas.simulation_stopped_signal.connect(lambda: self.tp_simulate_button.setDisabled(False))
-        self.content_layout.addWidget(self.tp_canvas)
+        self.tabs[3].layout().addWidget(self.tp_canvas)
 
     def add_simulation_form(self):
         index = len(self.tp_simulation_forms)
