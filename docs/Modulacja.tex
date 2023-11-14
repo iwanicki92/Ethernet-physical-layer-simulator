@@ -1,0 +1,49 @@
+\section{Modulacja}
+
+\subsection{Dlaczego potrzebujemy modulacji?}
+
+Modulacja cyfrowa to technika zamiany bitów na sygnał oraz sygnału na bity. Jest kluczowym zagadnieniem w przesyle danych pomiędzy systemami komputerowymi. W odróżnieniu od modulacji analogowej, gdzie przesyłane dane wybierane są z przedziału,
+modulacja cyfrowa operuje na dyskretnym zbiorze danych (bitach).
+
+Dane reprezentowane są w postaci zmiany parametrów przesyłanego sygnału. Wyróżniane są cztery podstawowe metody:
+
+\begin{enumerate}
+    \item PSK (phase-shift keying) --- zmiana fazy fali nośnej sygnału
+    \item FSK (frequency-shift keying) --- zmiana częstotliwości fali nośnej sygnału
+    \item ASK (amplitude-shift keying) --- zmiana amplitudy fali nośnej sygnału
+    \item QAM (quadrature amplitude modulation) --- połączenie PSK oraz FSK, a więc zmieniana jest zarówno amplituda oraz faza
+\end{enumerate}
+
+Zmiany sygnału (symbole) kodujące kolejne bity wybierane są ze skończonego zbioru nazywanego alfabetem modulacji.
+Dział ten przedstawi popularne techniki modulacji w technologiach Ethernetowych
+
+\subsection{Wprowadzenie}
+
+Aby ławiej zrozumieć ideę stojącą za bardziej skomplikowanymi technikami modulacji, należałoby na wprowadzeniu wyjaśnić kilka podstawowych pojęć.
+
+Główną charakterystyką łącza jest szerokość pasma (ang. bandwidth) --- określa ona maksymalną (teoretyczną) liczbę bitów jaką łączę jest w stanie przesłać w danym czasie. Podawana jest ona w bitach na sekundę [$bps$] lub w hercach [Hz].
+
+Przepustowość (ang. channel capacity) --- rzeczywista szerokość pasma, zmierzona w określonych warunkach.
+
+Przepływność (ang. bit rate) --- rzeczywista ilość bitów transmitowanych w jednostce czasu poprzez kanał, podawana również w $bps$ lub Hz. Jest stałą charakterystyką danego łącza.
+
+W 1924 roku, Harry Nyquist przedstawił światu równanie, za pomocą którego określić można maksymalną przepływność łącza, które nie podlega szumom. 24 lata później, Claude
+Shannon rozszerzył równanie Nyquista, uwzględniając szum. Udowodnił on, że maksymalną przepływność łącza, o szerokości pasma $B$ oraz stosunku sygnału do szumu $S/N$, można
+obliczyć ze wzoru:
+
+\begin{align*}
+    \text{Przepływność}_{max} &= B * log_{2}{(1 + S/N)}
+\end{align*}
+
+Granica ta nazywana jest limitem Shannona.
+
+Innym ważnym pojęciem jest multipleksacja (ang. multiplexing) i oznacza przesył wielu symboli jednocześnie w jednym kanale.
+
+Na początku rozważmy przykład. Najprostszą metodą byłoby używanie dodatniego napięcia dla bitu równego 1 i ujemnego napięcia dla 0.
+Technika ta nosi nazwę \textbf{NRZ (Non-Return-to-Zero)}. Nie jest ona wykorzystywana w praktyce --- nadając naprzemiennie 1 i 0 otrzymamy okres równy 2 bity, co oznacza że potrzebujemy pasma B/2 Hz przy prędkości B bit / s.
+Nie trudno zauwarzyć, że do szybszego nadawnia, zwiększona musi zostać szerokość pasma, co nie jest optymalnym rozwiązaniem z uwagi na ograniczoność tego zasobu \cite{Computer-networks-Tanenbaum}.
+
+Jednym z rozwiązań tego problemu jest wykorzystanie większej ilości poziomów napięcia. W powyższym przykładzie zastosowane zostały dwa poziomy, a co za tym idzie mamy do dyspozycji dwa symbole przesyłane przez kanał.
+Zwiększenie poziomów do 4 dałoby nam 4 różne symbole, a więc 2 bity informacji. W rezultacie przepływność wzrosła dwukrotnie, natomiast szerokość pasma nie zmieniła się. Technika zadziała pod warunkiem, że strona odbiorcza dysponuje sprzętem, który pozwoli jej na
+rozróżnienie wielu poziomów napięcia. Jednakże w praktyce jest to koszt, który jesteśmy w stanie ponieść.
+
