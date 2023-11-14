@@ -17,15 +17,38 @@ Python oferuje wiele bibliotek, które mogą okazać się kluczowe: od interfejs
 \begin{enumerate}
     \item PyQt będzie biblioteką wykorzystywaną do stworzenia interfejsu graficznego użytkownika (GUI) dla symulatora. PyQt zapewnia szeroki zakres narzędzi do tworzenia rozbudowanych i przyjaznych użytkownikowi interfejsów, co jest szczególnie ważne w symulatorze dydaktycznym, gdzie interfejs musi być intuicyjny i nie stanowić niepotrzebnego wyzwania lub problemu dla biorących udział studentów
     \item NumPy jest najpopularniejszą biblioteką Python implementującą algorytmy matematyczne. Między innymi oferuje generatory liczb pseudolosowych o różnych rozkładach, co jest wymagane do prawidłowego generowania ramek ethernetowych i błędów
-    \item Scapy umożliwia tworzenie i przetwarzanie różnego rodzaju pakietów sieciowych, w tym ramek Ethernet, co jest kluczową funkcjonalnością symulatora
     \item  Matplotlib to popularna biblioteka do tworzenia wykresów. Może okazać się przydatna przy tworzeniu wykresów sygnałów
 \end{enumerate}
 
 
 Istnieją również inne popularne narzędzia, które mogą być użyteczne do symulacji rozwiązań warstwy fizycznej sieci Ethernet:
 \begin{enumerate}
-    \item SPICE (Simulation Program with Integrated Circuit Emphasis) jest powszechnie stosowanym narzędziem do symulacji obwodów elektronicznych. Jest to rozbudowany program, który umożliwia modelowanie i analizę zachowania obwodów złożonych, takich jak układy analogowe, cyfrowe czy mikroelektroniczne
-    \item MATLAB to znane i powszechnie używane narzędzie do obliczeń numerycznych, analizy danych i modelowania systemów. Posiada szeroki zakres narzędzi i funkcji przeznaczonych do tworzenia modeli matematycznych, symulacji dynamicznych itp
+    \item SPICE (Simulation Program with Integrated Circuit Emphasis) jest powszechnie stosowanym narzędziem do symulacji obwodów elektronicznych. Jest to rozbudowany program, który umożliwia modelowanie i analizę zachowania obwodów złożonych, takich jak układy analogowe, cyfrowe czy mikroelektroniczne. W celu korzystania z tego narzędzia w środowisku Python dostępna jest biblioteka PySpice, będąca interfejsem umożliwiającym korzystanie ze SPICE,
+    \item MATLAB to znane i powszechnie używane narzędzie do obliczeń numerycznych, analizy danych i modelowania systemów. Posiada szeroki zakres narzędzi i funkcji przeznaczonych do tworzenia modeli matematycznych, symulacji dynamicznych itp.,
+    \item Scapy umożliwia tworzenie i przetwarzanie różnego rodzaju pakietów sieciowych, w tym ramek Ethernet, co jest kluczową funkcjonalnością symulatora.
 \end{enumerate}
 
-Jednak zdecydowano się na stworzenie własnego modułu do symulacji warstwy fizycznej sieci Ethernet z wykorzystaniem wyżej wymienionych bibliotek.
+\section{Symulator}
+\subsection{Interfejs użytkownika}
+Interfejs użytkownika został wykonany przy użyciu PyQt5 oraz Qt Designer. Qt Designer to graficzne narzędzie do projektowania interfejsów użytkownika w ramach frameworka Qt. Umożliwia łatwe tworzenie i dostosowywanie wyglądu aplikacji oraz następne jego wygenerowanie jako kodu w języku Python lub C++.
+
+Interfejs składa się z kilku zakładek stworzonych, które umożliwiają przełączanie między częściami aplikacji bez utraty wyników dotychczasowej pracy. Każda zakładka przeznaczona jest do innego zadania laboratoryjnego i zawiera symulacje innych rozwiązań ethernetowych. 
+
+Wykresy są tworzone przy pomocy biblioteki Matplotlib. Została dodatkowo stworzona klasa, która zawiera stworzone wykresy i może być użyta jako element graficznego interfejsu użytkownika, a więc dodana do niego.
+
+\subsection{Symulacje wybranych rozwiązań}
+Aplikacja umożliwa symulowanie wybranych rozwiązań fizycznej warstwy sieci Ethernet. W każdym przypadku użytkownik ma swobodę podawania własnych parametrów wejściowych, zmieniania ich, co ma na celu ułatwienie zrozumienia działania tych rozwiązań.
+
+\subsubsection{Kodowanie korekcyjne Reeda-Solomona}
+Kodowanie korekcyjne Reed-Solomona to metoda kodowania korekcyjnego, mająca na celu wykrywanie i naprawianie błędów w przesyłanych danych. Stworzona została w 1960 roku przez dwóch amerykańskich matematyków: Irving S. Reed i Gustave Solomon. Od tego czasu znalazła szerokie zastosowanie w dziedzinie komunikacji, kodowaniu i obsłudze dysków.
+
+Główną ideą kodowania korekcyjnego Reed-Solomona jest dodawanie nadmiarowych danych do przesyłanych informacji, dzięki czemu w przypadku wystąpienia błędów, możliwe jest ich wykrycie i skorygowanie. Algorytm opiera się na algebraicznych właściwościach ciał skończonych, co umożliwia efektywne wykonywanie operacji matematycznych potrzebnych do kodowania i dekodowania.
+
+W symulatorze kodowanie i dekodowanie wykorzytuje metody klasy ReedSolomon udostępnionej w bibliotece galois. Jest ona rozszerzeniem, dodającym operacje na ciałach skończonych, innej popularnej biblioteki języka Python - NumPy. Jej nazwa pochodzi od nazwiska francuskiego matematyka Évariste Galois, który zasłynął badaniami ciał skończonych, które nazywane są również ciałami Galois.
+
+\subsubsection{Symulacja przesyłu sygnału}
+Symulator umożliwia symulację przesyłu danych przez skrętkę lub kablem Ethernet, w której można śledzić zmiany napięć. W tym przypadku wykorzystana została biblioteka PySpice. Dzięki niej można nadać wykorzystywanemu przewodowi pożądane parametry, między innymi: opór, długość i indukcyjność.
+
+Użytkownik ma możliwość podawania tych parametrów w przewijalnym oknie, gdzie może dodawać również kolejne przewodniki. 
+
+Symulacja wykonywana jest w osobnym wątku. Dodatkowo możliwa jest jednoczesna symulacja wielu przewodów o różnych parametrach, które następnie przedstawiane są na jednym wykresie. Opcjonalnie można ukrywać lub pokazywać wybrane symulacji zaznaczając odpowiednie pola przy listach parametrów odpowiednich przewodów.
