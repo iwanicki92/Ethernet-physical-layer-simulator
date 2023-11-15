@@ -1,19 +1,104 @@
+\newcommand{\modulo}[1]{\mathbb{Z} / #1 \mathbb{Z}}
 \section{Kodowanie korekcyjne Reeda-Solomona}
 \subsection{Wstęp}
 
-Kodowanie korekcyjne Reeda-Solomona zostało stworzone przez Irvina S. Reeda oraz Gustava Solomona w 1960 roku~\cite[]{Reed-Solomon-original}
+Kodowanie korekcyjne Reeda-Solomona zostało stworzone przez Irvina S. Reeda
+oraz Gustava Solomona w 1960 roku~\cite[]{Reed-Solomon-original}
+Kody Reeda-Solomona charakteryzują się 3 parametrami, rozmiarem alfabetu $q$
+interpretowanym w ciele skończonym $\mathbb{F}_q$, długością wiadomości do
+zakodowania $k$ oraz długością słowa kodowego $n$ gdzie $k < n \leq q$ oraz
+$q=p^n$ gdzie $p$ to liczba pierwsza a $n \in \mathbb{N}^+$
 
-Kody Reeda-Solomona charakteryzują się 3 parametrami, rozmiarem alfabetu $q$ interpretowanym w ciele skończonym $\mathbb{F}_q$, długością wiadomości do zakodowania $k$ oraz długością słowa kodowego $n$ gdzie $k < n \leq q$ oraz $q=p^n$ gdzie $p$ to liczba pierwsza a $n \in \mathbb{N}^+$
+\subsection{Ciało skończone $\mathbb{F}_{q}$}
+
+Aby zrozumieć działanie kodu Reeda-Solomona trzeba najpierw zrozumieć czym jest
+ciało skończone $\mathbb{F}_q$ zwane też ciałem Galois $\operatorname{GF}(q)$.
+Ciało to jest ciałem $K$ rzędu $q$ czyli takie które zawiera jedynie $q$ elementów.
+Aby struktura algebraiczna była ciałem musi definiować 2 operacje zwane
+dodawaniem i mnożeniem.
+Te operacje muszą spełniać kilka warunków:
+
+{\small
+    \begin{align}
+        a + (b + c) &= (a + b) + c & \forall a,b,c &\in K && \text{Łączność dodawania} \\
+        a*(b*c) &= (a*b)*c & \forall a,b,c &\in K && \text{Łączność mnożenia} \\
+        a + b &= b + a & \forall a,b &\in K && \text{Przemienność dodawania} \\
+        a * b &= b * a & \forall a,b &\in K && \text{Przemienność mnożenia} \\
+        a + 0 &= a & \forall a &\in K && \text{Element neutralny (0) dodawania} \\
+        a * 1 &= a & \forall a &\in K && \text{Element neutralny (1) mnożenia} \\
+        a + (-a) &= 0 & \forall a &\in K && \text{Element odwrotny (-a) dodawania} \\
+        a*a^{-1} &= 1 & \forall a &\in K \setminus \{ 0 \} &&
+            \text{Element odwrotny (} a^{-1} \text{) mnożenia} \label{field_mul_inverse}\\
+        a*(b + c) &= (a*b) + (a*c) & \forall a,b,c &\in K &&
+            \text{Rozdzielność mnożenia względem dodawania}
+    \end{align}
+}%
+W kodzie solomona wykorzystujemy ciało $\mathbb{F}_2$ oraz ciało rozszerzone
+$\mathbb{F}_{2^m}, m \in \{ 1, 2, 3, \ldots \}$.
+Aby stworzyć ciało rzędu $p$ gdzie $p$ jest liczbą pierwszą można wykorzystać
+pierścień klas reszt $\mathbb{Z} / p \mathbb{Z}$ z elementami~(\ref{modulo_elements})
+i działaniem dodawania~(\ref{modulo_addition}) i mnożenia~(\ref{modulo_multiplication})
+
+\begin{align}
+    \modulo{p} = \{ [a]_p | a \in \mathbb{Z} \} = \{ [0]_p, [1]_p,
+    [2]_p, \ldots, [n-1]_p \} \label{modulo_elements}
+\end{align}
+\begin{align}
+    [a]_n + [b]_n &= [a + b]_n \label{modulo_addition} \\
+    [a]_n * [b]_n &= [a * b]_n \label{modulo_multiplication}
+\end{align}
+
+Dla $p$ niebędących liczbami pierwszymi $\modulo{p}$ nie będzie
+ciałem skończonym, ponieważ nie wszystkie elementy będą spełniały
+warunek~(\ref{field_mul_inverse}).
+Dla $\mathbb{F}_2$ działania $+$ i $*$ są równoważne operacjom logicznym XOR
+oraz AND zdefiniowanymi w tablicy~\ref{truth_table:title}
+\begin{table}
+    \captionof{table}{Dodawanie i mnożenie w $\mathbb{F}_2$}\label{truth_table:title}
+    \centering
+    \begin{tabular}{c c | c c}
+        \toprule
+        a & b & + & * \\
+        \midrule
+        0 & 0 & 0 & 0 \\
+        \midrule
+        0 & 1 & 1 & 0 \\
+        \midrule
+        1 & 0 & 1 & 0 \\
+        \midrule
+        1 & 1 & 0 & 1 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection{Rozszerzone ciało skończone $\mathbb{F}_{2^k}$}
+
+Aby stworzyć ciało skończone o rzędzie $2^k$, $k \in \{ 1, 2, 3, \ldots \}$ musimy
+najpierw znaleźć nierozkładalny wielomian $p(x)$ stopnia $k$ o współczynnikach
+$c_{n} \in \mathbb{F}_{2}$.
+Elementami tego ciała będą wielomiany o postaci $c_{0} + c_{1}\alpha + c_{2}\alpha^{2} +
+    \cdots + c_{k-1}\alpha^{k-1}$, $c_{n} \in \{0, 1\}$.
+Zbiór tych elementów można zapisać jako zbiór wielomianów~(\ref{gf_extended:polynomial}),
+zbiór k-krotek lub wartości binarnych zawierających współczynniki
+wielomianu~(\ref{gf_extended:binary}).
+\begin{align}
+    \left\{ \sum_{n=0}^{k-1} c_{n}\alpha^{n} \,|\, c_{n} \in \{0,1\} \text{ for } 1 \le n \le k \right\}
+        = \{ 0, 1, \alpha, 1 + \alpha, \alpha^{2}, \ldots, 1 + \alpha + \alpha^2 + \cdots + \alpha^{k-1} \}
+        \label{gf_extended:polynomial} \\
+    \{ 0, 1 \}^{k} = \{ (0, 0, 0, \ldots, 0), (1, 0, 0, \ldots, 0), (0, 1, 0, \ldots, 0),
+    (1, 1, 0, \ldots, 0), \ldots, (1, 1, 1, \ldots, 1) \} \label{gf_extended:binary}
+\end{align}
 
 \subsection{Wykorzystanie w standardach Ethernetowych}
 
-Różne kody Reeda-Solomona są wykorzystywane w wielu standardach Ethernet, wyróżnione w tablicy~\ref{table:kodowania}
+Różne kody Reeda-Solomona są wykorzystywane w wielu standardach Ethernet,
+wyróżnione w tablicy~\ref{standards:title}
 
 \begingroup
 \hyphenpenalty10000
 \exhyphenpenalty10000
 \begin{table}[h]
-\captionof{table}{Kodowania RS w różnych standardach~\cite{Ethernet}}\label{table:kodowania}
+\captionof{table}{Kodowania RS w różnych standardach~\cite{Ethernet}}\label{standards:title}
 \centering
     \begin{tabular}{m{3cm} m{9cm}}
     \toprule
