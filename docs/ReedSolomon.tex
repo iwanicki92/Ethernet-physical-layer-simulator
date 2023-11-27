@@ -3,7 +3,7 @@
 \subsection{Wstęp}
 
 Kodowanie korekcyjne Reeda-Solomona zostało stworzone przez Irvina S. Reeda
-oraz Gustava Solomona w 1960 roku~\cite[]{Reed-Solomon-original}
+oraz Gustava Solomona w 1960 roku~\cite{Reed-Solomon-original}
 Kody Reeda-Solomona charakteryzują się 3 parametrami, rozmiarem alfabetu $q$
 interpretowanym w ciele skończonym $\mathbb{F}_q$, długością wiadomości do
 zakodowania $k$ oraz długością słowa kodowego $n$ gdzie $k < n \leq q$ oraz
@@ -41,11 +41,11 @@ i działaniem dodawania~(\ref{modulo_addition}) i mnożenia~(\ref{modulo_multipl
 
 \begin{align}
     \modulo{p} = \{ [a]_p | a \in \mathbb{Z} \} = \{ [0]_p, [1]_p,
-    [2]_p, \ldots, [n-1]_p \} \label{modulo_elements}
+    [2]_p, \ldots, [p-1]_p \} \label{modulo_elements}
 \end{align}
 \begin{align}
-    [a]_n + [b]_n &= [a + b]_n \label{modulo_addition} \\
-    [a]_n * [b]_n &= [a * b]_n \label{modulo_multiplication}
+    [a]_p + [b]_p &= [a + b]_p \label{modulo_addition} \\
+    [a]_p * [b]_p &= [a * b]_p \label{modulo_multiplication}
 \end{align}
 
 Dla $p$ niebędących liczbami pierwszymi $\modulo{p}$ nie będzie
