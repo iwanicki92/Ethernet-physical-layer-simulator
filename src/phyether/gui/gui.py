@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QPushButton,
                              )
 
 from phyether.dac import DAC
+from phyether.gui.rs_register_tab import RSRegisterTab
 from phyether.gui.rs_tab import RSTab
 from phyether.gui.simulation import (SimulationArgs, SimulationDisplay,
                                      SimulationFormWidget, SimulationInitArgs,
@@ -20,7 +21,7 @@ class EthernetGuiApp(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.tabs: Optional[tuple[RSTab, QWidget, QWidget, QWidget]] = None
+        self.tabs: Optional[tuple[RSTab, QWidget, QWidget, QWidget, RSRegisterTab]] = None
         self.tp_simulation_forms: list[SimulationFormWidget]
         self.init_ui()
 
@@ -38,7 +39,7 @@ class EthernetGuiApp(QMainWindow):
 
         self.main_layout = QVBoxLayout(central_widget)
 
-        self.tabs = (RSTab(), QWidget(), QWidget(), QWidget())
+        self.tabs = (RSTab(), QWidget(), QWidget(), QWidget(), RSRegisterTab())
         self.init_pam16()
         self.init_twisted_pair()
         self.tab_widget = QTabWidget()
@@ -49,6 +50,7 @@ class EthernetGuiApp(QMainWindow):
         self.tab_widget.addTab(self.tabs[1], "PAM16")
         self.tab_widget.addTab(self.tabs[2], "PAM")
         self.tab_widget.addTab(self.tabs[3], "Twisted-pair simulation")
+        self.tab_widget.addTab(self.tabs[4], "Reed-Solomon Shift Register")
 
         self.tab_widget.currentChanged.connect(self.change_tab)
         self.main_layout.addWidget(self.tab_widget)

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>461</width>
-    <height>506</height>
+    <height>564</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -149,11 +149,11 @@
           <property name="frameShape">
            <enum>QFrame::Panel</enum>
           </property>
-          <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,0,0,0,0,0">
+          <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,0,0,0,0,0,0">
            <item>
             <widget class="QLabel" name="label_2">
              <property name="text">
-              <string>RS(n,k,gf)</string>
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;RS(n,k,GF(2&lt;span style=&quot; vertical-align:super;&quot;&gt;m&lt;/span&gt;))&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
@@ -175,6 +175,9 @@
               </size>
              </property>
             </spacer>
+           </item>
+           <item>
+            <widget class="QComboBox" name="standardsComboBox"/>
            </item>
            <item>
             <layout class="QFormLayout" name="rsFormLayout">
@@ -204,7 +207,7 @@
                 <string/>
                </property>
                <property name="text">
-                <string>gf:</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;GF(2&lt;span style=&quot; vertical-align:super;&quot;&gt;m&lt;/span&gt;)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
               </widget>
              </item>
@@ -243,16 +246,16 @@
              <item row="2" column="1">
               <widget class="SpinBoxNoWheel" name="rs_gf_spinBox">
                <property name="toolTip">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Galois/finite field order, must be power of 2&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Galois/finite field order&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="minimum">
-                <number>4</number>
+                <number>2</number>
                </property>
                <property name="maximum">
-                <number>10000</number>
+                <number>14</number>
                </property>
                <property name="value">
-                <number>256</number>
+                <number>8</number>
                </property>
               </widget>
              </item>
@@ -524,11 +527,62 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>rs_gf_spinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>RS_Form</receiver>
+   <slot>gf_changed(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>359</x>
+     <y>150</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>230</x>
+     <y>267</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>rs_n_spinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>RS_Form</receiver>
+   <slot>n_changed(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>359</x>
+     <y>90</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>230</x>
+     <y>267</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>standardsComboBox</sender>
+   <signal>currentTextChanged(QString)</signal>
+   <receiver>RS_Form</receiver>
+   <slot>comboBoxChanged(QString)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>337</x>
+     <y>89</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>230</x>
+     <y>267</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>bch_changed(bool)</slot>
   <slot>format_changed(QAbstractButton*)</slot>
   <slot>encode()</slot>
+  <slot>gf_changed(int)</slot>
+  <slot>n_changed(int)</slot>
+  <slot>comboBoxChanged(QString)</slot>
  </slots>
  <buttongroups>
   <buttongroup name="formatButtonGroup"/>
