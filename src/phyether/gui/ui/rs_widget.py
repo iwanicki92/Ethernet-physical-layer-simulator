@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_RS_Form(object):
     def setupUi(self, RS_Form):
         RS_Form.setObjectName("RS_Form")
-        RS_Form.resize(461, 535)
+        RS_Form.resize(461, 564)
         self.gridLayout = QtWidgets.QGridLayout(RS_Form)
         self.gridLayout.setObjectName("gridLayout")
         self.verticalLayout = QtWidgets.QVBoxLayout()
@@ -79,6 +79,9 @@ class Ui_RS_Form(object):
         self.verticalLayout_2.addWidget(self.label_2)
         spacerItem2 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Preferred)
         self.verticalLayout_2.addItem(spacerItem2)
+        self.standardsComboBox = QtWidgets.QComboBox(self.frame4)
+        self.standardsComboBox.setObjectName("standardsComboBox")
+        self.verticalLayout_2.addWidget(self.standardsComboBox)
         self.rsFormLayout = QtWidgets.QFormLayout()
         self.rsFormLayout.setObjectName("rsFormLayout")
         self.label_7 = QtWidgets.QLabel(self.frame4)
@@ -199,6 +202,7 @@ class Ui_RS_Form(object):
         self.encode_decode_pushButton.clicked.connect(RS_Form.encode) # type: ignore
         self.rs_gf_spinBox.valueChanged['int'].connect(RS_Form.gf_changed) # type: ignore
         self.rs_n_spinBox.valueChanged['int'].connect(RS_Form.n_changed) # type: ignore
+        self.standardsComboBox.currentTextChanged['QString'].connect(RS_Form.comboBoxChanged) # type: ignore
         QtCore.QMetaObject.connectSlotsByName(RS_Form)
 
     def retranslateUi(self, RS_Form):
@@ -214,10 +218,10 @@ class Ui_RS_Form(object):
         self.dec_radioButton.setText(_translate("RS_Form", "Decimal"))
         self.bin_radioButton.setToolTip(_translate("RS_Form", "<html><head/><body><p>Change inputs to binary</p></body></html>"))
         self.bin_radioButton.setText(_translate("RS_Form", "Binary"))
-        self.label_2.setText(_translate("RS_Form", "<html><head/><body><p>RS(n,k,GF(2<sup>k</sup>))</p></body></html>"))
+        self.label_2.setText(_translate("RS_Form", "<html><head/><body><p>RS(n,k,GF(2<span style=\" vertical-align:super;\">m</span>))</p></body></html>"))
         self.label_7.setText(_translate("RS_Form", "n:"))
         self.label_6.setText(_translate("RS_Form", "k:"))
-        self.label_5.setText(_translate("RS_Form", "<html><head/><body><p>GF(2<span style=\" vertical-align:super;\">k</span>)</p></body></html>"))
+        self.label_5.setText(_translate("RS_Form", "<html><head/><body><p>GF(2<span style=\" vertical-align:super;\">m</span>)</p></body></html>"))
         self.rs_n_spinBox.setToolTip(_translate("RS_Form", "<html><head/><body><p>Codeword length</p></body></html>"))
         self.rs_k_spinBox.setToolTip(_translate("RS_Form", "<html><head/><body><p>Message length</p></body></html>"))
         self.rs_gf_spinBox.setToolTip(_translate("RS_Form", "<html><head/><body><p>Galois/finite field order</p></body></html>"))

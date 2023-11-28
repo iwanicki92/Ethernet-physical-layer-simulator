@@ -1,13 +1,11 @@
-from abc import ABC, abstractmethod
 from enum import Enum, auto
 import itertools
 from traceback import print_exc
-from typing import Callable, Tuple, Union, cast
-from PyQt5 import QtCore
+from typing import Callable, Union, cast
 
-from PyQt5.QtCore import (pyqtSlot, pyqtSignal, QRegularExpression, QObject,
+from PyQt5.QtCore import (pyqtSlot, pyqtSignal, QObject,
                           QThread, QWaitCondition, QMutex)
-from PyQt5.QtGui import QRegularExpressionValidator, QValidator
+from PyQt5.QtGui import QValidator
 from PyQt5.QtWidgets import QWidget, QAbstractButton, QLineEdit
 
 from attr import define
@@ -32,6 +30,12 @@ class Format(Enum):
 class NoValidation(QValidator):
     def validate(self, a0: str, a1: int):
         return QValidator.State.Acceptable, a0, a1
+
+@define(slots=False)
+class ReedSolomonParams(DictMapping):
+    n: int = 192
+    k: int = 186
+    gf_power: int = 8
 
 @define(kw_only=True, slots=False)
 class ReedSolomonArgs(DictMapping):
@@ -208,6 +212,12 @@ class RSTab(QWidget, Ui_RS_Form):
         self.setupUi(self)
         self.current_format = Format.TEXT
 
+        self.rs_param_mapping: dict[str, ReedSolomonParams] = {
+            "RS(192,186,256) - 25/40GBASE-T": ReedSolomonParams(192, 186, 8),
+            "RS(360,326,1024) - 2.5/5/10GBASE-T1": ReedSolomonParams(360, 326, 10),
+        }
+        self.standardsComboBox.addItems(self.rs_param_mapping.keys())
+
         # validators for different format and max input size
         self.validators: dict[Format, QValidator] = {
             Format.TEXT: NoValidation(self),
@@ -276,6 +286,15 @@ class RSTab(QWidget, Ui_RS_Form):
 
     @pyqtSlot(int)
     def gf_changed(self, value):
+        if value != 8:
+            if self.text_radioButton.isChecked():
+                self.hex_radioButton.setChecked(True)
+                self.convert()
+            self.text_radioButton.setCheckable(False)
+            self.text_radioButton.setEnabled(False)
+        else:
+            self.text_radioButton.setCheckable(True)
+            self.text_radioButton.setEnabled(True)
         self.validators[Format.DEC].max = 2**value  # type: ignore
         self.validators[Format.HEX].max = 2**value  # type: ignore
         self.validators[Format.BIN].max = value  # type: ignore
@@ -285,6 +304,13 @@ class RSTab(QWidget, Ui_RS_Form):
         self.validators[Format.DEC].max_items = value  # type: ignore
         self.validators[Format.HEX].max_items = value  # type: ignore
         self.validators[Format.BIN].max_items = value  # type: ignore
+
+    @pyqtSlot(str)
+    def comboBoxChanged(self, new_text: str):
+        new_params = self.rs_param_mapping[new_text]
+        self.rs_n_spinBox.setValue(new_params.n)
+        self.rs_k_spinBox.setValue(new_params.k)
+        self.rs_gf_spinBox.setValue(new_params.gf_power)
 
     @pyqtSlot()
     def encode(self):
