@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_RS_Form(object):
     def setupUi(self, RS_Form):
         RS_Form.setObjectName("RS_Form")
-        RS_Form.resize(461, 506)
+        RS_Form.resize(461, 535)
         self.gridLayout = QtWidgets.QGridLayout(RS_Form)
         self.gridLayout.setObjectName("gridLayout")
         self.verticalLayout = QtWidgets.QVBoxLayout()
@@ -106,9 +106,9 @@ class Ui_RS_Form(object):
         self.rs_k_spinBox.setObjectName("rs_k_spinBox")
         self.rsFormLayout.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.rs_k_spinBox)
         self.rs_gf_spinBox = SpinBoxNoWheel(self.frame4)
-        self.rs_gf_spinBox.setMinimum(4)
-        self.rs_gf_spinBox.setMaximum(10000)
-        self.rs_gf_spinBox.setProperty("value", 256)
+        self.rs_gf_spinBox.setMinimum(2)
+        self.rs_gf_spinBox.setMaximum(14)
+        self.rs_gf_spinBox.setProperty("value", 8)
         self.rs_gf_spinBox.setObjectName("rs_gf_spinBox")
         self.rsFormLayout.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.rs_gf_spinBox)
         self.verticalLayout_2.addLayout(self.rsFormLayout)
@@ -197,6 +197,8 @@ class Ui_RS_Form(object):
         self.formatButtonGroup.buttonClicked['QAbstractButton*'].connect(RS_Form.format_changed) # type: ignore
         self.bch_checkBox.toggled['bool'].connect(RS_Form.bch_changed) # type: ignore
         self.encode_decode_pushButton.clicked.connect(RS_Form.encode) # type: ignore
+        self.rs_gf_spinBox.valueChanged['int'].connect(RS_Form.gf_changed) # type: ignore
+        self.rs_n_spinBox.valueChanged['int'].connect(RS_Form.n_changed) # type: ignore
         QtCore.QMetaObject.connectSlotsByName(RS_Form)
 
     def retranslateUi(self, RS_Form):
@@ -212,13 +214,13 @@ class Ui_RS_Form(object):
         self.dec_radioButton.setText(_translate("RS_Form", "Decimal"))
         self.bin_radioButton.setToolTip(_translate("RS_Form", "<html><head/><body><p>Change inputs to binary</p></body></html>"))
         self.bin_radioButton.setText(_translate("RS_Form", "Binary"))
-        self.label_2.setText(_translate("RS_Form", "RS(n,k,gf)"))
+        self.label_2.setText(_translate("RS_Form", "<html><head/><body><p>RS(n,k,GF(2<sup>k</sup>))</p></body></html>"))
         self.label_7.setText(_translate("RS_Form", "n:"))
         self.label_6.setText(_translate("RS_Form", "k:"))
-        self.label_5.setText(_translate("RS_Form", "gf:"))
+        self.label_5.setText(_translate("RS_Form", "<html><head/><body><p>GF(2<span style=\" vertical-align:super;\">k</span>)</p></body></html>"))
         self.rs_n_spinBox.setToolTip(_translate("RS_Form", "<html><head/><body><p>Codeword length</p></body></html>"))
         self.rs_k_spinBox.setToolTip(_translate("RS_Form", "<html><head/><body><p>Message length</p></body></html>"))
-        self.rs_gf_spinBox.setToolTip(_translate("RS_Form", "<html><head/><body><p>Galois/finite field order, must be power of 2</p></body></html>"))
+        self.rs_gf_spinBox.setToolTip(_translate("RS_Form", "<html><head/><body><p>Galois/finite field order</p></body></html>"))
         self.systematic_checkBox.setToolTip(_translate("RS_Form", "<html><head/><body><p>Use systematic algorithm. Codeword will contain message in itself.</p></body></html>"))
         self.systematic_checkBox.setText(_translate("RS_Form", "Systematic"))
         self.bch_checkBox.setToolTip(_translate("RS_Form", "<html><head/><body><p>Use cyclic code</p></body></html>"))

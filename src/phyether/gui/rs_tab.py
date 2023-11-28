@@ -1,7 +1,9 @@
+from abc import ABC, abstractmethod
 from enum import Enum, auto
 import itertools
 from traceback import print_exc
-from typing import Callable, Union, cast
+from typing import Callable, Tuple, Union, cast
+from PyQt5 import QtCore
 
 from PyQt5.QtCore import (pyqtSlot, pyqtSignal, QRegularExpression, QObject,
                           QThread, QWaitCondition, QMutex)
@@ -12,6 +14,7 @@ from attr import define
 
 from phyether.gui.ui.rs_widget import Ui_RS_Form
 from phyether.gui.util import create_msg_box
+from phyether.gui.validators import BinListValidator, HexListValidator, IntListValidator
 from phyether.reed_solomon import RS_Original
 from phyether.util import DictMapping, iterable_to_string, list_from_string, list_to_string, string_to_list
 
@@ -205,17 +208,12 @@ class RSTab(QWidget, Ui_RS_Form):
         self.setupUi(self)
         self.current_format = Format.TEXT
 
-        # "^pattern(\s+pattern)*\s?" pattern rozdzielony spacjami mogący się kończyć spacją
-        dec_regex = QRegularExpression(r"^(2[0-4][0-9]|25[0-5]|[0-1][0-9]{1,2}|[0-9]{1,2})(\s+(2[0-4][0-9]|25[0-5]|[0-1][0-9]{1,2}|[0-9]{1,2}))*\s?")
-        hex_regex = QRegularExpression(r"^[[:xdigit:]]{2}(\s+[[:xdigit:]]{2})*\s?")
-        bin_regex = QRegularExpression(r"^[01]{8}(\s+[01]{8})*\s?")
-
         # validators for different format and max input size
-        self.validators: dict[Format, tuple[QValidator, int]] = {
-            Format.TEXT: (NoValidation(self), 256),
-            Format.DEC: (QRegularExpressionValidator(dec_regex, self), 256 * 4),
-            Format.HEX: (QRegularExpressionValidator(hex_regex, self), 256 * 3),
-            Format.BIN: (QRegularExpressionValidator(bin_regex, self), 256 * 9)
+        self.validators: dict[Format, QValidator] = {
+            Format.TEXT: NoValidation(self),
+            Format.DEC: IntListValidator(2**self.rs_gf_spinBox.value(), self.rs_n_spinBox.value()),
+            Format.HEX: HexListValidator(2**self.rs_gf_spinBox.value(), self.rs_n_spinBox.value()),
+            Format.BIN: BinListValidator(self.rs_gf_spinBox.value(), self.rs_n_spinBox.value())
             }
 
         self.update_validators()
@@ -225,7 +223,7 @@ class RSTab(QWidget, Ui_RS_Form):
             rs_args=ReedSolomonArgs(
                 n=self.rs_n_spinBox.value(),
                 k=self.rs_k_spinBox.value(),
-                gf=self.rs_gf_spinBox.value(),
+                gf=2**self.rs_gf_spinBox.value(),
                 systematic=self.systematic_checkBox.isChecked(),
                 bch=bch,
                 force=self.force_checkBox.isChecked() if not bch else False
@@ -251,11 +249,11 @@ class RSTab(QWidget, Ui_RS_Form):
         self.worker_thread.wait()
 
     def update_validators(self):
-        validator, size = self.validators[self.get_format()]
+        validator = self.validators[self.get_format()]
         self.input_lineEdit.setValidator(validator)
-        self.input_lineEdit.setMaxLength(size)
         self.errors_lineEdit.setValidator(validator)
-        self.errors_lineEdit.setMaxLength(size)
+        self.encoded_lineEdit.setValidator(validator)
+        self.decoded_lineEdit.setValidator(validator)
 
     def get_format(self) -> Format:
         if self.text_radioButton.isChecked():
@@ -276,6 +274,18 @@ class RSTab(QWidget, Ui_RS_Form):
     def bch_changed(self, state):
         self.force_checkBox.setEnabled(not state)
 
+    @pyqtSlot(int)
+    def gf_changed(self, value):
+        self.validators[Format.DEC].max = 2**value  # type: ignore
+        self.validators[Format.HEX].max = 2**value  # type: ignore
+        self.validators[Format.BIN].max = value  # type: ignore
+
+    @pyqtSlot(int)
+    def n_changed(self, value):
+        self.validators[Format.DEC].max_items = value  # type: ignore
+        self.validators[Format.HEX].max_items = value  # type: ignore
+        self.validators[Format.BIN].max_items = value  # type: ignore
+
     @pyqtSlot()
     def encode(self):
         self._toggle_enabled(False)
@@ -284,7 +294,7 @@ class RSTab(QWidget, Ui_RS_Form):
             rs_args=ReedSolomonArgs(
                 n=self.rs_n_spinBox.value(),
                 k=self.rs_k_spinBox.value(),
-                gf=self.rs_gf_spinBox.value(),
+                gf=2**self.rs_gf_spinBox.value(),
                 systematic=self.systematic_checkBox.isChecked(),
                 bch=bch,
                 force=self.force_checkBox.isChecked() if not bch else False
