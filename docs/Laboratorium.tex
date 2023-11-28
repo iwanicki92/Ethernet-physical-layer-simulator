@@ -1,0 +1,38 @@
+\section{Zajęcia dydaktyczne}
+\subsection{Przebieg ćwiczenia}
+\subsubsection{Wejściówka}
+
+Na samym początku zajęć odbędzie się wejściówka składająca się z pytań otwartych
+i zamkniętych.
+Przykładowe pytania które mogą znaleźć się na wejściówce to:
+
+\begin{enumerate}
+    \item Podaj definicję dodawania i mnożenia w $\mathbb{F}_2$ bądź wypisz wynik tych
+    działań dla wszystkich możliwych kombinacji elementów.
+    \begin{itemize}
+        \item Odpowiedź: Tablica~\ref{truth_table:title} bądź~(\ref{modulo_addition})
+        oraz~(\ref{modulo_multiplication})
+    \end{itemize}
+    \item Ile błędnych symboli jest w stanie wykryć oraz poprawić kod Reeda-Solomona
+    \begin{enumerate}[label=\Alph*:]
+        \item wykryć: $n-k$, poprawić: $n-k-1$
+        \item wykryć: $n-k-1$, poprawić: $n-k-1$
+        \item wykryć: $\lfloor \frac{n-k}{2} \rfloor$, poprawić: $\lfloor \frac{n-k}{2} \rfloor$
+        \item wykryć: $n-k$, poprawić: $\lfloor \frac{n-k}{2} \rfloor$
+    \end{enumerate}
+    \item Podaj zaletę oraz wadę stosowania większej ilości poziomów w modulacjach PAM
+    \begin{itemize}
+        \item Zaleta: jeden symbol koduje więcej bitów - więcej bitów jest przesyłanych w jednym cyklu zegara
+        \item Wada: różnica między poszczególnymi symbolami maleje, a więc trudniej jest rozróżnić symbole
+    \end{itemize}
+    \item Czym się różni szerokość pasma od przepustowości?
+    \item Opisz krótko czym jest NRZ (Non-Return-to-Zero)
+    \item Czym jest przepływność łącza?
+    \item Która biblioteka wykorzystywana jest do stworzenia GUI?
+    \begin{enumerate}[label=\Alph*:]
+        \item Tkinter
+        \item PyQt --- Odpowiedź prawidłowa w punkcie~\ref{subsection:interfejs}
+        \item OpenGL
+        \item WindowsForms
+    \end{enumerate}
+\end{enumerate}

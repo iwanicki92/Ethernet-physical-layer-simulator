@@ -7,7 +7,7 @@ oraz Gustava Solomona w 1960 roku~\cite{Reed-Solomon-original}
 Kody Reeda-Solomona charakteryzują się 3 parametrami, rozmiarem alfabetu $q$
 interpretowanym w ciele skończonym $\mathbb{F}_q$, długością wiadomości do
 zakodowania $k$ oraz długością słowa kodowego $n$ gdzie $k < n \leq q$ oraz
-$q=p^n$ gdzie $p$ to liczba pierwsza a $n \in \mathbb{N}^+$
+$q=p^m$ gdzie $p$ to liczba pierwsza a $m \in \{ 2, 3, \ldots \}$
 
 \subsection{Ciało skończone $\mathbb{F}_{q}$}
 
@@ -71,9 +71,9 @@ oraz AND zdefiniowanymi w tablicy~\ref{truth_table:title}
     \end{tabular}
 \end{table}
 
-\subsection{Rozszerzone ciało skończone $\mathbb{F}_{2^k}$}
+\subsection{Rozszerzone ciało skończone $\mathbb{F}_{2^m}$}
 
-Aby stworzyć ciało skończone o rzędzie $2^k$, $k \in \{ 1, 2, 3, \ldots \}$ musimy
+Aby stworzyć ciało skończone o rzędzie $2^m$, $k \in \{ 1, 2, 3, \ldots \}$ musimy
 najpierw znaleźć nierozkładalny wielomian $p(x)$ stopnia $k$ o współczynnikach
 $c_{n} \in \mathbb{F}_{2}$.
 Elementami tego ciała będą wielomiany o postaci $c_{0} + c_{1}\alpha + c_{2}\alpha^{2} +
@@ -117,6 +117,13 @@ wyróżnione w tablicy~\ref{standards:title}
     \end{tabular}
 \end{table}
 \endgroup
+
+\subsection{Właściwości kodu}
+Kody Reeda-Solomona cechują się możliwością korekty $\lfloor \frac{n-k}{2} \rfloor$
+oraz wykrycia $n-k$ błędnych symboli. Symbol w ciele $\mathbb{F}_{2^m}$ składa się
+z $m$ bitów co w przypadku błędów grupowych daje możliwość korekty maksymalnie
+$m \cdot \lfloor \frac{n-k}{2} \rfloor$ bitów bądź detekcji $p(n-k)$ przekłamanych
+bitów
 
 \subsection{Tworzenie kodu}
 Istnieje wiele różnych sposobów tworzenia kodu które tworzą kod o innych właściwościach.
