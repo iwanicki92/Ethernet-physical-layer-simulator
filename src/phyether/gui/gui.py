@@ -4,7 +4,7 @@ from PyQt5 import QtGui
 
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QPushButton,
                              QLineEdit, QVBoxLayout, QFormLayout, QTabWidget,
-                             QScrollArea, QLabel,
+                             QScrollArea, QLabel, QHBoxLayout, QCheckBox
                              )
 
 from phyether.dac import DAC
@@ -53,39 +53,8 @@ class EthernetGuiApp(QMainWindow):
         self.tab_widget.currentChanged.connect(self.change_tab)
         self.main_layout.addWidget(self.tab_widget)
 
-    # def clear_main_layout(self, index=0):
-    #     central_widget = QWidget(self)
-    #     self.setCentralWidget(central_widget)
-    #     self.main_layout = QVBoxLayout(central_widget)
-
-    #     if self.tabs is not None:
-    #         self.tabs[0].on_close()
-    #     self.tabs = (RSTab(), QWidget(), QWidget(), QWidget())
-    #     self.tab_widget = QTabWidget()
-    #     self.tab_widget.setStyleSheet("QTabBar::tab:hover {\
-    #                                   background-color: rgba(204, 204, 204, 178);\
-    #                                   }")
-    #     self.tab_widget.addTab(self.tabs[0], "Reed-Solomon")
-    #     self.tab_widget.addTab(self.tabs[1], "PAM16")
-    #     self.tab_widget.addTab(self.tabs[2], "PAM")
-    #     self.tab_widget.addTab(self.tabs[3], "Twisted-pair simulation")
-
-    #     if index != 0:
-    #         self.content_layout = QVBoxLayout(self.tabs[index])
-    #     self.tab_widget.setCurrentIndex(index)
-    #     self.tab_widget.currentChanged.connect(self.change_tab)
-    #     self.main_layout.addWidget(self.tab_widget)
-
     def change_tab(self, index):
         self.tab_widget.setCurrentIndex(index)
-        # print("Changed tab:", index)
-        # self.clear_main_layout(index)
-        # if index == 1:
-        #     self.init_pam16()
-        # elif index == 2:
-        #     self.init_pam()
-        # elif index == 3:
-        #     self.init_twisted_pair()
 
     def init_pam16(self):
         self.tabs[1].setLayout(QVBoxLayout())
@@ -95,7 +64,7 @@ class EthernetGuiApp(QMainWindow):
         pass
 
     def init_twisted_pair(self):
-        self.tabs[3].setLayout(QVBoxLayout())
+        self.tabs[3].setLayout(QHBoxLayout())
 
         self.tp_simulation_forms = [SimulationFormWidget("Simulation parameters", 1)]
         self.tp_scroll_area = QScrollArea()
@@ -112,18 +81,30 @@ class EthernetGuiApp(QMainWindow):
         for i, sim_form in enumerate(self.tp_simulation_forms):
             self.tp_simulation_form.insertRow(i, sim_form)
 
-        # Set the widget for the scroll area
         self.tp_scroll_area.setWidget(self.tp_params_widget)
 
-        # Add the scroll area to the content layout
-        self.tabs[3].layout().addWidget(self.tp_scroll_area)
+        options_layout = QVBoxLayout()
+        options_layout.addWidget(self.tp_scroll_area)
+
+        checkbox_layout = QHBoxLayout()
+        for i in range(1, 7):
+            checkbox = QCheckBox(f"Plot {i}")
+            checkbox.stateChanged.connect(self.checkbox_checked)
+            checkbox_layout.addWidget(checkbox)
+
+        options_layout.addLayout(checkbox_layout)
 
         self.simulator_signals = QLineEdit()
-        self.tabs[3].layout().addWidget(QLabel(f"Twisted pair signals"))
-        self.tabs[3].layout().addWidget(self.simulator_signals)
+        signals_layout = QHBoxLayout()
+        signals_layout.addWidget(QLabel(f"Twisted pair signals"))
+        signals_layout.addWidget(self.simulator_signals)
+
+        options_layout.addLayout(signals_layout)
+
+        self.tabs[3].layout().addLayout(options_layout)
 
         self.tp_simulate_button = QPushButton("Simulate")
-        self.tabs[3].layout().addWidget(self.tp_simulate_button)
+        options_layout.addWidget(self.tp_simulate_button)
         self.tp_simulate_button.clicked.connect(self.simulate)
 
         # Add your canvas
@@ -166,6 +147,8 @@ class EthernetGuiApp(QMainWindow):
             create_msg_box(f"Simulation failed: {ex}", "Simulation error!")
             self.tp_simulate_button.setDisabled(False)
 
+    def checkbox_checked(self):
+        print(f"Plot checkbox")
 
 def main():
     app = QApplication(sys.argv)
