@@ -131,9 +131,11 @@ class SimulationFormWidget(QFrame):
 
         self.radio_button = QWidget()
         self.radio_layout = QHBoxLayout()
-        self.option1 = QRadioButton("lossy")
-        self.option1.setChecked(True)
-        self.radio_layout.addWidget(self.option1)
+        self.lossy_option = QRadioButton("lossy")
+        self.lossy_option.setChecked(True)
+        self.lossless_option = QRadioButton("lossless")
+        self.radio_layout.addWidget(self.lossy_option)
+        self.radio_layout.addWidget(self.lossless_option)
         self.radio_button.setLayout(self.radio_layout)
         self.form_layout.addRow("Select an option:", self.radio_button)
 
