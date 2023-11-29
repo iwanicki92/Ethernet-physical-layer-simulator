@@ -1,12 +1,12 @@
 import sys
+import platform
 from typing import Optional
-from PyQt5 import QtGui
 
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QPushButton,
                              QLineEdit, QVBoxLayout, QFormLayout, QTabWidget,
-                             QScrollArea, QLabel, QHBoxLayout, QCheckBox
+                             QScrollArea, QLabel, QHBoxLayout, QCheckBox,
+                             QMessageBox,
                              )
-
 from phyether.dac import DAC
 from phyether.gui.rs_register_tab import RSRegisterTab
 from phyether.gui.rs_tab import RSTab
@@ -23,14 +23,51 @@ class EthernetGuiApp(QMainWindow):
 
         self.tabs: Optional[tuple[RSTab, QWidget, QWidget, QWidget, RSRegisterTab]] = None
         self.tp_simulation_forms: list[SimulationFormWidget]
-        self.init_ui()
+        simulation_enable = self.init_ngspice()
+        self.init_ui(simulation_enable)
+
+    def init_ngspice(self):
+        init_success = False
+        from phyether.main import init, install_libngspice
+        try:
+            init()
+            init_success = True
+        except FileNotFoundError as ex:
+            if platform.system() == "Windows":
+                create_msg_box("Couldn't find ngspice.dll, simulation tab will be disabled",
+                               "Error")
+            elif platform.system() == "Linux":
+                install = create_msg_box("Couldn't find ngspice library. Without it simulation tab will be disabled\nDo you want to install it? (needed sudo privileges)",
+                    "Missing ngspice library",
+                    icon = QMessageBox.Icon.Warning,
+                    buttons = QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, # type: ignore
+                    )
+                try:
+                    print(install)
+                    if install != QMessageBox.StandardButton.Yes:
+                        return False
+                    elif install_libngspice():
+                        init()
+                        init_success = True
+                    else:
+                        create_msg_box("ngspice installation failed, simulation tab will be disabled",
+                               "Error")
+                except FileNotFoundError as ex:
+                    create_msg_box("Couldn't find ngspice library, try restarting application",
+                               "Error")
+                except:
+                    create_msg_box("Installation error", "Error")
+            else:
+                create_msg_box("Couldn't find ngspice library, simulation tab will be disabled",
+                               "Error")
+        return init_success
 
     def closeEvent(self, a0) -> None:
         if self.tabs is not None:
             self.tabs[0].on_close()
         return super().closeEvent(a0)
 
-    def init_ui(self):
+    def init_ui(self, enable_simulation_tab):
         self.setWindowTitle("EthernetSimulator")
         self.setGeometry(100, 100, 1200, 800)
 
@@ -40,6 +77,8 @@ class EthernetGuiApp(QMainWindow):
         self.main_layout = QVBoxLayout(central_widget)
 
         self.tabs = (RSTab(), QWidget(), QWidget(), QWidget(), RSRegisterTab())
+        if not enable_simulation_tab:
+            self.tabs[3].setDisabled(True)
         self.init_pam16()
         self.init_twisted_pair()
         self.tab_widget = QTabWidget()
@@ -47,10 +86,10 @@ class EthernetGuiApp(QMainWindow):
                                       background-color: rgba(204, 204, 204, 178);\
                                       }")
         self.tab_widget.addTab(self.tabs[0], "Reed-Solomon")
+        self.tab_widget.addTab(self.tabs[4], "Reed-Solomon Shift Register")
         self.tab_widget.addTab(self.tabs[1], "PAM16")
         self.tab_widget.addTab(self.tabs[2], "PAM")
         self.tab_widget.addTab(self.tabs[3], "Twisted-pair simulation")
-        self.tab_widget.addTab(self.tabs[4], "Reed-Solomon Shift Register")
 
         self.tab_widget.currentChanged.connect(self.change_tab)
         self.main_layout.addWidget(self.tab_widget)

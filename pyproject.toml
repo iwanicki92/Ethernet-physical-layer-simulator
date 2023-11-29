@@ -16,7 +16,8 @@ dependencies = [
     "galois >= 0.3.0",
     "numpy >= 1.21.0",
     "pyqt5",
-    "attrs >= 20.0.0"
+    "attrs >= 20.0.0",
+    "distro >= 1.7.0"
 ]
 classifiers = [
     "Programming Language :: Python :: 3",

@@ -1,4 +1,6 @@
 import platform
+import distro
+import subprocess
 
 from PySpice.Spice.NgSpice.Shared import NgSpiceShared
 
@@ -23,14 +25,18 @@ def init():
             raise FileNotFoundError("Couldn't find libngspice library!")
         else:
             NgSpiceShared.LIBRARY_PATH = libngspice
+    else:
+        raise FileNotFoundError("Unsupported system")
+
+def install_libngspice() -> bool:
+    packageInstallers = {
+        "debian": ("apt-get", "install", "-y", "libngspice0"),
+        "rhel fedora": ('rpm', 'yum', 'install', '-y', 'libngspice0'),
+        "centos": ('rpm', 'yum', 'install', '-y', 'libngspice0')
+    }
+    return subprocess.call(('sudo', *packageInstallers[distro.like()])) == 0
 
 def main():
-    try:
-        init()
-    except FileNotFoundError as ex:
-        # couldn't find ngspice library, do something
-        print(ex)
-
     print("Starting phyether...")
     gui.main()
 

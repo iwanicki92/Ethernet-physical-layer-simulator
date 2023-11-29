@@ -1,4 +1,6 @@
-from PyQt5.QtWidgets import QSpinBox, QDoubleSpinBox, QMessageBox
+from typing import Union
+from PyQt5.QtWidgets import QSpinBox, QDoubleSpinBox, QMessageBox, QDesktopWidget, QStyle
+from PyQt5 import QtCore
 
 class SpinBoxNoWheel(QSpinBox):
     def wheelEvent(self, event):
@@ -8,10 +10,16 @@ class DoubleSpinBoxNoWheel(QDoubleSpinBox):
     def wheelEvent(self, event):
         event.ignore()
 
-def create_msg_box(text: str, title: str):
+def create_msg_box(text: str, title: str, *,
+                   icon: QMessageBox.Icon = QMessageBox.Icon.Critical,
+                   buttons: Union[QMessageBox.StandardButtons, QMessageBox.StandardButton] = QMessageBox.StandardButton.Ok
+                   ) -> QMessageBox.StandardButton:
+        desktop = QDesktopWidget()
         msg_box = QMessageBox()
-        msg_box.setIcon(QMessageBox.Icon.Information)
+        msg_box.setIcon(icon)
         msg_box.setText(text)
         msg_box.setWindowTitle(title)
-        msg_box.setStandardButtons(QMessageBox.StandardButton.Ok)
-        msg_box.exec()
+        msg_box.setStandardButtons(buttons)
+        msg_box.move(int((desktop.width() - msg_box.width()) / 2),
+                     int((desktop.height() - msg_box.height()) / 2))
+        return QMessageBox.StandardButton(msg_box.exec())
