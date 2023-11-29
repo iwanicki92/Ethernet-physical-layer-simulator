@@ -89,9 +89,11 @@ class EthernetGuiApp(QMainWindow):
         options_layout.addWidget(self.tp_scroll_area)
 
         checkbox_layout = QHBoxLayout()
-        for i in range(1, 7):
-            checkbox = QCheckBox(f"Plot {i}")
-            checkbox.stateChanged.connect(self.checkbox_checked)
+        self.plot_checkboxes: list[QCheckBox] = []
+        for plot in SimulationDisplay:
+            checkbox = QCheckBox(plot.value)
+            checkbox.toggled.connect(self.checkbox_toggled)
+            self.plot_checkboxes.append(checkbox)
             checkbox_layout.addWidget(checkbox)
 
         options_layout.addLayout(checkbox_layout)
@@ -140,17 +142,16 @@ class EthernetGuiApp(QMainWindow):
                                                   input=self.simulator_signals.text()))
 
         try:
-            self.tp_canvas.set_display_params({
-                0: {SimulationDisplay.VOUT_PLUS, SimulationDisplay.VOUT_MINUS, SimulationDisplay.VOUT},
-                1: {SimulationDisplay.VOUT}
-                })
             self.tp_canvas.simulate(simulation_args)
         except Exception as ex:
             create_msg_box(f"Simulation failed: {ex}", "Simulation error!")
             self.tp_simulate_button.setDisabled(False)
 
-    def checkbox_checked(self):
-        print(f"Plot checkbox")
+    def checkbox_toggled(self, _):
+        self.tp_canvas.set_display_params([SimulationDisplay(checkbox.text())
+                                    for checkbox in self.plot_checkboxes
+                                    if checkbox.isChecked()])
+
 
 def main():
     app = QApplication(sys.argv)

@@ -159,9 +159,10 @@ class SimulatorCanvas(FigureCanvasQTAgg):
         self.simulation: Optional[PairSimulation] = None
         self.thread: QThread = QThread(self)
         self.simulations: list[tuple[TransientAnalysis, float]] = []
-        self._display_params: dict[int, set[SimulationDisplay]] = {}
+        self._display_params: list[SimulationDisplay] = []
+        self.plots: dict[SimulationDisplay, bool] = {}
 
-    def set_display_params(self, display_params: dict[int, set[SimulationDisplay]]):
+    def set_display_params(self, display_params: list[SimulationDisplay]):
         self._display_params = display_params
         self._draw_plot()
 
@@ -169,19 +170,16 @@ class SimulatorCanvas(FigureCanvasQTAgg):
         index = len(self.simulations)
         self.simulations.append((analysis, transmission_delay))
         print(f"Draw simulation: {index + 1}")
-        self._draw_add(self.simulations[-1],
-                       self._display_params.get(index, set()),
-                       index)
+        self._draw_add(self.simulations[-1], index)
 
     def _get_vin_x(self, analysis, delay):
         return analysis.time[analysis.time<(analysis.time[-1] - delay)]
 
     def _draw_add(self,
                   simulation: tuple[TransientAnalysis, float],
-                  display_params: set[SimulationDisplay],
                   index: int):
         analysis, transmission_delay = simulation
-        for display_param in display_params:
+        for display_param in self._display_params:
             plot_x = None
             plot_y = None
 
@@ -217,9 +215,7 @@ class SimulatorCanvas(FigureCanvasQTAgg):
     def _draw_plot(self):
         self.clear_plot()
         for index, simulation in enumerate(self.simulations):
-            self._draw_add(simulation,
-                           self._display_params.get(index, set()),
-                           index)
+            self._draw_add(simulation, index)
 
     def simulation_error(self):
         create_msg_box("There was error during simulation, change parameters", "error")
