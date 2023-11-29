@@ -4,7 +4,7 @@
 
 Kodowanie korekcyjne Reeda-Solomona zostało stworzone przez Irvina S. Reeda
 oraz Gustava Solomona w 1960 roku~\cite{Reed-Solomon-original}
-Kody Reeda-Solomona charakteryzują się 3 parametrami, rozmiarem alfabetu $q$
+Kody Reeda-Solomona charakteryzują się 3 parametrami, rozmiarem alfabetu $q$ \cite{Reed-Solomon-Encoding-Decoding}
 interpretowanym w ciele skończonym $\mathbb{F}_q$, długością wiadomości do
 zakodowania $k$ oraz długością słowa kodowego $n$ gdzie $k < n \leq q$ oraz
 $q=p^m$ gdzie $p$ to liczba pierwsza a $m \in \{ 2, 3, \ldots \}$
@@ -58,7 +58,7 @@ oraz AND zdefiniowanymi w tablicy~\ref{truth_table:title}
     \centering
     \begin{tabular}{c c | c c}
         \toprule
-        a & b & + & * \\
+        a & b & $+$ & $\cdot$ \\
         \midrule
         0 & 0 & 0 & 0 \\
         \midrule
@@ -122,7 +122,7 @@ wyróżnione w tablicy~\ref{standards:title}
 Kody Reeda-Solomona cechują się możliwością korekty $\lfloor \frac{n-k}{2} \rfloor$
 oraz wykrycia $n-k$ błędnych symboli. Symbol w ciele $\mathbb{F}_{2^m}$ składa się
 z $m$ bitów co w przypadku błędów grupowych daje możliwość korekty maksymalnie
-$m \cdot \lfloor \frac{n-k}{2} \rfloor$ bitów bądź detekcji $p(n-k)$ przekłamanych
+$m \cdot \lfloor \frac{n-k}{2} \rfloor$ bitów bądź detekcji $m(n-k)$ przekłamanych
 bitów
 
 \subsection{Tworzenie kodu}
