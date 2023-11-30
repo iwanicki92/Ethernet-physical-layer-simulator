@@ -1,4 +1,4 @@
-from typing import Union, cast, overload
+from typing import Union, cast, overload, Tuple, List
 
 from galois import Array, GF, FieldArray, Poly, ReedSolomon, lagrange_poly
 
@@ -36,15 +36,15 @@ class RS_Original:
             field=self.gf, systematic=systematic)
 
     @overload
-    def expand_message(self, message: str, size: int) -> tuple[int, str]:
+    def expand_message(self, message: str, size: int) -> Tuple[int, str]:
         ...
 
     @overload
-    def expand_message(self, message: list[int], size: int) -> tuple[int, list[int]]:
+    def expand_message(self, message: List[int], size: int) -> Tuple[int, List[int]]:
         ...
 
-    def expand_message(self, message: Union[str, list[int]],
-                       size: int) -> tuple[int, Union[str, list[int]]]:
+    def expand_message(self, message: Union[str, List[int]],
+                       size: int) -> Tuple[int, Union[str, List[int]]]:
         if isinstance(message, str):
             message_bytes = string_to_bytes(message)
             original_size = len(message_bytes)
@@ -55,8 +55,8 @@ class RS_Original:
             message = ([255] * (size - len(message))) + message
             return original_size, message
 
-    def shorten_codeword(self, codeword: Union[str, list[int]],
-                         original_message_size: int) -> Union[str, list[int]]:
+    def shorten_codeword(self, codeword: Union[str, List[int]],
+                         original_message_size: int) -> Union[str, List[int]]:
 
         return codeword[-(original_message_size + self.parity_length):]
 
@@ -66,10 +66,10 @@ class RS_Original:
         ...
 
     @overload
-    def encode(self, message: list[int], custom: bool = False) -> list[int]:
+    def encode(self, message: List[int], custom: bool = False) -> List[int]:
         ...
 
-    def encode(self, message: Union[str, list[int]], custom: bool = False) -> Union[str, list[int]]:
+    def encode(self, message: Union[str, List[int]], custom: bool = False) -> Union[str, List[int]]:
         """encode message
 
         :param message: message to encode
@@ -90,23 +90,23 @@ class RS_Original:
         if len(list_message) == 0:
             raise ValueError("Message is empty! Can't encode nothing")
         if isinstance(message, str):
-            codeword: Union[str, list[int]] = iterable_to_string(self.rs.encode(list_message))
+            codeword: Union[str, List[int]] = iterable_to_string(self.rs.encode(list_message))
         else:
             codeword = self.rs.encode(list_message).tolist()
         return codeword
 
     @overload
     def decode(self, codeword: str, custom: bool = False,
-               force: bool = False) -> tuple[str, int, bool]:
+               force: bool = False) -> Tuple[str, int, bool]:
         ...
 
     @overload
-    def decode(self, codeword: list[int], custom: bool = False,
-               force: bool = False) -> tuple[list[int], int, bool]:
+    def decode(self, codeword: List[int], custom: bool = False,
+               force: bool = False) -> Tuple[List[int], int, bool]:
         ...
 
-    def decode(self, codeword: Union[str, list[int]], custom: bool = False,
-               force: bool = False) -> tuple[Union[str, list[int]], int, bool]:
+    def decode(self, codeword: Union[str, List[int]], custom: bool = False,
+               force: bool = False) -> Tuple[Union[str, List[int]], int, bool]:
         """decode codeword
 
         :param codeword: codeword to decode
@@ -128,7 +128,7 @@ class RS_Original:
         if len(codeword) <= self.parity_length:
             raise ValueError(f"Codeword can't be shorter than {self.parity_length + 1} = "
                              f"{self.parity_length} parity symbols + 1 message symbol")
-        decoded: Union[str, list[int], FieldArray]
+        decoded: Union[str, List[int], FieldArray]
         decoded, fixed = self.rs.decode(list_codeword, errors=True)
         if isinstance(codeword, str):
             decoded = iterable_to_string(decoded)
@@ -141,10 +141,10 @@ class RS_Original:
         ...
 
     @overload
-    def encode_custom(self, message: list[int]) -> list[int]:
+    def encode_custom(self, message: List[int]) -> List[int]:
         ...
 
-    def encode_custom(self, message: Union[str, list[int]]) -> Union[str, list[int]]:
+    def encode_custom(self, message: Union[str, List[int]]) -> Union[str, List[int]]:
         """Encodes message. Message is padded with '\\0' if it's shorter than self.message_length
 
         :param message: message to encode
@@ -174,20 +174,20 @@ class RS_Original:
         if return_string:
             return iterable_to_string(encoded_message) + iterable_to_string(parity_message)
         else:
-            return cast(list[int], encoded_message.tolist() + parity_message.tolist())
+            return cast(List[int], encoded_message.tolist() + parity_message.tolist())
 
     @overload
-    def decode_custom(self, codeword: str, force: bool = False) -> tuple[str, int, bool]:
+    def decode_custom(self, codeword: str, force: bool = False) -> Tuple[str, int, bool]:
         ...
 
     @overload
-    def decode_custom(self, codeword: list[int],
-                      force: bool = False) -> tuple[list[int], int, bool]:
+    def decode_custom(self, codeword: List[int],
+                      force: bool = False) -> Tuple[List[int], int, bool]:
         ...
 
-    def decode_custom(self, codeword: Union[str, list[int]],
-                      force: bool = False) -> tuple[
-            Union[str, list[int]], int, bool]:
+    def decode_custom(self, codeword: Union[str, List[int]],
+                      force: bool = False) -> Tuple[
+            Union[str, List[int]], int, bool]:
         """Decode codeword using berlekamp-welch algorithm
 
         :param codeword: codeword to encode
@@ -215,7 +215,7 @@ class RS_Original:
         else:
             return decoded, errors, fixed # type: ignore
 
-    def _berlekamp_welch(self, codeword: list[int], force: bool = False) -> tuple[Array, int, bool]:
+    def _berlekamp_welch(self, codeword: List[int], force: bool = False) -> Tuple[Array, int, bool]:
         """Implementation of berlekamp-welch algorithm
 
         :param codeword:

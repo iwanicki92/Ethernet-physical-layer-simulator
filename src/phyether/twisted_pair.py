@@ -1,6 +1,6 @@
 from math import sqrt
 import random
-from typing import Iterable, Literal, Optional, Sequence, overload
+from typing import Iterable, Literal, Optional, Sequence, overload, Tuple
 
 from PySpice.Logging import Logging
 from PySpice.Probe.WaveForm import TransientAnalysis
@@ -94,7 +94,7 @@ class TwistedPair(SubCircuit):
 
     def _get_pwl(self, data: Iterable[int],
                  presimulation_ratio: int
-                 ) -> tuple[int, Sequence[tuple[UnitValue, UnitValue]]]:
+                 ) -> Tuple[int, Sequence[Tuple[UnitValue, UnitValue]]]:
         presignals = 0
         data_to_simulate = data
         if presimulation_ratio:

@@ -1,7 +1,7 @@
 from enum import Enum, auto
 import itertools
 from traceback import print_exc
-from typing import Callable, Union, cast
+from typing import Callable, Union, cast, List, Tuple, Dict
 
 from PyQt5.QtCore import (pyqtSlot, pyqtSignal, QObject,
                           QThread, QWaitCondition, QMutex)
@@ -89,7 +89,7 @@ encode_decode_converters = {
     Format.BIN: (lambda x: list_from_string(x, 2), lambda x: list_to_string(x, 2)),
 }
 
-qline_converters: dict[tuple[Format, Format], list[Callable[[QLineEdit], None]]] = {
+qline_converters: Dict[Tuple[Format, Format], List[Callable[[QLineEdit], None]]] = {
     (Format.TEXT, Format.HEX) : [Converters._text_to_dec, Converters._dec_to_hex],
     (Format.TEXT, Format.DEC) : [Converters._text_to_dec],
     (Format.TEXT, Format.BIN) : [Converters._text_to_dec, Converters._dec_to_bin],
@@ -156,7 +156,7 @@ class EncodingWorker(QObject):
             errors = encode_decode_converters[self.format][0](self.error_input)
             if self.format != Format.TEXT:
                 resized_errors = itertools.chain(errors, itertools.repeat(0))
-                encoded_err: Union[str, list[int]]
+                encoded_err: Union[str, List[int]]
                 encoded_err = [enc ^ err for enc, err in zip(encoded, resized_errors)]
             else:
                 list_encoded = string_to_list(encoded)
@@ -189,7 +189,7 @@ class EncodingWorker(QObject):
             print_exc()
             raise _EncodingException(ex) from ex
 
-    def _decode(self, encoded: Union[str, list[int]],
+    def _decode(self, encoded: Union[str, List[int]],
                 reed_solomon: RS_Original):
         print(f"Decoding message {encoded}")
         try:
@@ -212,14 +212,14 @@ class RSTab(QWidget, Ui_RS_Form):
         self.setupUi(self)
         self.current_format = Format.TEXT
 
-        self.rs_param_mapping: dict[str, ReedSolomonParams] = {
+        self.rs_param_mapping: Dict[str, ReedSolomonParams] = {
             "RS(192,186,256) - 25/40GBASE-T": ReedSolomonParams(192, 186, 8),
             "RS(360,326,1024) - 2.5/5/10GBASE-T1": ReedSolomonParams(360, 326, 10),
         }
         self.standardsComboBox.addItems(self.rs_param_mapping.keys())
 
         # validators for different format and max input size
-        self.validators: dict[Format, QValidator] = {
+        self.validators: Dict[Format, QValidator] = {
             Format.TEXT: NoValidation(self),
             Format.DEC: IntListValidator(2**self.rs_gf_spinBox.value(), self.rs_n_spinBox.value()),
             Format.HEX: HexListValidator(2**self.rs_gf_spinBox.value(), self.rs_n_spinBox.value()),
@@ -334,7 +334,7 @@ class RSTab(QWidget, Ui_RS_Form):
         self.update_validators()
         if self.current_format == new_format:
             return
-        line_edits: list[QLineEdit] = [self.input_lineEdit, self.encoded_lineEdit,
+        line_edits: List[QLineEdit] = [self.input_lineEdit, self.encoded_lineEdit,
                   self.errors_lineEdit, self.encoded_err_lineEdit, self.decoded_lineEdit]
 
         converter = qline_converters.get((self.current_format, new_format), [])

@@ -10,7 +10,7 @@ authors = [
     { name = "Michał Iwanicki", email = "iwanicki92@gmail.com" },
 ]
 keywords = ["ethernet", "simulator"]
-requires-python = ">=3.9"
+requires-python = ">=3.8"
 dependencies = [
     "pyspice >= 1.5",
     "galois >= 0.3.0",

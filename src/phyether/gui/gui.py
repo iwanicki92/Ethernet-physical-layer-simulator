@@ -69,7 +69,7 @@ class EthernetGuiApp(QMainWindow):
 
     def init_ui(self, enable_simulation_tab):
         self.setWindowTitle("EthernetSimulator")
-        self.setGeometry(100, 100, 1200, 800)
+        self.setGeometry(100, 100, 800, 600)
 
         central_widget = QWidget(self)
         self.setCentralWidget(central_widget)

@@ -23,6 +23,7 @@ class RSRegisterTab(QWidget, Ui_rsRegisterForm):
         current_dir = Path(__file__).parent
         images = current_dir / "../resources/img"
         self.imageLabel.setPixmap(QPixmap(str(images / "RS_shift_register.png")))
+        self.imageLabel.setScaledContents(True)
 
         self.rs_param_mapping: dict[str, ReedSolomonRegisterArguments] = {
             "RS(192,186,256) - 25/40GBASE-T": ReedSolomonRegisterArguments(192, 186, 8, 0x11D, 2),

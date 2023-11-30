@@ -1,3 +1,4 @@
+from __future__ import annotations
 import random
 from typing import Iterable, Optional, Sequence
 
@@ -50,17 +51,17 @@ class DAC:
         """
         return [u_V(symbol * self.quotient) for symbol in data]
 
-    def to_pwl(self, data: Iterable[int]) -> Sequence[tuple[UnitValue, UnitValue]]:
+    def to_pwl(self, data: Iterable[int]) -> Sequence[Tuple[UnitValue, UnitValue]]:
         """Turn data into PWL form.
 
         Args:
             data (Iterable[int]): digital data
 
         Returns:
-            Sequence[tuple[float, float]]: PWL data
+            Sequence[Tuple[float, float]]: PWL data
         """
         voltages = self.to_voltage(data)
-        pwl: list[tuple[UnitValue, UnitValue]] = [(u_ns(0), u_V(0))]
+        pwl: list[Tuple[UnitValue, UnitValue]] = [(u_ns(0), u_V(0))]
         time = self.rise_time
         for voltage in voltages:
             pwl.append((time, u_V(voltage)))

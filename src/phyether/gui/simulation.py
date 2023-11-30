@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Literal, Optional, TypedDict, Union, cast
+from typing import Literal, Optional, TypedDict, Union, cast, Dict, Tuple, List
 from attr import define
 
 from PyQt5.QtCore import QObject, QThread, pyqtSlot, pyqtSignal
@@ -65,7 +65,7 @@ class PairSimulation(QObject):
     simulation_finished_signal = pyqtSignal()
     error_signal = pyqtSignal()
 
-    def __init__(self, sim_args: list[SimulationArgs]) -> None:
+    def __init__(self, sim_args: List[SimulationArgs]) -> None:
         super().__init__()
         self.sim_args = sim_args
 
@@ -110,7 +110,7 @@ class SimulationFormWidget(QFrame):
             default: object
 
         # Create six number inputs using QSpinBox
-        self.parameter_labels: list[Parameters] = [
+        self.parameter_labels: List[Parameters] = [
             {"label" : "Voltage offset", "arg": "voltage_offset", "type" : "float", "default": 0},
             {"label" : "Output impedance", "arg": "output_impedance", "type" : "float", "default": 100},
             {"label" : "Length", "arg": "length", "type" : "int", "default": 2},
@@ -118,7 +118,7 @@ class SimulationFormWidget(QFrame):
             {"label" : "Inductance", "arg": "inductance", "type" : "float", "default": 525},
             {"label" : "Capacitance", "arg": "capacitance", "type" : "float", "default": 52},
         ]
-        self.number_inputs: dict[str, Union[QDoubleSpinBox, QSpinBox]] = {}
+        self.number_inputs: Dict[str, Union[QDoubleSpinBox, QSpinBox]] = {}
         for i, parameter in enumerate(self.parameter_labels):
             arg = parameter["arg"]
             if parameter["type"] == "float":
@@ -158,11 +158,11 @@ class SimulatorCanvas(FigureCanvasQTAgg):
 
         self.simulation: Optional[PairSimulation] = None
         self.thread: QThread = QThread(self)
-        self.simulations: list[tuple[TransientAnalysis, float]] = []
-        self._display_params: list[SimulationDisplay] = []
-        self.plots: dict[SimulationDisplay, bool] = {}
+        self.simulations: List[Tuple[TransientAnalysis, float]] = []
+        self._display_params: List[SimulationDisplay] = []
+        self.plots: Dict[SimulationDisplay, bool] = {}
 
-    def set_display_params(self, display_params: list[SimulationDisplay]):
+    def set_display_params(self, display_params: List[SimulationDisplay]):
         self._display_params = display_params
         self._draw_plot()
 
@@ -176,7 +176,7 @@ class SimulatorCanvas(FigureCanvasQTAgg):
         return analysis.time[analysis.time<(analysis.time[-1] - delay)]
 
     def _draw_add(self,
-                  simulation: tuple[TransientAnalysis, float],
+                  simulation: Tuple[TransientAnalysis, float],
                   index: int):
         analysis, transmission_delay = simulation
         for display_param in self._display_params:
@@ -226,7 +226,7 @@ class SimulatorCanvas(FigureCanvasQTAgg):
         self.thread.exit()
         self.simulation_stopped_signal.emit()
 
-    def simulate(self, sim_args: list[SimulationArgs]):
+    def simulate(self, sim_args: List[SimulationArgs]):
         print("Simulating")
         self.simulations.clear()
         self.simulating = True

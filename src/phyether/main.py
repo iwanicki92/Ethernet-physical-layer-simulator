@@ -34,6 +34,8 @@ def install_libngspice() -> bool:
         "rhel fedora": ('rpm', 'yum', 'install', '-y', 'libngspice0'),
         "centos": ('rpm', 'yum', 'install', '-y', 'libngspice0')
     }
+    if packageInstallers[distro.like()][0] == "apt-get":
+        subprocess.call(('sudo', 'apt-get', 'update'))
     return subprocess.call(('sudo', *packageInstallers[distro.like()])) == 0
 
 def main():
