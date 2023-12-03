@@ -99,7 +99,7 @@ class PAM16(PAM):
     def _hex_to_signals_dsq128(hex_data: str):
         bits = bitarray(bin(int(hex_data, 16))[2:])
         padding_length = (28 - (len(bits) % 28)) % 28
-        bits += bitarray('0' * padding_length)
+        bits = bitarray('0' * padding_length) + bits
         twisted_pairs_output = ["", "", "", ""]
 
         for i in range(0, len(bits), 28):
