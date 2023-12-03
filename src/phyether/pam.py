@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from bitarray import bitarray
+import re
 
 from phyether.util import removeprefix
 
@@ -24,6 +25,8 @@ class NRZ(PAM):
         return 1
 
     def hex_to_signals(self, hex_data: str) -> str:
+        if not re.match("^[a-f0-9]+$", hex_data):
+            raise ValueError("Input must be a valid hexadecimal string")
         return ' '.join([
             '1' if bit == '1' else '-1'
             for bit in format(int(hex_data, 16), 'b')
@@ -35,6 +38,9 @@ class PAM4(PAM):
         return 3
 
     def hex_to_signals(self, hex_data: str) -> str:
+        if not re.match("^[a-f0-9]+$", hex_data):
+            raise ValueError("Input must be a valid hexadecimal string")
+
         binary = format(int(hex_data, 16), 'b')
         if len(binary) % 2 == 1:
             binary.rjust(len(binary) + 1, '0')
@@ -48,6 +54,9 @@ class PAM16(PAM):
         return 15
 
     def hex_to_signals(self, hex_data: str, use_dsq128: bool = False):
+        if not re.match("^[a-f0-9]+$", hex_data):
+            raise ValueError("Input must be a valid hexadecimal string")
+
         if use_dsq128:
             return PAM16._hex_to_signals_dsq128(hex_data)
         else:
