@@ -28,8 +28,8 @@ class RSRegisterTab(QWidget, Ui_rsRegisterForm):
         self.rs_param_mapping: dict[str, ReedSolomonRegisterArguments] = {
             "RS(192,186,256) - 25/40GBASE-T": ReedSolomonRegisterArguments(192, 186, 8, 0x11D, 2),
             "RS(360,326,1024) - 2.5/5/10GBASE-T1": ReedSolomonRegisterArguments(360, 326, 10, 0x409, 2),
-            "RS(528,514,1024) - 10/25GBASE-R, 100GBASE-(C/K/S)R4": ReedSolomonRegisterArguments(528, 514, 1024, 0x409, 2),
-            "RS(544,514,1024) - 100GBASE-KP4, 100GBASE-(C/K/S)R2": ReedSolomonRegisterArguments(544, 514, 1024, 0x409, 2),
+            "RS(528,514,1024) - 10/25GBASE-R, 100GBASE-(C/K/S)R4": ReedSolomonRegisterArguments(528, 514, 10, 0x409, 2),
+            "RS(544,514,1024) - 100GBASE-KP4, 100GBASE-(C/K/S)R2": ReedSolomonRegisterArguments(544, 514, 10, 0x409, 2),
         }
 
         self.standardsComboBox.addItems(self.rs_param_mapping.keys())

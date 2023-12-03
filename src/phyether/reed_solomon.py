@@ -60,6 +60,10 @@ class RS_Original:
 
         return codeword[-(original_message_size + self.parity_length):]
 
+    def detect(self, codeword: Union[str, List[int]]) -> bool:
+        list_codeword = string_to_list(codeword) if isinstance(codeword, str) else codeword
+        return cast(bool, self.rs.detect(list_codeword))
+
 
     @overload
     def encode(self, message: str, custom: bool = False) -> str:

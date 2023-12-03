@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_RS_Form(object):
     def setupUi(self, RS_Form):
         RS_Form.setObjectName("RS_Form")
-        RS_Form.resize(461, 564)
+        RS_Form.resize(520, 564)
         self.gridLayout = QtWidgets.QGridLayout(RS_Form)
         self.gridLayout.setObjectName("gridLayout")
         self.verticalLayout = QtWidgets.QVBoxLayout()
@@ -178,6 +178,9 @@ class Ui_RS_Form(object):
         self.encode_decode_pushButton = QtWidgets.QPushButton(self.frame5)
         self.encode_decode_pushButton.setObjectName("encode_decode_pushButton")
         self.horizontalLayout_4.addWidget(self.encode_decode_pushButton)
+        self.detect_errors_pushButton = QtWidgets.QPushButton(self.frame5)
+        self.detect_errors_pushButton.setObjectName("detect_errors_pushButton")
+        self.horizontalLayout_4.addWidget(self.detect_errors_pushButton)
         self.label_11 = QtWidgets.QLabel(self.frame5)
         self.label_11.setObjectName("label_11")
         self.horizontalLayout_4.addWidget(self.label_11)
@@ -203,6 +206,8 @@ class Ui_RS_Form(object):
         self.rs_gf_spinBox.valueChanged['int'].connect(RS_Form.gf_changed) # type: ignore
         self.rs_n_spinBox.valueChanged['int'].connect(RS_Form.n_changed) # type: ignore
         self.standardsComboBox.currentTextChanged['QString'].connect(RS_Form.comboBoxChanged) # type: ignore
+        self.detect_errors_pushButton.clicked.connect(RS_Form.detect) # type: ignore
+        self.systematic_checkBox.toggled['bool'].connect(RS_Form.systematic_changed) # type: ignore
         QtCore.QMetaObject.connectSlotsByName(RS_Form)
 
     def retranslateUi(self, RS_Form):
@@ -243,6 +248,7 @@ class Ui_RS_Form(object):
         self.encoded_err_lineEdit.setToolTip(_translate("RS_Form", "<html><head/><body><p>Encoded message after applying errors.</p></body></html>"))
         self.encode_decode_pushButton.setToolTip(_translate("RS_Form", "<html><head/><body><p>Encode input message, apply errors to encoded message and then decode that message.</p></body></html>"))
         self.encode_decode_pushButton.setText(_translate("RS_Form", "Encode/Decode"))
+        self.detect_errors_pushButton.setText(_translate("RS_Form", "Detect Errors"))
         self.label_11.setText(_translate("RS_Form", "Status"))
         self.status_lineEdit.setToolTip(_translate("RS_Form", "<html><head/><body><p>Was decoding successful or failed</p></body></html>"))
         self.label_12.setText(_translate("RS_Form", "Errors found"))

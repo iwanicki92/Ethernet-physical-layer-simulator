@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>461</width>
+    <width>520</width>
     <height>564</height>
    </rect>
   </property>
@@ -427,6 +427,13 @@
          </widget>
         </item>
         <item>
+         <widget class="QPushButton" name="detect_errors_pushButton">
+          <property name="text">
+           <string>Detect Errors</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QLabel" name="label_11">
           <property name="text">
            <string>Status</string>
@@ -575,6 +582,38 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>detect_errors_pushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>RS_Form</receiver>
+   <slot>detect()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>171</x>
+     <y>532</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>259</x>
+     <y>281</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>systematic_checkBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>RS_Form</receiver>
+   <slot>systematic_changed(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>381</x>
+     <y>209</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>259</x>
+     <y>281</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>bch_changed(bool)</slot>
@@ -583,6 +622,8 @@
   <slot>gf_changed(int)</slot>
   <slot>n_changed(int)</slot>
   <slot>comboBoxChanged(QString)</slot>
+  <slot>detect()</slot>
+  <slot>systematic_changed(bool)</slot>
  </slots>
  <buttongroups>
   <buttongroup name="formatButtonGroup"/>
