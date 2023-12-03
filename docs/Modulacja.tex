@@ -69,8 +69,15 @@ ponieważ w tych przypadkach liczy się kompaktowość, a przepływ danych nie j
 
 \subsubsection{PAM3}
 
-PAM3 --- trzypoziomowa modulacja PAM --- do przesyłu wykorzystuje wartości $+1$, $0$, $-1$. Jeden symbol koduje $log_{2}{3} \approx 1.58 \text{ bit/symbol}$. Użyta została m.in. w standardach 100BASE-T4 (wczesna implementacja Fast Ethernet) i BroadR-Reach Ethernet standard --- wykorzystywany w branży automotive, opracowany przez firmę Broadcom Corporation.
+PAM3 --- trzypoziomowa modulacja PAM --- do przesyłu wykorzystuje wartości $+1$, $0$, $-1$. Jeden symbol koduje $log_{2}{3} \approx 1,58 \text{ bit/symbol}$.
+PAM3 użyty został m.in. w standardach 100BASE-T4 (wczesna implementacja Fast Ethernet) i BroadR-Reach Ethernet standard --- wykorzystywany w branży automotive, opracowany przez firmę Broadcom Corporation.
 Nie jest to schemat modulacji PAM, który często pojawia się w praktycznych rozwiązaniach, z uwagi na to, że technologie wykorzystujące tą technikę nie zostały szeroko przyjęte.
+
+Ciekawym aspektem jest podział bitów na symbole. Na pierwszy rzut oka widać, że istnieje problem z grupowaniem bitów --- nie można przecież przesłać $1,58$ bita. W modulacjach z liczbą poziomów będącą potęgą $2$ podział jest bardzo prosty --- bity grupujemy w dwójki, czwórki \dots i bezpośrednio mapujemy na symbole.
+
+Tutaj rozwiązaniem jest tymczasowa zamiana bitów na trity (system trójkowy). Przykładowo, w wersji drugiej USB4, dane dzieli się 11-bitowe grupy po czym każda z nich zamienana jest na 7 tritów, osiągając przy tym
+efektywność rzędu $\frac{11/7}{log_{2}{3}} * 100\% \approx 99\% $
+
 
 \subsubsection{PAM4}
 
@@ -84,3 +91,7 @@ Warto zwrócić uwagę, że w NRZ mamy jedno narastające zbocze ($0 \rightarrow
 Ma to znaczący wpływ na stosunek sygnału do szumu (SNR).
 
 PAM4 wykorzystywany jest m.in. w technologiach 100, 200 i 400 Gigabit Ethernet.
+
+\subsubsection{PAM16}
+
+PAM16 --- szesnastopoziomowa modulacja PAM --- analogicznie do poprzednich przypadków wykorzystuje wartości $15$, $13$, $11$, \dots , $1$, $-1$, $-3$, \dots , $-13$, $-15$. Szesnaście poziomów daje 4 bity na symbol. Wykorzystywana jest w technologiach 10GBASE-T, 25GBASE-T czy 40GBASE-T.
