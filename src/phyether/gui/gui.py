@@ -28,7 +28,7 @@ class EthernetGuiApp(QMainWindow):
 
     def init_ngspice(self):
         init_success = False
-        from main import init, install_libngspice
+        from phyether.main import init, install_libngspice
         try:
             init()
             init_success = True
