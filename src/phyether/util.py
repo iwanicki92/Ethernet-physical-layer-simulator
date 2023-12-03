@@ -40,6 +40,9 @@ def string_to_list(string: str) -> List[int]:
     """
     return list(string.encode(errors="surrogateescape"))
 
+def removeprefix(string: str, prefix: str) -> str:
+    return string[len(prefix):] if string.startswith(prefix) else string
+
 class DictMapping(Mapping):
     def __getitem__(self, key):
         return self.__dict__[key]

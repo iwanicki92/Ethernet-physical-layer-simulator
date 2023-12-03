@@ -8,8 +8,10 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QPushButton,
                              QMessageBox,
                              )
 from phyether.dac import DAC
+from phyether.gui.pam_simulation import PAMSimulationCanvas, PAM16SimulationCanvas
 from phyether.gui.rs_register_tab import RSRegisterTab
 from phyether.gui.rs_tab import RSTab
+from phyether.pam import NRZ, PAM, PAM16, PAM4
 from phyether.gui.simulation import (SimulationArgs, SimulationDisplay,
                                      SimulationFormWidget, SimulationInitArgs,
                                      SimulationRunArgs, SimulatorCanvas,
@@ -80,6 +82,7 @@ class EthernetGuiApp(QMainWindow):
         if not enable_simulation_tab:
             self.tabs[3].setDisabled(True)
         self.init_pam16()
+        self.init_pam()
         self.init_twisted_pair()
         self.tab_widget = QTabWidget()
         self.tab_widget.setStyleSheet("QTabBar::tab:hover {\
@@ -98,11 +101,35 @@ class EthernetGuiApp(QMainWindow):
         self.tab_widget.setCurrentIndex(index)
 
     def init_pam16(self):
+        self.pam16_simulator_data = QLineEdit()
         self.tabs[1].setLayout(QVBoxLayout())
-        self.tabs[1].layout().addWidget(QLabel("PAM16 tab placeholder"))
+        self.tabs[1].layout().addWidget(QLabel("Enter data in hexadecimal format"))
+        self.tabs[1].layout().addWidget(self.pam16_simulator_data)
+
+        self.pam16_simulate_button = QPushButton("Simulate")
+        self.tabs[1].layout().addWidget(self.pam16_simulate_button)
+        self.pam16_simulate_button.clicked.connect(self.pam16_simulate)
+
+        self.pam16_canvas = PAM16SimulationCanvas()
+        self.pam16_canvas.simulation_stopped_signal.connect(lambda: self.pam16_simulate_button.setDisabled(False))
+        self.tabs[1].layout().addWidget(self.pam16_canvas)
 
     def init_pam(self):
-        pass
+        self.pam_versions: list[PAM] = [NRZ(), PAM4(), PAM16()]
+
+        self.pam_simulator_data = QLineEdit()
+        self.tabs[2].setLayout(QVBoxLayout())
+        self.tabs[2].layout().addWidget(QLabel(f"Enter data in hexadecimal format"))
+        self.tabs[2].layout().addWidget(self.pam_simulator_data)
+
+        self.pam_simulate_button = QPushButton("Simulate")
+        self.tabs[2].layout().addWidget(self.pam_simulate_button)
+        self.pam_simulate_button.clicked.connect(self.pam_simulate)
+
+        # Add your canvas
+        self.pam_canvas = PAMSimulationCanvas()
+        self.pam_canvas.simulation_stopped_signal.connect(lambda: self.pam_simulate_button.setDisabled(False))
+        self.tabs[2].layout().addWidget(self.pam_canvas)
 
     def init_twisted_pair(self):
         self.tabs[3].setLayout(QHBoxLayout())
@@ -161,6 +188,64 @@ class EthernetGuiApp(QMainWindow):
         self.tp_simulation_form.insertRow(index, self.tp_simulation_forms[-1])
 
         # self.tp_simulation_form.insertRow(input_index - 1, f"{input_index}. simulation parameters:", self.tp_simulation_forms[-1])
+
+    def pam16_simulate(self):
+        self.pam16_simulate_button.setDisabled(True)
+        simulation_args: list[SimulationArgs] = []
+        encoder = PAM16()
+        try:
+            twisted_pairs_output = encoder.hex_to_signals(hex_data=self.pam16_simulator_data.text(), use_dsq128=True)
+        except Exception as ex:
+            create_msg_box(f"Simulation failed: {ex}", "Simulation error!")
+            self.pam16_simulate_button.setDisabled(False)
+            return
+
+        for output in twisted_pairs_output:
+            print("Simulating...")
+            init = SimulationInitArgs(dac=DAC(1, 2,
+                                              high_symbol=encoder.high_symbol,
+                                              symbol_step=encoder.symbol_step),
+                                      transmission_type="lossless",
+                                      transmission_delay=0.1)
+            simulation_args.append(
+                SimulationArgs(init_args=init,
+                               run_args=SimulationRunArgs(presimulation_ratio=0),
+                               input=output))
+
+        try:
+            self.pam16_canvas.simulate(simulation_args)
+        except Exception as ex:
+            create_msg_box(f"Simulation failed: {ex}", "Simulation error!")
+            self.pam16_simulate_button.setDisabled(False)
+
+    def pam_simulate(self):
+        self.pam_simulate_button.setDisabled(True)
+        simulation_args: list[SimulationArgs] = []
+
+        for encoder in self.pam_versions:
+            try:
+                input = encoder.hex_to_signals(self.pam_simulator_data.text())
+            except Exception as ex:
+                create_msg_box(f"Simulation failed: {ex}", "Simulation error!")
+                self.pam_simulate_button.setDisabled(False)
+                return
+
+            print("Simulating...")
+            init = SimulationInitArgs(dac=DAC(1, 2,
+                                              high_symbol=encoder.high_symbol,
+                                              symbol_step=encoder.symbol_step),
+                                      transmission_type="lossless",
+                                      transmission_delay=0.1)
+            simulation_args.append(
+                SimulationArgs(init_args=init,
+                               run_args=SimulationRunArgs(presimulation_ratio=0),
+                               input=input))
+
+        try:
+            self.pam_canvas.simulate(simulation_args)
+        except Exception as ex:
+            create_msg_box(f"Simulation failed: {ex}", "Simulation error!")
+            self.pam_simulate_button.setDisabled(False)
 
     def simulate(self):
         print("Simulating...")
