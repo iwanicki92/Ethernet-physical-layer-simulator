@@ -9,9 +9,10 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QPushButton,
                              QMessageBox,
                              )
 from phyether.dac import DAC
+from phyether.gui.pam_simulation import PAMSimulationCanvas
 from phyether.gui.rs_register_tab import RSRegisterTab
 from phyether.gui.rs_tab import RSTab
-from phyether.pam import PAM
+from phyether.pam import NRZ, PAM, PAM16, PAM4
 from phyether.gui.simulation import (SimulationArgs, SimulationDisplay,
                                      SimulationFormWidget, SimulationInitArgs,
                                      SimulationRunArgs, SimulatorCanvas,
@@ -105,7 +106,7 @@ class EthernetGuiApp(QMainWindow):
         self.tabs[1].layout().addWidget(QLabel("PAM16 tab placeholder"))
 
     def init_pam(self):
-        self.pam_versions = ["NRZ", "PAM4", "PAM16"]
+        self.pam_versions: list[PAM] = [NRZ(), PAM4(), PAM16()]
 
         self.pam_simulator_data = QLineEdit()
         self.tabs[2].setLayout(QVBoxLayout())
@@ -117,10 +118,9 @@ class EthernetGuiApp(QMainWindow):
         self.pam_simulate_button.clicked.connect(self.pam_simulate)
 
         # Add your canvas
-        self.pam_canvases = [SimulatorCanvas() for _ in self.pam_versions]
-        for can in self.pam_canvases:
-            can.simulation_stopped_signal.connect(lambda: self.pam_simulate_button.setDisabled(False))
-            self.tabs[2].layout().addWidget(can)
+        self.pam_canvas = PAMSimulationCanvas()
+        self.pam_canvas.simulation_stopped_signal.connect(lambda: self.pam_simulate_button.setDisabled(False))
+        self.tabs[2].layout().addWidget(self.pam_canvas)
 
     def init_twisted_pair(self):
         self.tabs[3].setLayout(QHBoxLayout())
@@ -181,26 +181,25 @@ class EthernetGuiApp(QMainWindow):
         # self.tp_simulation_form.insertRow(input_index - 1, f"{input_index}. simulation parameters:", self.tp_simulation_forms[-1])
 
     def pam_simulate(self):
-        for pam_version, canv in zip(self.pam_versions, self.pam_canvases):
+        self.pam_simulate_button.setDisabled(True)
+        simulation_args: list[SimulationArgs] = []
+        for encoder in self.pam_versions:
             print("Simulating...")
-            encoder = PAM(type=pam_version)
-            self.pam_simulate_button.setDisabled(True)
-            init = SimulationInitArgs(dac=DAC(1, 2, high_symbol=encoder.high_symbol, symbol_step=encoder.symbol_step),
-                                        transmission_type="lossy")
-            simulation_args: list[SimulationArgs] = [
+            init = SimulationInitArgs(dac=DAC(1, 2,
+                                              high_symbol=encoder.high_symbol,
+                                              symbol_step=encoder.symbol_step),
+                                      transmission_type="lossless",
+                                      transmission_delay=0.1)
+            simulation_args.append(
                 SimulationArgs(init_args=init,
-                run_args=SimulationRunArgs(),
-                input=encoder.hex_to_signals(self.pam_simulator_data.text()))
-            ]
+                               run_args=SimulationRunArgs(presimulation_ratio=0),
+                               input=encoder.hex_to_signals(self.pam_simulator_data.text())))
 
-            try:
-                canv.set_display_params([SimulationDisplay.VOUT])
-                canv.simulate(simulation_args)
-            except Exception as ex:
-                create_msg_box(f"Simulation failed: {ex}", "Simulation error!")
-                self.pam_simulate_button.setDisabled(False)
-            time.sleep(1)
-
+        try:
+            self.pam_canvas.simulate(simulation_args)
+        except Exception as ex:
+            create_msg_box(f"Simulation failed: {ex}", "Simulation error!")
+            self.pam_simulate_button.setDisabled(False)
 
     def simulate(self):
         print("Simulating...")

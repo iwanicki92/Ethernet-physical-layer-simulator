@@ -1,86 +1,52 @@
-from bitarray import bitarray
+from abc import ABC, abstractmethod
 
-class PAM:
-    def __init__(self, type):
-        assert(type in ["NRZ", "PAM4", "PAM16"])
-        self.type = type
+from phyether.util import removeprefix
 
-    @property
-    def high_symbol(self):
-        if self.type == "NRZ":
-            return 1
-        elif self.type == "PAM4":
-            return 3
-        else: 
-            return 15
-    
+class PAM(ABC):
     @property
     def symbol_step(self):
         return 2
 
-    def hex_to_signals(self, hex_data):
-        if self.type == "NRZ":
-            return self._nrz_hex_to_signals(hex_data)
-        elif self.type == "PAM4":
-            return self._pam4_hex_to_signals(hex_data)
-        else:
-            return self._pam16_hex_to_signals(hex_data)
+    @property
+    @abstractmethod
+    def high_symbol(self) -> int:
+        pass
 
-    def _nrz_hex_to_signals(self, hex_data):
-        bits = bitarray(bin(int(hex_data, 16))[2:])
-        return " ".join(['1' if bit else '-1' for bit in bits])
+    @abstractmethod
+    def hex_to_signals(self, hex_data: str) -> str:
+        pass
 
-    def _pam4_hex_to_signals(self, hex_data):
-        bits = bitarray(bin(int(hex_data, 16))[2:])
-        signals = ""
-        for i in range(0, len(bits), 2):
-            if bits[i:i+2] == bitarray("00"):
-                signals += " -3"
-            elif bits[i:i+2] == bitarray("01"):
-                signals += " -1"
-            elif bits[i:i+2] == bitarray("10"):
-                signals += " 1"
-            else:
-                signals += " 3"
-        return signals[1:]
 
-    def _pam16_hex_to_signals(self, hex_data):
-        bits = bitarray(bin(int(hex_data, 16))[2:])
-        padding_length = (4 - (len(bits) % 4)) % 4
-        bits += bitarray('0' * padding_length)
-        signals = ""
-        for i in range(0, len(bits), 4):
-            if bits[i:i+4] == bitarray("0000"):
-                signals += " -15"
-            elif bits[i:i+4] == bitarray("0001"):
-                signals += " -13"
-            elif bits[i:i+4] == bitarray("0010"):
-                signals += " -11"
-            elif bits[i:i+4] == bitarray("0011"):
-                signals += " -9"
-            elif bits[i:i+4] == bitarray("0100"):
-                signals += " -7"
-            elif bits[i:i+4] == bitarray("0101"):
-                signals += " -5"
-            elif bits[i:i+4] == bitarray("0110"):
-                signals += " -3"
-            elif bits[i:i+4] == bitarray("0111"):
-                signals += " -1"
-            elif bits[i:i+4] == bitarray("1000"):
-                signals += " 1"
-            elif bits[i:i+4] == bitarray("1001"):
-                signals += " 3"
-            elif bits[i:i+4] == bitarray("1010"):
-                signals += " 5"
-            elif bits[i:i+4] == bitarray("1011"):
-                signals += " 7"
-            elif bits[i:i+4] == bitarray("1100"):
-                signals += " 9"
-            elif bits[i:i+4] == bitarray("1101"):
-                signals += " 11"
-            elif bits[i:i+4] == bitarray("1110"):
-                signals += " 13"
-            else:
-                signals += " 15"
-        return signals[1:]
+class NRZ(PAM):
+    @property
+    def high_symbol(self):
+        return 1
 
+    def hex_to_signals(self, hex_data: str) -> str:
+        return ' '.join([
+            '1' if bit == '1' else '-1'
+            for bit in format(int(hex_data, 16), 'b')
+            ])
+
+class PAM4(PAM):
+    @property
+    def high_symbol(self):
+        return 3
+
+    def hex_to_signals(self, hex_data: str) -> str:
+        binary = format(int(hex_data, 16), 'b')
+        if len(binary) % 2 == 1:
+            binary.rjust(len(binary) + 1, '0')
+        return ' '.join(
+            str(-3 + 2*int(binary[bit:bit+2], 2))
+            for bit in range(0, len(binary), 2))
+
+class PAM16(PAM):
+    @property
+    def high_symbol(self) -> int:
+        return 15
+
+    def hex_to_signals(self, hex_data: str):
+        return ' '.join(
+            str(-15 + 2*int(hex_symbol,16))
+            for hex_symbol in removeprefix(hex_data, "0x"))
