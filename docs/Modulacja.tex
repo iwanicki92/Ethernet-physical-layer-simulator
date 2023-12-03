@@ -47,7 +47,12 @@ Innym ważnym pojęciem jest multipleksacja (ang. multiplexing) i oznacza przesy
 \subsection{Non-Return-to-Zero}
 
 Na początku rozważmy przykład. Najprostszą metodą byłoby używanie dodatniego napięcia dla bitu równego 1 i ujemnego napięcia dla 0.
-Technika ta nosi nazwę \textbf{NRZ (Non-Return-to-Zero)}. Nie jest ona wykorzystywana w praktyce --- nadając naprzemiennie 1 i 0 otrzymamy okres równy 2 bity, co oznacza że potrzebujemy pasma B/2 Hz przy prędkości B bit / s.
+Technika ta nosi nazwę \textbf{NRZ (Non-Return-to-Zero)}.
+W praktyce wykorzystywana jest w połączeniu z kodowaniem liniowym np. 64b/66b, ale nie stosuje się tej techniki samoistnie.
+Jest tak, ponieważ podczas przesyłania danych mogą wystąpić długie ciągi zer lub jedynek, a więc nadawany sygnał nie będzie się zmieniał.
+Jest to zjawisko niepożądane podczas transmisji i może doprowadzić do desynchronizacji zegarów strony nadawczej i odbiorczej.
+
+Rozważmy też przypadek, w którym nadawane jest naprzemiennie 1 i 0 --- otrzymamy wówczas okres równy 2 bity, co oznacza że potrzebujemy pasma B/2 Hz przy prędkości B bit/s.
 Nie trudno zauwarzyć, że do szybszego nadawnia, zwiększona musi zostać szerokość pasma, co nie jest optymalnym rozwiązaniem z uwagi na ograniczoność tego zasobu \cite{Computer-networks-Tanenbaum}.
 
 Jednym z rozwiązań tego problemu jest wykorzystanie większej ilości poziomów napięcia. W powyższym przykładzie zastosowane zostały dwa poziomy, a co za tym idzie mamy do dyspozycji dwa symbole przesyłane przez kanał.
@@ -56,7 +61,7 @@ rozróżnienie wielu poziomów napięcia. Jednakże w praktyce jest to koszt, kt
 
 \subsection{Pulse-Amplitude Modulation}
 
-Pulse-Amplitude Modulation (PAM) jest najpopularniejszą techniką modulacji wykorzystywaną w technologiach Ethernetowych. Można ją również zobaczyć w innych technologiach (USB4, PCI Express 6.0). Jest to rodzaj modulacji, w którym dane przesyłane jako zmiany amplitudy sygnału. Modulacje PAM można podzielić na dwie kategorię:
+Pulse-Amplitude Modulation (PAM) jest jedną z najpopularniejszych technik modulacji wykorzystywaną w technologiach Ethernetowych. Można ją również zobaczyć w innych technologiach (USB4, PCI Express 6.0). Jest to rodzaj modulacji, w którym dane przesyłane jako zmiany amplitudy sygnału. Modulacje PAM można podzielić na dwie kategorię:
 
 \begin{enumerate}
     \item single polarity PAM --- do sygnału dodawana jest stała składowa, aby wartości napięcia były dodatnie
