@@ -45,7 +45,6 @@ class PAM16SimulationCanvas(SimulatorCanvas):
             ax.xaxis.set_major_formatter(EngFormatter(unit='s'))
 
 
-
 class PAMSimulationCanvas(SimulatorCanvas):
     def __init__(self):
         super().__init__(init_axes=False)
