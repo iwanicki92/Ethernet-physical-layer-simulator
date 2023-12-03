@@ -145,7 +145,7 @@ class EthernetGuiApp(QMainWindow):
         options_layout.addLayout(signals_layout)
         options_widget = QWidget()
         options_widget.setLayout(options_layout)
-        options_widget.setFixedWidth(400)
+        options_widget.setFixedWidth(450)
 
         self.tabs[3].layout().addWidget(options_widget)
 
