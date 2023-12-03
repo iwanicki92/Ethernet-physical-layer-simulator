@@ -13,7 +13,7 @@ class PAM16SimulationCanvas(SimulatorCanvas):
         super().__init__(init_axes=False)
         self.subplot_axes: list[Axes] = cast(
             list[Axes],
-            self.figure.subplots(4, 1, sharex=True))
+            self.figure.subplots(4, 1, sharex=True, sharey=True))
         for ax in self.subplot_axes:
             ax.grid(True)
         self.draw()
@@ -42,6 +42,7 @@ class PAM16SimulationCanvas(SimulatorCanvas):
         for ax in self.subplot_axes:
             ax.cla()
             ax.grid()
+            ax.set_ylim(-2.5, 2.5)
             ax.xaxis.set_major_formatter(EngFormatter(unit='s'))
 
 
@@ -50,7 +51,7 @@ class PAMSimulationCanvas(SimulatorCanvas):
         super().__init__(init_axes=False)
         self.subplot_axes: list[Axes] = cast(
             list[Axes],
-            self.figure.subplots(len(PAM.__subclasses__()), 1, sharex=True))
+            self.figure.subplots(len(PAM.__subclasses__()), 1, sharex=True, sharey=True))
         for ax in self.subplot_axes:
             ax.grid(True)
         self.draw()
@@ -79,4 +80,5 @@ class PAMSimulationCanvas(SimulatorCanvas):
         for ax in self.subplot_axes:
             ax.cla()
             ax.grid()
+            ax.set_ylim(-2.5, 2.5)
             ax.xaxis.set_major_formatter(EngFormatter(unit='s'))
