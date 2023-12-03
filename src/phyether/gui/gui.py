@@ -28,7 +28,7 @@ class EthernetGuiApp(QMainWindow):
 
     def init_ngspice(self):
         init_success = False
-        from phyether.main import init, install_libngspice
+        from main import init, install_libngspice
         try:
             init()
             init_success = True
@@ -143,8 +143,11 @@ class EthernetGuiApp(QMainWindow):
         signals_layout.addWidget(self.simulator_signals)
 
         options_layout.addLayout(signals_layout)
+        options_widget = QWidget()
+        options_widget.setLayout(options_layout)
+        options_widget.setFixedWidth(400)
 
-        self.tabs[3].layout().addLayout(options_layout)
+        self.tabs[3].layout().addWidget(options_widget)
 
         self.tp_simulate_button = QPushButton("Simulate")
         options_layout.addWidget(self.tp_simulate_button)
