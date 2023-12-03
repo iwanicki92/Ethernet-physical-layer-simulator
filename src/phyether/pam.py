@@ -101,7 +101,6 @@ class PAM16(PAM):
         padding_length = (28 - (len(bits) % 28)) % 28
         bits[-28 + padding_length : -28 + padding_length] = bitarray('0' * padding_length)
         twisted_pairs_output = ["", "", "", ""]
-        print([f'bits[{i}:{i+28}] = {bits[i:i+28]}' for i in range(0, len(bits), 28)])
 
         for i in range(0, len(bits), 28):
             group = bits[i:i+28]
