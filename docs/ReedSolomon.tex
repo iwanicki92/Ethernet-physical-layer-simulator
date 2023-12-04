@@ -1,10 +1,9 @@
-\newcommand{\modulo}[1]{\mathbb{Z} / #1 \mathbb{Z}}
 \section{Kodowanie korekcyjne Reeda-Solomona}
 \subsection{Wstęp}
 
 Kodowanie korekcyjne Reeda-Solomona zostało stworzone przez Irvina S. Reeda
 oraz Gustava Solomona w 1960 roku~\cite{Reed-Solomon-original}
-Kody Reeda-Solomona charakteryzują się 3 parametrami, rozmiarem alfabetu $q$ \cite{Reed-Solomon-Encoding-Decoding}
+Kody Reeda-Solomona charakteryzują się 3 parametrami, rozmiarem alfabetu $q$~\cite{Reed-Solomon-Encoding-Decoding}
 interpretowanym w ciele skończonym $\mathbb{F}_q$, długością wiadomości do
 zakodowania $k$ oraz długością słowa kodowego $n$ gdzie $k < n \leq q$ oraz
 $q=p^m$ gdzie $p$ to liczba pierwsza a $m \in \{ 2, 3, \ldots \}$
@@ -40,12 +39,10 @@ pierścień klas reszt $\mathbb{Z} / p \mathbb{Z}$ z elementami~(\ref{modulo_ele
 i działaniem dodawania~(\ref{modulo_addition}) i mnożenia~(\ref{modulo_multiplication})
 
 \begin{align}
-    \modulo{p} = \{ [a]_p | a \in \mathbb{Z} \} = \{ [0]_p, [1]_p,
-    [2]_p, \ldots, [p-1]_p \} \label{modulo_elements}
-\end{align}
-\begin{align}
+    \modulo{p} = \{ [a]_p \; | \; a \in \mathbb{Z} \} &= \{ [0]_p, [1]_p,
+    [2]_p, \ldots, [p-1]_p \} \label{modulo_elements} \\
     [a]_p + [b]_p &= [a + b]_p \label{modulo_addition} \\
-    [a]_p * [b]_p &= [a * b]_p \label{modulo_multiplication}
+    [a]_p \cdot [b]_p &= [a \cdot b]_p \label{modulo_multiplication}
 \end{align}
 
 Dla $p$ niebędących liczbami pierwszymi $\modulo{p}$ nie będzie
@@ -133,11 +130,12 @@ Istnieje wiele różnych sposobów tworzenia kodu które tworzą kod o innych w�
 Sposób kodowania przedstawiony w pracy Reeda i Solomona polega na stworzeniu wielomianu $p_m(x)=\sum_{i=0}^{k-1}m_{i}x^i$, gdzie $m_i\in\mathbb{F}_q$ to $i$\nobreakdash-ty element wiadomości, po czym za pomocą tego wielomianu obliczane jest słowo kodowe $C(m)=(p_m(a_0), p_m(a_1), \ldots, p_m(a_{n-1}))$ gdzie $a_i$ to różne elementy ciała $\mathbb{F}_q$.
 
 \subsubsection{Kod systematyczny}
+\label{subsection:Kod systematyczny}
 Za pomocą niewielkiej modyfikacji można stworzyć kod systematyczny czyli taki w którym słowo kodowe zawiera w sobie kodowaną wiadomość.
 Żeby stworzyć kod systematyczny musimy zmodyfikować sposób tworzenia wielomianu w taki sposób by $p_m(x_i)=m_i$ dla $i \in \{0,1,\ldots,k-1\}$.
 
 Jednym ze sposobów stworzenia takiego wielomianu jest użycie metody interpolacji wielomianów. Słowo kodowe wygenerowane z tego wielomianu będzie zawierało wiadomość w pierwszych $k$ elementach.
-\[C(m)=(p_m(a_0), p_m(a_1), \ldots, p_m(a_{n-1}))=(m_0, m_1, \ldots, m_{k-1}, p_m(a_k), p_m(a_{k+1}), \ldots, p_m(a_{n-1}))\]
+\[C(m)=(p_m(a_0), p_m(a_1), \ldots, p_m(a_{n-1})) = (m_0, m_1, \ldots, m_{k-1}, p_m(a_k), p_m(a_{k+1}), \ldots, p_m(a_{n-1}))\]
 
 \subsection{Dekodowanie}
 \subsubsection{Algorytm Berlekampa-Welcha}
