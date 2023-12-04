@@ -42,10 +42,41 @@ Przykładowe pytania które mogą znaleźć się na wejściówce to:
 
 \subsection{Narzędzia}
 
-W trakcie zajęć laboratoryjnych student będzie miał do dyspozycji symulator phyether, który zawiera implementację wybranych rozwiązań
-części standardów 25GBASE-T i 40GBASE-T.
+\subsubsection{Symulator - wybór technologii}
+Do stworzenia symulatora wybrano język programowania Python i wykorzystano między innymi następujące gotowe rozwiązania:
+
+\begin{enumerate}
+    \item PyQt będzie biblioteką wykorzystywaną do stworzenia interfejsu graficznego użytkownika (GUI) dla symulatora. PyQt zapewnia szeroki zakres narzędzi do tworzenia rozbudowanych i przyjaznych użytkownikowi interfejsów, co jest szczególnie ważne w symulatorze dydaktycznym, gdzie interfejs musi być intuicyjny i nie stanowić niepotrzebnego wyzwania lub problemu dla biorących udział w zajęciach,
+    \item NumPy jest najpopularniejszą biblioteką Python implementującą algorytmy matematyczne. Między innymi oferuje generatory liczb pseudolosowych o różnych rozkładach, co jest wymagane do prawidłowego generowania ramek ethernetowych i błędów,
+    \item  Matplotlib to popularna biblioteka do tworzenia wykresów, przydatna przy tworzeniu wykresów sygnałów,
+    \item SPICE (Simulation Program with Integrated Circuit Emphasis) jest powszechnie stosowanym narzędziem do symulacji obwodów elektronicznych. Jest to rozbudowany program, który umożliwia modelowanie i analizę zachowania obwodów złożonych, takich jak układy analogowe, cyfrowe czy mikroelektroniczne. W celu korzystania z tego narzędzia w środowisku Python dostępna jest biblioteka PySpice, będąca interfejsem umożliwiającym korzystanie ze SPICE,
+\end{enumerate}
+
+\subsubsection{Interfejs użytkownika}
+Interfejs użytkownika został wykonany przy użyciu PyQt5 oraz Qt Designer. Qt Designer to graficzne narzędzie do projektowania interfejsów użytkownika w ramach frameworka Qt. Umożliwia łatwe tworzenie i dostosowywanie wyglądu aplikacji oraz następne jego wygenerowanie jako kodu w języku Python lub C++.
+
+Interfejs składa się z kilku zakładek stworzonych, które umożliwiają przełączanie między częściami aplikacji bez utraty wyników dotychczasowej pracy. Każda zakładka przeznaczona jest do innego zadania laboratoryjnego i zawiera symulacje innych rozwiązań ethernetowych. 
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics{images/zakladki.png}
+    \caption{Zakładki symulatora}
+    \label{fig:zakladki_image}
+\end{figure}
+
+Wykresy są tworzone przy pomocy biblioteki Matplotlib. Została dodatkowo stworzona klasa, która zawiera stworzone wykresy i może być użyta jako element graficznego interfejsu użytkownika, a więc dodana do niego.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[scale=0.5]{images/wykres.png}
+    \caption{Wykres symulacji stworzony przy użyciu Matplotlib}
+    \label{fig:wykres_image}
+\end{figure}
 
 \subsection{Ćwiczenie dydaktyczne --- modulacje PAM}
+
+W trakcie zajęć laboratoryjnych student będzie miał do dyspozycji symulator phyether, który zawiera implementację wybranych rozwiązań
+części standardów 25GBASE-T i 40GBASE-T.
 
 \subsubsection{Wstęp teoretyczny}
 
