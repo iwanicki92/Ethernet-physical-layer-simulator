@@ -158,13 +158,14 @@ class SimulationFormWidget(QFrame):
 class SimulatorCanvas(FigureCanvasQTAgg):
     simulation_stopped_signal = pyqtSignal()
 
-    def __init__(self):
+    def __init__(self, *, init_axes = True):
         super().__init__()
-        self.axes: Axes = cast(Axes, self.figure.subplots (1, 1))
+        if init_axes:
+            self.axes: Axes = cast(Axes, self.figure.subplots(1, 1))
+            self.axes.grid(True)
+            self.draw()
         self.figure.text(0.5, 0.04, 'Time', ha='center')
         self.figure.text(0.04, 0.5, 'Voltage (V)', va='center', rotation='vertical')
-        self.axes.grid(True)
-        self.draw()
         print("Created canvas")
 
         self.simulation: Optional[PairSimulation] = None
