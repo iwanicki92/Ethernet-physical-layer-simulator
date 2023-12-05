@@ -6,7 +6,13 @@
 40GBASE-T zapewnia dwukierunkową komunikację przez cztery przewody skrętki. Każdy przewód transmituje ¼ zgromadzonych danych.
 
 \subsection{Położenie 40GBASE-T w modelu OSI}
-\includegraphics[scale=0.4]{25-40-gbase-osi}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=\textwidth]{25-40-gbase-osi.png}
+    \caption{Położenie 40GBASE-T w modelu OSI}
+    \label{fig:40gbase-t_osi}
+\end{figure}
 
 \subsection{Media-Independent Interface}
 MII czyli Media-Independent Interface to interfejs pomiędzy warstwą MAC oraz PHY. Powstał po to aby warstwy MAC oraz PHY były niezależne od siebie - pozwala na pracę kontrolera MAC z warstwą PHY, bez względu na to jakie medium jest w użyciu.
@@ -26,13 +32,13 @@ Jak opisano w \ref{subsection:pcs}, warstwa PCS koduje otrzymane dane w 7-bitowe
 
 Aby wyjaśnić czym jest DSQ128, pierw spójrzmy na modulację 64QAM. 64QAM (Quadrature Amplitude Modulation) to modulacja, która jest połączeniem modulacji amplitudy oraz fazy. Bity zamieniane są na symbole według diagramu konstelacji:
 
-\includegraphics[scale=0.6]{64QAM-constellation-diagram}
+\includegraphics[scale=0.6]{64QAM-constellation-diagram.png}
 
 Diagam podzielony jest na 4 sekcje, każda z nich zawiera 16 maksymalnie oddzielonych od siebie punktów. Punkty znajdujące się obok siebie różnią się jednym bitem --- dzięki czemu, gdy odbiorca otrzyma zły symbol, najprawdopodobniej tylko jeden bit będzie przekłamany.
 
 DSQ128 jest złożeniem dwóch modulacji 64QAM i składa się z ośmiu sekcji, a każda z nich zawiera 16 punktów. Mając 7-bitową grupe ($u_0$, $u_1$, $u_2$), ($c_0$, $c_1$, $c_2$, $c_3$), pierwsze 3 bity definiują lewy dolny punkt w jednym z 8 regionów, natomiast na podstawie 4 kolejnych bitów wybierany jest jeden z 16 punktów w danym regionie. Proces ten opisany jest szczegółowo w \ref{mapowanie}
 
-\includegraphics[scale=0.4]{dsq128}
+\includegraphics[scale=0.4]{dsq128.png}
 
 \subsubsection{Mapowanie ramki LDPC na DSQ128}\label{mapowanie}
 Zamianę 7-bitów ($u_0$, $u_1$, $u_2$), ($c_0$, $c_1$, $c_2$, $c_3$) pokazuje poniższy algorytm:

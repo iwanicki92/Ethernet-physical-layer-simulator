@@ -12,7 +12,11 @@ Przykładowe pytania które mogą znaleźć się na wejściówce to:
         \item Odpowiedź: Tablica~\ref{truth_table:title} bądź~(\ref{modulo_addition})
         oraz~(\ref{modulo_multiplication})
     \end{itemize}
-    \item Ile błędnych symboli jest w stanie wykryć oraz poprawić kod Reeda-Solomona
+    \item Czym się różni słowo kodowe wygenerowane kodem systematycznym i niesystematycznym
+    \begin{itemize}
+        \item słowo kodowe w kodowaniu systematycznym w przeciwieństwie do niesystematycznego zawiera w sobie kodowaną wiadomość~(\ref{subsection:Kod systematyczny})
+    \end{itemize}
+    \item Ile błędnych symboli jest w stanie wykryć lub poprawić kod Reeda-Solomona
     \begin{enumerate}[label=\Alph*:]
         \item wykryć: $n-k$, poprawić: $n-k-1$
         \item wykryć: $n-k-1$, poprawić: $n-k-1$
@@ -51,7 +55,7 @@ Do stworzenia symulatora wybrano język programowania Python i wykorzystano mię
 \subsubsection{Interfejs użytkownika}
 Interfejs użytkownika został wykonany przy użyciu PyQt5 oraz Qt Designer. Qt Designer to graficzne narzędzie do projektowania interfejsów użytkownika w ramach frameworka Qt. Umożliwia łatwe tworzenie i dostosowywanie wyglądu aplikacji oraz następne jego wygenerowanie jako kodu w języku Python lub C++.
 
-Interfejs składa się z kilku zakładek stworzonych, które umożliwiają przełączanie między częściami aplikacji bez utraty wyników dotychczasowej pracy. Każda zakładka przeznaczona jest do innego zadania laboratoryjnego i zawiera symulacje innych rozwiązań ethernetowych. 
+Interfejs składa się z kilku zakładek stworzonych, które umożliwiają przełączanie między częściami aplikacji bez utraty wyników dotychczasowej pracy. Każda zakładka przeznaczona jest do innego zadania laboratoryjnego i zawiera symulacje innych rozwiązań ethernetowych.
 
 \begin{figure}[ht]
     \centering
@@ -91,18 +95,18 @@ Powodem dla którego zwiększenie poziomów ma sens jest zwiększona szybkość 
 do dyspozycji cztery symbole $-3$, $-1$, $1$, $3$, a więc każdy symbol kodować może dwa bity danych. W przypadku NRZ, jeden symbol koduje tylko jeden bit.
 Zatem zwiększenie liczby poziomów pozwala na przesył większej ilości bitów przy użyciu jednego symbolu. Schemat ten będzie działa o ile strona odbiorcza
 potrafi rozróżnić poszczególne symbole od siebie, jest to jednak łatwiej osiągalne niż zwiększenie szerokości pasma.
-Modulacje PAM4, PAM16 i inne, analogicznie jak NRZ, podatne są na długie ciągi zer i jedynek. Dlatego niezbęde jest zastosowanie różnych "gmatwaczy" bitów, które
+Modulacje PAM4, PAM16 i inne, analogicznie jak NRZ, podatne są na długie ciągi zer i jedynek. Dlatego niezbęde jest zastosowanie różnych `gmatwaczy` bitów, które
 zamienią takie sekwencje na bardziej zróżnicowany ciąg np. skrambler.
 
 \subsubsection{Opis narzędzia}
 
-Program phyether, w zakładce "PAM", posiada symulator modulacji NRZ, PAM4 oraz PAM16, który ilustruje zachowanie sygnału w skrętce podczas transmisji, w zależności
+Program phyether, w zakładce `PAM`, posiada symulator modulacji NRZ, PAM4 oraz PAM16, który ilustruje zachowanie sygnału w skrętce podczas transmisji, w zależności
 od wybranych modulacji.
 Narzędzie będzie wykorzystywane podczas tej części ćwiczenia.
 
 \includegraphics[scale=0.37]{pam_tab.png}
 
-Powyższa grafika prezentuje zakładkę "PAM" programu phyether. Nad przyciskiem \textbf{Simulate} znajduje się pole tekstowe, do którego wpisane mogą być dane w formie
+Powyższa grafika prezentuje zakładkę `PAM` programu phyether. Nad przyciskiem \textbf{Simulate} znajduje się pole tekstowe, do którego wpisane mogą być dane w formie
 liczb w systemie szesnastkowym. Po wpisaniu danych i kliknięciu \textbf{Simulate}, wpisane dane zamieniane są na symbole modulacji NRZ, PAM4 oraz PAM16, które
 następnie wysyłane są na medium. Wynik symulacji przedstawiony jest w dolnej części zakładki.
 
