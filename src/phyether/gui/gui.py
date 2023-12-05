@@ -170,8 +170,11 @@ class EthernetGuiApp(QMainWindow):
         signals_layout.addWidget(self.simulator_signals)
 
         options_layout.addLayout(signals_layout)
+        options_widget = QWidget()
+        options_widget.setLayout(options_layout)
+        options_widget.setFixedWidth(450)
 
-        self.tabs[3].layout().addLayout(options_layout)
+        self.tabs[3].layout().addWidget(options_widget)
 
         self.tp_simulate_button = QPushButton("Simulate")
         options_layout.addWidget(self.tp_simulate_button)

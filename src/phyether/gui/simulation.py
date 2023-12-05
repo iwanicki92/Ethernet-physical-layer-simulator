@@ -5,7 +5,7 @@ from attr import define
 from PyQt5.QtCore import QObject, QThread, pyqtSlot, pyqtSignal
 from PyQt5.QtWidgets import (QMessageBox, QWidget, QVBoxLayout, QHBoxLayout,
                              QFormLayout, QLabel, QSpinBox, QRadioButton,
-                             QFrame, QDoubleSpinBox,
+                             QFrame, QDoubleSpinBox, QComboBox
                              )
 
 import matplotlib
@@ -108,6 +108,17 @@ class SimulationFormWidget(QFrame):
             arg: str
             type: str
             default: object
+
+        self.combobox_widget = QWidget()
+        self.combobox_layout = QHBoxLayout()
+        self.combobox1 = QComboBox()
+        self.combobox2 = QComboBox()
+        self.combobox1.addItems(["Option1_1", "Option1_2"])
+        self.combobox2.addItems(["Option2_1", "Option2_2"])
+        self.combobox_layout.addWidget(self.combobox1)
+        self.combobox_layout.addWidget(self.combobox2)
+        self.combobox_widget.setLayout(self.combobox_layout)
+        self.form_layout.addRow(self.combobox_widget)
 
         # Create six number inputs using QSpinBox
         self.parameter_labels: List[Parameters] = [
