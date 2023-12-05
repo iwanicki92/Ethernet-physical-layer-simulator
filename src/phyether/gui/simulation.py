@@ -123,8 +123,8 @@ class SimulationFormWidget(QFrame):
         self.combobox_layout = QHBoxLayout()
         self.combobox1 = QComboBox()
         self.combobox2 = QComboBox()
-        self.combobox1.addItems(["Option1_1", "Option1_2"])
-        self.combobox2.addItems(["Option2_1", "Option2_2"])
+        self.combobox1.addItems(["40GBASE-T", "1000BASE-T"])
+        self.combobox2.addItems(["CAT 5e", "Cat 6", "Cat 7"])
         self.combobox_layout.addWidget(self.combobox1)
         self.combobox_layout.addWidget(self.combobox2)
         self.combobox_widget.setLayout(self.combobox_layout)
@@ -132,12 +132,14 @@ class SimulationFormWidget(QFrame):
 
         # Create six number inputs using QSpinBox
         self.parameter_labels: List[Parameters] = [
-            {"label" : "Voltage offset", "arg": "voltage_offset", "type" : "float", "default": 0},
-            {"label" : "Output impedance", "arg": "output_impedance", "type" : "float", "default": 100},
-            {"label" : "Length", "arg": "length", "type" : "int", "default": 2},
-            {"label" : "Resistance", "arg": "resistance", "type" : "float", "default": 0.188},
-            {"label" : "Inductance", "arg": "inductance", "type" : "float", "default": 525},
-            {"label" : "Capacitance", "arg": "capacitance", "type" : "float", "default": 52},
+            {"label" : "Rise time [ns]", "arg": "rise_time", "type" : "float", "default": 0.1},
+            {"label" : "Signal width [ns]", "arg": "on_time", "type" : "float", "default": 1},
+            {"label" : "Voltage offset [V]", "arg": "voltage_offset", "type" : "float", "default": 0},
+            {"label" : "Output impedance [Ohm]", "arg": "output_impedance", "type" : "float", "default": 100},
+            {"label" : "Length [m]", "arg": "length", "type" : "int", "default": 2},
+            {"label" : "Resistance [Ohm]", "arg": "resistance", "type" : "float", "default": 0.188},
+            {"label" : "Inductance [H]", "arg": "inductance", "type" : "float", "default": 525},
+            {"label" : "Capacitance [F]", "arg": "capacitance", "type" : "float", "default": 52},
         ]
         self.number_inputs: Dict[str, Union[QDoubleSpinBox, QSpinBox]] = {}
         for i, parameter in enumerate(self.parameter_labels):
