@@ -30,7 +30,7 @@ class EthernetGuiApp(QMainWindow):
 
     def init_ngspice(self):
         init_success = False
-        from main import init, install_libngspice
+        from phyether.main import init, install_libngspice
         try:
             init()
             init_success = True
@@ -172,7 +172,7 @@ class EthernetGuiApp(QMainWindow):
         options_layout.addLayout(signals_layout)
         options_widget = QWidget()
         options_widget.setLayout(options_layout)
-        options_widget.setFixedWidth(400)
+        options_widget.setFixedWidth(450)
 
         self.tabs[3].layout().addWidget(options_widget)
 
