@@ -2,10 +2,10 @@ from enum import Enum
 from typing import Literal, Optional, TypedDict, Union, cast, Dict, Tuple, List
 from attr import define
 
-from PyQt5.QtCore import QObject, QThread, pyqtSlot, pyqtSignal
+from PyQt5.QtCore import QObject, QThread, pyqtSlot, pyqtSignal, Qt
 from PyQt5.QtWidgets import (QMessageBox, QWidget, QVBoxLayout, QHBoxLayout,
                              QFormLayout, QLabel, QSpinBox, QRadioButton,
-                             QFrame, QDoubleSpinBox, QComboBox
+                             QFrame, QDoubleSpinBox, QComboBox, QPushButton
                              )
 
 import matplotlib
@@ -101,7 +101,17 @@ class SimulationFormWidget(QFrame):
         self.form = QWidget()
         self.form_layout = QFormLayout(self.form)
 
-        self.form_layout.addRow(QLabel(f'{index}. {label}'))
+        label_row_widget = QWidget()
+        label_row_layout = QHBoxLayout(label_row_widget)
+        self.name_label = QLabel(f'{index}. {label}')
+        label_row_layout.addWidget(self.name_label)
+
+        self.close_button = QPushButton("X")
+        self.close_button.clicked.connect(self.delete)
+        self.close_button.setMaximumWidth(30)
+        label_row_layout.addWidget(self.close_button, alignment=Qt.AlignRight)
+
+        self.form_layout.addRow(label_row_widget)
 
         class Parameters(TypedDict):
             label: str
@@ -154,6 +164,10 @@ class SimulationFormWidget(QFrame):
         self.frame_layout.addWidget(self.form)
 
         print(f"Created SimulationFormWidget, label = {label}")
+
+    def delete(self):
+        print("Deleteing form...")
+        self.setParent(None)
 
 class SimulatorCanvas(FigureCanvasQTAgg):
     simulation_stopped_signal = pyqtSignal()

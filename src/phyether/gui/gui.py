@@ -253,8 +253,14 @@ class EthernetGuiApp(QMainWindow):
     def simulate(self):
         print("Simulating...")
         self.tp_simulate_button.setDisabled(True)
+
+        # Fixing forms
+        self.tp_simulation_forms = [f for f in self.tp_simulation_forms if f.parent()]
+
         simulation_args: list[SimulationArgs] = []
         for i, form in enumerate(self.tp_simulation_forms):
+            # Fixing labels
+            form.name_label.setText(f"{i+1}. Simulation parameters")
             args = {key: val.value() for key, val in form.number_inputs.items() }
             init = SimulationInitArgs(dac=DAC(1, 2, 15),
                                         transmission_type="lossy",
