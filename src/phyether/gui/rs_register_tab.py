@@ -10,6 +10,7 @@ from phyether.gui.ui.rs_register_widget import Ui_rsRegisterForm
 from galois import GF, Poly
 
 from phyether.gui.util import create_msg_box
+from phyether.reed_solomon_bch import BCH_RS
 
 class ReedSolomonRegisterArguments:
     def __init__(self, n: int, k: int, gf: int, primitive_poly: Optional[int] = None,
@@ -44,6 +45,7 @@ class RSRegisterTab(QWidget, Ui_rsRegisterForm):
 
         self.standardsComboBox.addItems(self.rs_param_mapping.keys())
         self._calculate_gen_poly()
+        self.bch = BCH_RS(self.current_arguments.n, self.current_arguments.k, self.current_arguments.gf, self.current_arguments.generating_poly)
 
 
     @pyqtSlot(str)
@@ -59,7 +61,16 @@ class RSRegisterTab(QWidget, Ui_rsRegisterForm):
 
     @pyqtSlot(bool)
     def poly_repr_checked(self, bool):
-        self.current_arguments.gf.repr('int' if bool else 'poly')
+        for params in self.rs_param_mapping.values():
+            params.gf.repr('int' if bool else 'poly')
+        self.rs_primitive_element_lineEdit.setText(str(self.current_arguments.gf.primitive_element))
+        self.rs_primitive_poly_lineEdit.setText(str(self.current_arguments.gf.irreducible_poly))
+        poly = str(self.current_arguments.generating_poly) if self.current_arguments.generating_poly is not None else ""
+        self.gen_poly_lineEdit.setText(poly)
+
+    @pyqtSlot(int)
+    def gf_changed(self, value):
+        self.fillSpinBox.setMaximum(2**value - 1)
 
     @pyqtSlot()
     def whole_message(self):
@@ -68,14 +79,36 @@ class RSRegisterTab(QWidget, Ui_rsRegisterForm):
     @pyqtSlot()
     def calculate_generating_poly(self):
         self._calculate_gen_poly()
+        self.clear()
 
     @pyqtSlot()
     def next_symbol(self):
-        pass
+        symbols = self.input_lineEdit.text().split()
+        self.input_lineEdit.setText(' '.join(symbols[1:]))
+        output = self.output_lineEdit.text()
+        if self.bch.i >= self.current_arguments.k:
+            symbol = None
+        elif symbols:
+            symbol = symbols[0]
+        else:
+            symbol = self.fillSpinBox.value()
+        encoded = self.bch.encode_next_symbol(symbol)
+        self.output_lineEdit.setText(output + " " + str(encoded))
+        self.update_parity()
 
     @pyqtSlot()
     def next_x_symbols(self):
         pass
+
+    @pyqtSlot()
+    def clear(self):
+        self.output_lineEdit.setText("")
+        self.bch.clear_parity()
+        self.update_parity()
+
+    def update_parity(self):
+        for symbol, delay_element in zip(self.bch.parity, reversed(self.delay_elements)):
+            delay_element.setText(str(symbol))
 
     @pyqtSlot()
     def calculate_primitives(self):
@@ -85,6 +118,7 @@ class RSRegisterTab(QWidget, Ui_rsRegisterForm):
                 2**self.rs_gf_spinBox.value()
             )
             self._calculate_gen_poly()
+            self.output_lineEdit.setText("")
         except Exception as ex:
             create_msg_box(f"Error calculating primitives: ", "Error")
 
@@ -95,6 +129,8 @@ class RSRegisterTab(QWidget, Ui_rsRegisterForm):
         for i in range(1, d):
             poly *= x_poly - self.current_arguments.gf.primitive_element**i
         self.current_arguments.generating_poly = poly
+        self.output_lineEdit.setText("")
+        self.bch = BCH_RS(self.current_arguments.n, self.current_arguments.k, self.current_arguments.gf, self.current_arguments.generating_poly)
         self.gen_poly_lineEdit.setText(str(poly))
         self.delay_elements = [QLineEdit() for _ in range(d)]
 

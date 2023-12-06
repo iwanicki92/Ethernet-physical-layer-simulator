@@ -1,13 +1,14 @@
+from typing import Type
 from galois import GF, Poly, FieldArray
 
 class BCH_RS:
-    def __init__(self, n: int, k: int, gf, generator: str):
+    def __init__(self, n: int, k: int, gf: Type[FieldArray], generator: Poly):
         self.parity: list[FieldArray] = []
         self.i = 0
         self.n = n
         self.k = k
         self.gf = gf
-        self.generator = Poly.Str(generator, gf)
+        self.generator = generator
 
         self.clear_parity()
 
@@ -27,10 +28,8 @@ class BCH_RS:
         self.parity = [p_0] + [self.parity[i-1] + g_t * gen_coeffs[i] for i in range(1, len(gen_coeffs))]
 
         if self.i < self.k:
+            self.i += 1
             return m_i
         else:
+            self.i += 1
             return self.parity[-1]
-
-bch = BCH_RS(7,3,GF(2**3), "x^4 + 4x^3 + 7x^2 + 7x + 5")
-
-print([bch.encode_next_symbol(symbol) for symbol in [1,2,3, None, None, None, None]])
