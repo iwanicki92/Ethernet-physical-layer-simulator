@@ -5,8 +5,18 @@ import subprocess
 from PySpice.Spice.NgSpice.Shared import NgSpiceShared
 
 from phyether.gui import gui
+import sqlite3
+
+def _galois_sqlite3_fix(cls):
+    if cls.singleton is None:
+        cls.singleton = super(type(cls), cls).__new__(cls)
+        cls.conn = sqlite3.connect(cls.file, check_same_thread=False)
+        cls.cursor = cls.conn.cursor()
+    return cls.singleton
 
 def init():
+    from galois._databases._interface import DatabaseInterface
+    DatabaseInterface.__new__ = _galois_sqlite3_fix
     if platform.system() == "Windows":
         from pathlib import Path
         dll_name = "ngspice.dll"
