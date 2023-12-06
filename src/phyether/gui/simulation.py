@@ -2,10 +2,10 @@ from enum import Enum
 from typing import Literal, Optional, TypedDict, Union, cast, Dict, Tuple, List
 from attr import define
 
-from PyQt5.QtCore import QObject, QThread, pyqtSlot, pyqtSignal
+from PyQt5.QtCore import QObject, QThread, pyqtSlot, pyqtSignal, Qt
 from PyQt5.QtWidgets import (QMessageBox, QWidget, QVBoxLayout, QHBoxLayout,
                              QFormLayout, QLabel, QSpinBox, QRadioButton,
-                             QFrame, QDoubleSpinBox,
+                             QFrame, QDoubleSpinBox, QComboBox, QPushButton
                              )
 
 import matplotlib
@@ -101,7 +101,17 @@ class SimulationFormWidget(QFrame):
         self.form = QWidget()
         self.form_layout = QFormLayout(self.form)
 
-        self.form_layout.addRow(QLabel(f'{index}. {label}'))
+        label_row_widget = QWidget()
+        label_row_layout = QHBoxLayout(label_row_widget)
+        self.name_label = QLabel(f'{index}. {label}')
+        label_row_layout.addWidget(self.name_label)
+
+        self.close_button = QPushButton("X")
+        self.close_button.clicked.connect(self.delete)
+        self.close_button.setMaximumWidth(30)
+        label_row_layout.addWidget(self.close_button, alignment=Qt.AlignRight)
+
+        self.form_layout.addRow(label_row_widget)
 
         class Parameters(TypedDict):
             label: str
@@ -109,14 +119,27 @@ class SimulationFormWidget(QFrame):
             type: str
             default: object
 
+        self.combobox_widget = QWidget()
+        self.combobox_layout = QHBoxLayout()
+        self.combobox1 = QComboBox()
+        self.combobox2 = QComboBox()
+        self.combobox1.addItems(["40GBASE-T", "1000BASE-T"])
+        self.combobox2.addItems(["CAT 5e", "Cat 6", "Cat 7"])
+        self.combobox_layout.addWidget(self.combobox1)
+        self.combobox_layout.addWidget(self.combobox2)
+        self.combobox_widget.setLayout(self.combobox_layout)
+        self.form_layout.addRow(self.combobox_widget)
+
         # Create six number inputs using QSpinBox
         self.parameter_labels: List[Parameters] = [
-            {"label" : "Voltage offset", "arg": "voltage_offset", "type" : "float", "default": 0},
-            {"label" : "Output impedance", "arg": "output_impedance", "type" : "float", "default": 100},
-            {"label" : "Length", "arg": "length", "type" : "int", "default": 2},
-            {"label" : "Resistance", "arg": "resistance", "type" : "float", "default": 0.188},
-            {"label" : "Inductance", "arg": "inductance", "type" : "float", "default": 525},
-            {"label" : "Capacitance", "arg": "capacitance", "type" : "float", "default": 52},
+            {"label" : "Rise time [ns]", "arg": "rise_time", "type" : "float", "default": 0.1},
+            {"label" : "Signal width [ns]", "arg": "on_time", "type" : "float", "default": 1},
+            {"label" : "Voltage offset [V]", "arg": "voltage_offset", "type" : "float", "default": 0},
+            {"label" : "Output impedance [Ohm]", "arg": "output_impedance", "type" : "float", "default": 100},
+            {"label" : "Length [m]", "arg": "length", "type" : "int", "default": 2},
+            {"label" : "Resistance [Ohm]", "arg": "resistance", "type" : "float", "default": 0.188},
+            {"label" : "Inductance [H]", "arg": "inductance", "type" : "float", "default": 525},
+            {"label" : "Capacitance [F]", "arg": "capacitance", "type" : "float", "default": 52},
         ]
         self.number_inputs: Dict[str, Union[QDoubleSpinBox, QSpinBox]] = {}
         for i, parameter in enumerate(self.parameter_labels):
@@ -143,6 +166,10 @@ class SimulationFormWidget(QFrame):
         self.frame_layout.addWidget(self.form)
 
         print(f"Created SimulationFormWidget, label = {label}")
+
+    def delete(self):
+        print("Deleteing form...")
+        self.setParent(None)
 
 class SimulatorCanvas(FigureCanvasQTAgg):
     simulation_stopped_signal = pyqtSignal()

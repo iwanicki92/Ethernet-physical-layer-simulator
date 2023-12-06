@@ -27,7 +27,7 @@ class Ui_rsRegisterForm(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.imageLabel.sizePolicy().hasHeightForWidth())
         self.imageLabel.setSizePolicy(sizePolicy)
-        self.imageLabel.setMaximumSize(QtCore.QSize(1000, 500))
+        self.imageLabel.setMaximumSize(QtCore.QSize(16777215, 16777215))
         self.imageLabel.setSizeIncrement(QtCore.QSize(0, 0))
         self.imageLabel.setBaseSize(QtCore.QSize(0, 0))
         self.imageLabel.setText("")
