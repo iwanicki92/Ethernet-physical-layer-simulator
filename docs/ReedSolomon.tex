@@ -3,10 +3,18 @@
 
 Kodowanie korekcyjne Reeda-Solomona zostało stworzone przez Irvina S. Reeda
 oraz Gustava Solomona w 1960 roku~\cite{Reed-Solomon-original}
-Kody Reeda-Solomona charakteryzują się 3 parametrami, rozmiarem alfabetu $q$~\cite{Reed-Solomon-Encoding-Decoding}
-interpretowanym w ciele skończonym $\mathbb{F}_q$, długością wiadomości do
-zakodowania $k$ oraz długością słowa kodowego $n$ gdzie $k < n \leq q$ oraz
-$q=p^m$ gdzie $p$ to liczba pierwsza a $m \in \{ 2, 3, \ldots \}$
+
+Kody Reeda-Solomona charakteryzują się kilkoma parametrami~\cite{Reed-Solomon-Encoding-Decoding}:
+\begin{itemize}
+    \item alfabetem w ciele skończonym $\mathbb{F}_{p^m}$, $m>1$, $p$ jest liczbą
+    pierwszą
+    \item długością wiadomości $k$ do zakodowania $k < 2^{m}$
+    \item długością słowa kodowego $n$ gdzie $k < n < 2^{m}$
+    \item wielomianem generującym $g(x)$ dla kodów BCH
+\end{itemize}
+
+W kodach solomona wykorzystywanych w Ethernecie wykorzystujemy ciało $\mathbb{F}_2$ oraz ciała rozszerzone
+$\mathbb{F}_{2^m}, m \in \{ 2, 3, \ldots \}$.
 
 \subsection{Ciało skończone $\mathbb{F}_{q}$}
 
@@ -20,20 +28,19 @@ Te operacje muszą spełniać kilka warunków:
 {\small
     \begin{align}
         a + (b + c) &= (a + b) + c & \forall a,b,c &\in K && \text{Łączność dodawania} \\
-        a*(b*c) &= (a*b)*c & \forall a,b,c &\in K && \text{Łączność mnożenia} \\
+        a \cdot (b \cdot c) &= (a \cdot b) \cdot c & \forall a,b,c &\in K && \text{Łączność mnożenia} \\
         a + b &= b + a & \forall a,b &\in K && \text{Przemienność dodawania} \\
-        a * b &= b * a & \forall a,b &\in K && \text{Przemienność mnożenia} \\
+        a \cdot b &= b \cdot a & \forall a,b &\in K && \text{Przemienność mnożenia} \\
         a + 0 &= a & \forall a &\in K && \text{Element neutralny (0) dodawania} \\
-        a * 1 &= a & \forall a &\in K && \text{Element neutralny (1) mnożenia} \\
+        a \cdot 1 &= a & \forall a &\in K && \text{Element neutralny (1) mnożenia} \\
         a + (-a) &= 0 & \forall a &\in K && \text{Element odwrotny (-a) dodawania} \\
-        a*a^{-1} &= 1 & \forall a &\in K \setminus \{ 0 \} &&
+        a \cdot a^{-1} &= 1 & \forall a &\in K \setminus \{ 0 \} &&
             \text{Element odwrotny (} a^{-1} \text{) mnożenia} \label{field_mul_inverse}\\
-        a*(b + c) &= (a*b) + (a*c) & \forall a,b,c &\in K &&
+        a \cdot (b + c) &= (a \cdot b) + (a \cdot c) & \forall a,b,c &\in K &&
             \text{Rozdzielność mnożenia względem dodawania}
     \end{align}
 }%
-W kodzie solomona wykorzystujemy ciało $\mathbb{F}_2$ oraz ciało rozszerzone
-$\mathbb{F}_{2^m}, m \in \{ 1, 2, 3, \ldots \}$.
+
 Aby stworzyć ciało rzędu $p$ gdzie $p$ jest liczbą pierwszą można wykorzystać
 pierścień klas reszt $\mathbb{Z} / p \mathbb{Z}$ z elementami~(\ref{modulo_elements})
 i działaniem dodawania~(\ref{modulo_addition}) i mnożenia~(\ref{modulo_multiplication})
@@ -50,7 +57,7 @@ ciałem skończonym, ponieważ nie wszystkie elementy będą spełniały
 warunek~(\ref{field_mul_inverse}).
 Dla $\mathbb{F}_2$ działania $+$ i $*$ są równoważne operacjom logicznym XOR
 oraz AND zdefiniowanymi w tablicy~\ref{truth_table:title}
-\begin{table}
+\begin{table}[H]
     \captionof{table}{Dodawanie i mnożenie w $\mathbb{F}_2$}\label{truth_table:title}
     \centering
     \begin{tabular}{c c | c c}
@@ -99,17 +106,17 @@ wyróżnione w tablicy~\ref{standards:title}
 \centering
     \begin{tabular}{m{3cm} m{9cm}}
     \toprule
-    Kodowanie RS    & Standardy                                                         \\
+    Kodowanie RS    & Standardy \\
     \midrule
-    RS(528,514)     & 10GBASE-R, 25GBASE-R, 100GBASE-CR4, 100GBASE-KR4, 100GBASE-SR4    \\
+    RS(528,514)     & 10GBASE-R, 25GBASE-R, 100GBASE-CR4, 100GBASE-KR4, 100GBASE-SR4 \\
     \midrule
-    RS(544,514)     & 50GBASE-R, 100GBASE-KP4, 100GBASE-CR2, 100GBASE-SR2, 100GBASE-DR, 100GBASE-FR1, 100GBASE-LR1, 200GBASE-R, 400GBASE-R \\
+    RS(544,514)     & 50GBASE-R, 100GBASE-KP4, 100GBASE-CR2, 100GBASE-SR2, 100GBASE-DR, 100GBASE-FR1, 100GBASE-LR1, \hfill 200GBASE-R, \hfill 400GBASE-R \\
     \midrule
-    RS(450,406)     & 1000BASE-T1                                                       \\
+    RS(450,406)     & 1000BASE-T1 \\
     \midrule
-    RS(192,186)     & 25GBASE-T, 40GBASE-T                                              \\
+    RS(192,186)     & 25GBASE-T, \;\;\;\;\;\;\;\;\;\;\;\;\; 40GBASE-T \\
     \midrule
-    RS(360,326)     & 2.5GBASE-T1, 5GBASE-T1, 10GBASE-T1                                \\
+    RS(360,326)     & 2.5GBASE-T1, \hfill 5GBASE-T1, \hfill 10GBASE-T1 \\
     \bottomrule
     \end{tabular}
 \end{table}
@@ -137,6 +144,38 @@ Za pomocą niewielkiej modyfikacji można stworzyć kod systematyczny czyli taki
 Jednym ze sposobów stworzenia takiego wielomianu jest użycie metody interpolacji wielomianów. Słowo kodowe wygenerowane z tego wielomianu będzie zawierało wiadomość w pierwszych $k$ elementach.
 \[C(m)=(p_m(a_0), p_m(a_1), \ldots, p_m(a_{n-1})) = (m_0, m_1, \ldots, m_{k-1}, p_m(a_k), p_m(a_{k+1}), \ldots, p_m(a_{n-1}))\]
 
-\subsection{Dekodowanie}
-\subsubsection{Algorytm Berlekampa-Welcha}
-W roku 1986 Lloyd R. Welch oraz Elwyn R. Berlekamp uzyskali patent na dekoder umożliwiający uzyskanie oryginalnego wielomianu $p_m(x)$ oraz wielomianu $E(x)$ który zwraca 0 dla punktów $x$ w których nastąpiło przekłamanie~\cite{Berlekamp-Welch}
+\subsubsection{Kod BCH}
+
+Kody BCH~(Bose-Chaudhuri-Hocquenghem) są podklasą kodów cyklicznych co oznacza że każde przesunięcie słowa kodowego jest także słowem kodowym
+\begin{align*}
+    (c_0, c_1,\ldots, c_{n-2}, c_{n-1}), \;
+    (c_{n-1}, c_0, \ldots, c_{n-3}, c_{n-2}),\ldots, \;
+    (c_1, c_2, \ldots, c_{n-1}, c_{0})
+\end{align*}
+
+Aby zbudować kod BCH Reeda-Solomona potrzebujemy najpierw funkcji minimalnej pierwiastka $\alpha$, czyli takiego minimalnego wielomianu nierozkładalnego $p(x)$ stopnia $m$ dla którego istnieje element prymitywny $\alpha$ który pozwala wygenerować całe ciało skończone
+\begin{align*}
+    \mathbb{F}_{2^m} = \{0, 1, \alpha, \alpha^2, \ldots, \alpha^{p^{m}-1} \}
+\end{align*}
+
+Mając taki element prymitywny jesteśmy w stanie stworzyć wielomian generujący $g(x)$ używając wzoru
+\begin{align*}
+    t &= n - k \\
+    g(x) = \prod_{i=0}^{t-1} (x - \alpha^i) &= g_{t}x^t + g_{t-1}x^{t-1} +
+    \cdots + g_{1}x + g_{0}
+\end{align*}
+Aby utworzyć słowo kodowe $c(x)$ należy pomnożyć wielomian wiadomości $p_m(x)$ przez wielomian generujący $g(x)$: $c(x) = p_{m}(x) \cdot g(x)$
+
+\subsubsection{Systematyczny kod BCH}
+
+Aby uzyskać systematyczne słowo kodowe $c(x)$ musimy obliczyć:
+\begin{align*}
+    c_r(x) &= p_m(x) \cdot x^t \mod g(x) \\
+    c(x) &= p_m(x) \cdot x^t - c_r(x)
+\end{align*}
+
+W standardzie Ethernet znajduje się przykładowa implementacja takiego kodu za pomocą rejestrów przesuwnych, przestawiona w pracy na rysunku~\ref{model-funkcjonalny}, $2t=n-k$
+\begin{figure}[H]
+    \includegraphics[width=0.95\textwidth,height=0.5\textheight,keepaspectratio]{rs-shift-register.png}
+    \caption{Model funkcjonalny kodera RS~\cite[sekcja 91.5.2.7]{Ethernet}}\label{model-funkcjonalny}
+\end{figure}
