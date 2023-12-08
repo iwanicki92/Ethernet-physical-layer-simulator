@@ -1,3 +1,4 @@
+import sys
 from pathlib import Path
 from typing import Literal, Optional
 
@@ -15,14 +16,21 @@ from phyether.reed_solomon_bch import BCH_RS
 class ReedSolomonRegisterArguments:
     def __init__(self, n: int, k: int, gf: int, primitive_poly: Optional[int] = None,
                  primitive_element: Optional[int] = None,
-                 *, repr: Literal['poly', 'int'] = 'poly') -> None:
+                 *, repr: Literal['poly', 'int', 'power'] = 'poly') -> None:
         self.n = n
         self.k = k
+        self._primitive_poly = primitive_poly
+        self._primitive_element = primitive_element
         self.gf = GF(gf,
                      irreducible_poly=primitive_poly,
                      primitive_element=primitive_element,
                      repr=repr)
         self.generating_poly: Optional[Poly] = None
+
+    def copy(self):
+        return ReedSolomonRegisterArguments(self.n, self.k, self.gf.order,
+                                            self._primitive_poly, self._primitive_element,
+                                            repr=self.gf.element_repr)
 
 class RSRegisterTab(QWidget, Ui_rsRegisterForm):
     def __init__(self) -> None:
@@ -34,15 +42,20 @@ class RSRegisterTab(QWidget, Ui_rsRegisterForm):
             "RS(528,514,1024) - 10/25GBASE-R, 100GBASE-(C/K/S)R4": ReedSolomonRegisterArguments(528, 514, 2**10, 0x409, 2),
             "RS(544,514,1024) - 100GBASE-KP4, 100GBASE-(C/K/S)R2": ReedSolomonRegisterArguments(544, 514, 2**10, 0x409, 2),
         }
-        self.current_arguments = self.rs_param_mapping["RS(192,186,256) - 25/40GBASE-T"]
+        self.current_arguments = self.rs_param_mapping["RS(192,186,256) - 25/40GBASE-T"].copy()
 
         self.setupUi(self)
         self.delay_elements: list[QLineEdit] = []
         current_dir = Path(__file__).parent
         images = current_dir / "../resources/img"
+        self.imageLabel: QLabel
         self.imageLabel.setPixmap(QPixmap(str(images / "RS_shift_register.png")))
         self.imageLabel.setScaledContents(True)
-
+        if len(sys.argv) >= 3:
+            try:
+                self.imageLabel.setMaximumSize(int(sys.argv[1]), int(sys.argv[2]))
+            except Exception as ex:
+                create_msg_box("Error", f"Couldn't parse arguments: {ex}")
         self.standardsComboBox.addItems(self.rs_param_mapping.keys())
         self._calculate_gen_poly()
         self.bch = BCH_RS(self.current_arguments.n, self.current_arguments.k, self.current_arguments.gf, self.current_arguments.generating_poly)
@@ -50,7 +63,7 @@ class RSRegisterTab(QWidget, Ui_rsRegisterForm):
 
     @pyqtSlot(str)
     def comboBoxChanged(self, new_text: str):
-        new_params = self.rs_param_mapping[new_text]
+        new_params = self.rs_param_mapping[new_text].copy()
         self.current_arguments = new_params
         self.rs_n_spinBox.setValue(new_params.n)
         self.rs_k_spinBox.setValue(new_params.k)
@@ -61,8 +74,10 @@ class RSRegisterTab(QWidget, Ui_rsRegisterForm):
 
     @pyqtSlot(bool)
     def poly_repr_checked(self, bool):
+        poly_or_int = 'int' if bool else 'poly'
         for params in self.rs_param_mapping.values():
-            params.gf.repr('int' if bool else 'poly')
+            params.gf.repr(poly_or_int)
+        self.current_arguments.gf.repr(poly_or_int)
         self.rs_primitive_element_lineEdit.setText(str(self.current_arguments.gf.primitive_element))
         self.rs_primitive_poly_lineEdit.setText(str(self.current_arguments.gf.irreducible_poly))
         poly = str(self.current_arguments.generating_poly) if self.current_arguments.generating_poly is not None else ""
@@ -79,7 +94,7 @@ class RSRegisterTab(QWidget, Ui_rsRegisterForm):
     @pyqtSlot()
     def calculate_generating_poly(self):
         self._calculate_gen_poly()
-        self.clear()
+        self._clear()
 
     @pyqtSlot()
     def next_symbol(self):
@@ -102,6 +117,9 @@ class RSRegisterTab(QWidget, Ui_rsRegisterForm):
 
     @pyqtSlot()
     def clear(self):
+        self._clear()
+
+    def _clear(self):
         self.output_lineEdit.setText("")
         self.bch.clear_parity()
         self.update_parity()

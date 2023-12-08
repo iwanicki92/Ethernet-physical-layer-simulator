@@ -1,4 +1,4 @@
-from typing import Type
+from typing import Optional, Type
 from galois import GF, Poly, FieldArray
 
 class BCH_RS:
@@ -16,10 +16,12 @@ class BCH_RS:
         self.parity = [self.gf(0) for _ in range(self.n - self.k)]
         self.i = 0
 
-    def encode_next_symbol(self, symbol: str | None):
+    def encode_next_symbol(self, symbol: Optional[str]):
         if symbol is None:
+            self.i += 1
             parity = self.parity[-1]
             self.parity = [0] + self.parity[:-1]
+            print(f"{symbol=}, {parity=}, {self.parity=}")
             return parity
         m_i = self.gf(symbol)
         gen_coeffs = list(reversed(self.generator.coeffs))
@@ -27,9 +29,12 @@ class BCH_RS:
         p_0 = g_t * gen_coeffs[0]
         self.parity = [p_0] + [self.parity[i-1] + g_t * gen_coeffs[i] for i in range(1, len(gen_coeffs))]
 
+        print(f"{self.i=}")
         if self.i < self.k:
             self.i += 1
+            print(f"{symbol=}, {m_i=}, {self.parity=}")
             return m_i
         else:
             self.i += 1
+            print(f"{symbol=}, {self.parity[-1]=}, {self.parity=}")
             return self.parity[-1]
