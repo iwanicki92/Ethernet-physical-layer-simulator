@@ -300,10 +300,16 @@ class EthernetGuiApp(QMainWindow):
 
 
 def main():
-    app = QApplication(sys.argv)
-    window = EthernetGuiApp()
-    window.show()
-    sys.exit(app.exec())
+    try:
+        app = QApplication(sys.argv)
+        window = EthernetGuiApp()
+        window.show()
+        sys.exit(app.exec())
+    except Exception as ex:
+        import traceback
+        traceback.print_exc()
+        create_msg_box(f"Unhandled exception: {ex}", "Error")
+        sys.exit(-1)
 
 if __name__ == '__main__':
     main()
