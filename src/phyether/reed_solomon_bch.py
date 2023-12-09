@@ -17,14 +17,12 @@ class BCH_RS:
         self.i = 0
 
     def encode_next_symbol(self, symbol: Optional[str]):
-        print(self.gf)
         if self.i == self.n:
             raise IndexError("You need to clear encoder before encoding new message")
         if symbol is None:
             self.i += 1
             parity = self.parity[-1]
             self.parity = [0] + self.parity[:-1]
-            print(f"{symbol=}, {parity=}, {self.parity=}")
             return parity
         m_i = self.gf(symbol)
         gen_coeffs = list(reversed(self.generator.coeffs))
@@ -32,14 +30,11 @@ class BCH_RS:
         p_0 = g_t * gen_coeffs[0]
         self.parity = [p_0] + [self.parity[i-1] + g_t * gen_coeffs[i] for i in range(1, len(self.parity))]
 
-        print(f"{self.i=}")
         if self.i < self.k:
             self.i += 1
-            print(f"{symbol=}, {str(m_i)=}, {self._to_str(self.parity)=}")
             return m_i
         else:
             self.i += 1
-            print(f"{symbol=}, {str(self.parity[-1])=}, {self._to_str(self.parity)=}")
             return self.parity[-1]
 
 

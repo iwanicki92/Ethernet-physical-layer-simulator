@@ -1,7 +1,9 @@
-from enum import Enum, auto
 import itertools
+import math
+
+from enum import Enum, auto
 from traceback import print_exc
-from typing import Callable, Union, cast, List, Tuple, Dict
+from typing import Optional, Protocol, Union, cast, List, Tuple, Dict
 
 from PyQt5.QtCore import (pyqtSlot, pyqtSignal, QObject,
                           QThread, QWaitCondition, QMutex)
@@ -46,41 +48,45 @@ class ReedSolomonArgs(DictMapping):
     bch: bool = True
     force: bool = False
 
+class Conversion(Protocol):
+    def __call__(self, line_edit: QLineEdit, *max_bits: int) -> None:
+        ...
+
 class Converters:
     @staticmethod
-    def _text_to_dec(line_edit: QLineEdit):
+    def _text_to_dec(line_edit: QLineEdit, *args) -> None:
         list_of_bytes = string_to_list(line_edit.text())
         line_edit.setText(list_to_string(list_of_bytes))
 
     @staticmethod
-    def _hex_to_dec(line_edit: QLineEdit):
+    def _hex_to_dec(line_edit: QLineEdit, *args):
         line_hex = line_edit.text()
         line_edit.setText(' '.join(
             [str(int(hex_num, 16)) for hex_num in line_hex.split()])
             )
 
     @staticmethod
-    def _bin_to_dec(line_edit: QLineEdit):
-        line_hex = line_edit.text()
+    def _bin_to_dec(line_edit: QLineEdit, *args):
+        line_bin = line_edit.text()
         line_edit.setText(' '.join(
-            [str(int(hex_num, 2)) for hex_num in line_hex.split()])
+            [str(int(bin_num, 2)) for bin_num in line_bin.split()])
             )
 
     @staticmethod
-    def _dec_to_text(line_edit: QLineEdit):
+    def _dec_to_text(line_edit: QLineEdit, *args):
         line_bytes = list_from_string(line_edit.text())
         line_string = iterable_to_string(line_bytes)
         line_edit.setText(line_string)
 
     @staticmethod
-    def _dec_to_hex(line_edit: QLineEdit):
+    def _dec_to_hex(line_edit: QLineEdit, max_bits: int = 8, *args):
         line_bytes = list_from_string(line_edit.text())
-        line_edit.setText(' '.join([f'{dec:02x}' for dec in line_bytes]))
+        line_edit.setText(' '.join([f'{dec:0{math.ceil(max_bits/4)}x}' for dec in line_bytes]))
 
     @staticmethod
-    def _dec_to_bin(line_edit: QLineEdit):
+    def _dec_to_bin(line_edit: QLineEdit, max_bits: int = 8, *args):
         line_bytes = list_from_string(line_edit.text())
-        line_edit.setText(' '.join([f'{dec:08b}' for dec in line_bytes]))
+        line_edit.setText(' '.join([f'{dec:0{max_bits}b}' for dec in line_bytes]))
 
 encode_decode_converters = {
     Format.TEXT: (lambda x: x, lambda x: x),
@@ -89,7 +95,7 @@ encode_decode_converters = {
     Format.BIN: (lambda x: list_from_string(x, 2), lambda x: list_to_string(x, 2)),
 }
 
-qline_converters: Dict[Tuple[Format, Format], List[Callable[[QLineEdit], None]]] = {
+qline_converters: Dict[Tuple[Format, Format], List[Conversion]] = {
     (Format.TEXT, Format.HEX) : [Converters._text_to_dec, Converters._dec_to_hex],
     (Format.TEXT, Format.DEC) : [Converters._text_to_dec],
     (Format.TEXT, Format.BIN) : [Converters._text_to_dec, Converters._dec_to_bin],
@@ -106,7 +112,9 @@ qline_converters: Dict[Tuple[Format, Format], List[Callable[[QLineEdit], None]]]
 
 class EncodingWorker(QObject):
     # encoded message + encoded with errors
-    encoded_signal = pyqtSignal(str, str)
+    encoded_signal = pyqtSignal(str)
+    # encoded message with errors
+    encoded_with_errors_signal = pyqtSignal(str)
     # decoded message, errors found, were errors fixed
     decoded_signal = pyqtSignal(str, int, bool)
     # error message and title
@@ -125,14 +133,16 @@ class EncodingWorker(QObject):
         self.mutex = QMutex()
         self.stop = False
         self.detect = False
+        self.decode = False
 
     def update(self, rs_args: ReedSolomonArgs, format: Format,
-               message_input: str, error_input: str, detect: bool):
+               message_input: str, error_input: str, detect_only: bool, decode_only: bool = False):
         self.rs_args = rs_args
         self.format = format
         self.message_input = message_input
         self.error_input = error_input
-        self.detect = detect
+        self.detect = detect_only
+        self.decode = decode_only
         self.wait_condition.wakeOne()
 
     @pyqtSlot()
@@ -155,7 +165,11 @@ class EncodingWorker(QObject):
         try:
             reed_solomon = RS_Original(self.rs_args.n, self.rs_args.k,
                                        self.rs_args.gf, self.rs_args.systematic)
-            encoded = self._encode(reed_solomon)
+            if self.decode:
+                encoded = encode_decode_converters[self.format][0](self.message_input)
+            else:
+                encoded = self._encode(reed_solomon)
+
             errors = encode_decode_converters[self.format][0](self.error_input)
             if self.format != Format.TEXT:
                 resized_errors = itertools.chain(errors, itertools.repeat(0))
@@ -168,10 +182,10 @@ class EncodingWorker(QObject):
                     enc ^ err for enc, err in zip(list_encoded, resized_errors)
                     ]
                 encoded_err = iterable_to_string(tmp_encoded)
-            self.encoded_signal.emit(
-                encode_decode_converters[self.format][1](encoded),
-                encode_decode_converters[self.format][1](encoded_err)
-                )
+            if not self.decode:
+                self.encoded_signal.emit(encode_decode_converters[self.format][1](encoded))
+            self.encoded_with_errors_signal.emit(
+                encode_decode_converters[self.format][1](encoded_err))
             if self.detect:
                 self._detect(encoded_err, reed_solomon)
             else:
@@ -188,7 +202,6 @@ class EncodingWorker(QObject):
         print(f"Detecting errors in: {encoded}")
         try:
             detected = reed_solomon.detect(encoded)
-            print(f"{detected=}")
             self.detected_signal.emit(detected)
         except Exception as ex:
             print_exc()
@@ -199,7 +212,6 @@ class EncodingWorker(QObject):
         input = encode_decode_converters[self.format][0](self.message_input)
         try:
             encoded = reed_solomon.encode(input, not self.rs_args.bch)
-            print(f"{encoded=}")
             return encoded
         except Exception as ex:
             print_exc()
@@ -207,16 +219,13 @@ class EncodingWorker(QObject):
 
     def _decode(self, encoded: Union[str, List[int]],
                 reed_solomon: RS_Original):
-        print(f"Decoding message {encoded}")
         try:
             decoded_message, errors, fixed = reed_solomon.decode(encoded,
                                                                  not self.rs_args.bch,
                                                                  self.rs_args.force)
             decoded_message = decoded_message[-len(self.message_input):]
-            print(f'{len(self.message_input)=}')
             decoded = cast(str, encode_decode_converters[self.format][1](decoded_message))
             self.decoded_signal.emit(decoded, errors, fixed)
-            print(f"Decoded message: {decoded_message=}")
         except Exception as ex:
             print_exc()
             raise _DecodingException(ex) from ex
@@ -260,6 +269,7 @@ class RSTab(QWidget, Ui_RS_Form):
 
         self.worker_thread = QThread(self)
         self.encoding_worker.encoded_signal.connect(self._encoded)
+        self.encoding_worker.encoded_with_errors_signal.connect(self._encoded_errors)
         self.encoding_worker.decoded_signal.connect(self._decoded)
         self.encoding_worker.detected_signal.connect(self._detected)
         self.encoding_worker.error_signal.connect(self._error_msg)
@@ -336,6 +346,43 @@ class RSTab(QWidget, Ui_RS_Form):
         self.rs_k_spinBox.setValue(new_params.k)
         self.rs_gf_spinBox.setValue(new_params.gf_power)
 
+    def _decode_only(self, message):
+        self._toggle_enabled(False)
+        bch=self.bch_checkBox.isChecked()
+        self.encoding_worker.update(
+            rs_args=ReedSolomonArgs(
+                n=self.rs_n_spinBox.value(),
+                k=self.rs_k_spinBox.value(),
+                gf=2**self.rs_gf_spinBox.value(),
+                systematic=self.systematic_checkBox.isChecked(),
+                bch=bch,
+                force=self.force_checkBox.isChecked() if not bch else False
+                ),
+            format=self.get_format(),
+            message_input=message,
+            error_input=self.errors_lineEdit.text(),
+            detect_only=False,
+            decode_only=True
+            )
+
+    @pyqtSlot()
+    def shift_left(self):
+        encoded_list: List[str] = self.encoded_lineEdit.text().split()
+        if len(encoded_list) == 0:
+            return
+        encoded = ' '.join(encoded_list[1:] + [encoded_list[0]])
+        self.encoded_lineEdit.setText(encoded)
+        self._decode_only(encoded)
+
+    @pyqtSlot()
+    def shift_right(self):
+        encoded_list: List[str] = self.encoded_lineEdit.text().split()
+        if len(encoded_list) == 0:
+            return
+        encoded = ' '.join([encoded_list[-1]] + encoded_list[:-1])
+        self.encoded_lineEdit.setText(encoded)
+        self._decode_only(encoded)
+
     def _encode_detect(self, detect_errors: bool):
         self._toggle_enabled(False)
         bch=self.bch_checkBox.isChecked()
@@ -351,7 +398,7 @@ class RSTab(QWidget, Ui_RS_Form):
             format=self.get_format(),
             message_input=self.input_lineEdit.text(),
             error_input=self.errors_lineEdit.text(),
-            detect=detect_errors
+            detect_only=detect_errors
             )
 
     @pyqtSlot()
@@ -374,7 +421,7 @@ class RSTab(QWidget, Ui_RS_Form):
         try:
             for line_edit in line_edits:
                 for converter_func in converter:
-                    converter_func(line_edit)
+                    converter_func(line_edit, self.rs_gf_spinBox.value())
         except Exception as ex:
                 print_exc()
                 create_msg_box(f"Couldn't convert format!: {ex}",
@@ -390,8 +437,10 @@ class RSTab(QWidget, Ui_RS_Form):
         self.worker_thread.exit()
         self._toggle_enabled(True)
 
-    def _encoded(self, encoded: str, encoded_errors: str):
+    def _encoded(self, encoded: str):
         self.encoded_lineEdit.setText(encoded)
+
+    def _encoded_errors(self, encoded_errors: str):
         self.encoded_err_lineEdit.setText(encoded_errors)
 
     def _decoded(self, decoded: str, errors: int, fixed: bool):
