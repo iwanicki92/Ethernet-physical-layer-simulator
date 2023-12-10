@@ -1,9 +1,12 @@
-\section{Zajęcia dydaktyczne}\label{zajecia-dydaktyczne}
+\setcounter{secnumdepth}{0}
+\section*{Dodatek A: Instrukcja}\label{zajecia-dydaktyczne}
+\addcontentsline{toc}{section}{\protect\numberline{}Dodatek A: Zajęcia dydaktyczne}
+
 \subsection{Wejściówka}
 
 Na samym początku zajęć odbędzie się wejściówka składająca się z pytań otwartych
 i zamkniętych.
-Przykładowe pytania które mogą znaleźć się na wejściówce to:
+Przykładowe pytania, które mogą znaleźć się na wejściówce to:
 
 \begin{enumerate}
     \item Podaj definicję dodawania i mnożenia w $\mathbb{F}_2$ bądź wypisz wynik tych
@@ -91,9 +94,9 @@ Z uwagi na to, NRZ wykorzystywany jest w praktyce w połączeniu z np. kodowanie
 
 PAM jest modulacją, w której dane przesyłane są w postaci zmian amplitudy sygnału. Zmiany te nazywane symbolami. Modulacje PAM różnią się między sobą
 liczbą wykorzystywanych poziomów modulacji. PAM3 wykorzystuje trzy poziomy, PAM4 --- cztery, PAM16 --- szesnaście. NRZ można wobec tego nazwać PAM2.
-Powodem dla którego zwiększenie poziomów ma sens jest zwiększona szybkość transmisji. Weźmy na przykład PAM4 --- mając cztery poziomy mamy
+Powodem, dla którego zwiększenie poziomów ma sens jest zwiększona szybkość transmisji. Weźmy na przykład PAM4 --- mając cztery poziomy mamy
 do dyspozycji cztery symbole $-3$, $-1$, $1$, $3$, a więc każdy symbol kodować może dwa bity danych. W przypadku NRZ, jeden symbol koduje tylko jeden bit.
-Zatem zwiększenie liczby poziomów pozwala na przesył większej ilości bitów przy użyciu jednego symbolu. Schemat ten będzie działa o ile strona odbiorcza
+Zatem zwiększenie liczby poziomów pozwala na przesył większej ilości bitów przy użyciu jednego symbolu. Schemat ten będzie działał, o ile strona odbiorcza
 potrafi rozróżnić poszczególne symbole od siebie, jest to jednak łatwiej osiągalne niż zwiększenie szerokości pasma.
 Modulacje PAM4, PAM16 i inne, analogicznie jak NRZ, podatne są na długie ciągi zer i jedynek. Dlatego niezbęde jest zastosowanie różnych `gmatwaczy` bitów, które
 zamienią takie sekwencje na bardziej zróżnicowany ciąg np. skrambler.

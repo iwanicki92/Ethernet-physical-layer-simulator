@@ -12,7 +12,6 @@
 \usepackage{enumitem}
 \usepackage{titlesec}
 \usepackage{float}
-\usepackage{pdfpages}
 \graphicspath{ {./images/} }
 \linespread{1.5}
 \setcounter{secnumdepth}{4}
@@ -23,8 +22,7 @@
 \begin{document}
 \newcommand{\modulo}[1]{\mathbb{Z} / #1 \mathbb{Z}}
 
-%\include{Title}
-\includepdf[pages={1}]{StronaTytulowa.pdf}
+\include{Title}
 
 \tableofcontents
 
@@ -41,12 +39,15 @@
 \include{40GBASE-T}
 
 \include{Symulator}
-
-\include{Laboratorium}
-\include{Laboratorium-RS}
 \include{Laboratorium-sprawozdanie}
 
 \clearpage
 \bibliographystyle{unsrt}
 \bibliography{references}
+
+\begin{appendices}
+\include{Laboratorium}
+\include{Laboratorium-RS}
+\end{appendices}
+
 \end{document}
