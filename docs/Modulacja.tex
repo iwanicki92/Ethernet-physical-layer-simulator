@@ -8,10 +8,10 @@ modulacja cyfrowa operuje na dyskretnym zbiorze danych (bitach).
 Dane reprezentowane są w postaci zmiany parametrów przesyłanego sygnału. Wyróżniane są cztery podstawowe metody:
 
 \begin{enumerate}
-    \item PSK (phase-shift keying) --- zmiana fazy fali nośnej sygnału
-    \item FSK (frequency-shift keying) --- zmiana częstotliwości fali nośnej sygnału
-    \item ASK (amplitude-shift keying) --- zmiana amplitudy fali nośnej sygnału
-    \item QAM (quadrature amplitude modulation) --- połączenie PSK oraz FSK, a więc zmieniana jest zarówno amplituda oraz faza
+    \item PSK (phase-shift keying) --- zmiana fazy fali nośnej sygnału,
+    \item FSK (frequency-shift keying) --- zmiana częstotliwości fali nośnej sygnału,
+    \item ASK (amplitude-shift keying) --- zmiana amplitudy fali nośnej sygnału,
+    \item QAM (quadrature amplitude modulation) --- połączenie PSK oraz FSK, a więc zmieniana jest zarówno amplituda oraz faza.
 \end{enumerate}
 
 Zmiany sygnału (symbole) kodujące kolejne bity wybierane są ze skończonego zbioru nazywanego alfabetem modulacji.
@@ -27,13 +27,13 @@ Przepustowość (ang. channel capacity) --- rzeczywista szerokość pasma, zmier
 
 Przepływność (ang. bit rate) --- rzeczywista ilość bitów transmitowanych w jednostce czasu poprzez kanał, podawana również w $bps$ lub Hz. Jest stałą charakterystyką danego łącza.
 
-W 1924 roku, Harry Nyquist przedstawił światu równanie, za pomocą którego określić można maksymalną przepływność łącza o szerokości pasma $B$ z wykorzystaniem $V$ poziomów:
+W 1924 roku Harry Nyquist przedstawił światu równanie, za pomocą którego określić można maksymalną przepływność łącza o szerokości pasma $B$ z wykorzystaniem $V$ poziomów:
 
 \begin{align*}
     \text{Przepływność}_{max} &= 2B * log_{2}{V}
 \end{align*}
 
-24 lata później, Claude Shannon rozszerzył równanie Nyquista, uwzględniając szum. Udowodnił on, że maksymalną przepływność łącza, o szerokości pasma $B$ oraz stosunku sygnału do szumu $S/N$, można
+24 lata później Claude Shannon rozszerzył równanie Nyquista, uwzględniając szum. Udowodnił on, że maksymalną przepływność łącza o szerokości pasma $B$ oraz stosunku sygnału do szumu $S/N$ można
 obliczyć ze wzoru:
 
 \begin{align*}
@@ -52,8 +52,8 @@ W praktyce wykorzystywana jest w połączeniu z kodowaniem liniowym np. 64b/66b,
 Jest tak, ponieważ podczas przesyłania danych mogą wystąpić długie ciągi zer lub jedynek, a więc nadawany sygnał nie będzie się zmieniał.
 Jest to zjawisko niepożądane podczas transmisji i może doprowadzić do desynchronizacji zegarów strony nadawczej i odbiorczej.
 
-Rozważmy też przypadek, w którym nadawane jest naprzemiennie 1 i 0 --- otrzymamy wówczas okres równy 2 bity, co oznacza że potrzebujemy pasma B/2 Hz przy prędkości B bit/s.
-Nie trudno zauwarzyć, że do szybszego nadawnia, zwiększona musi zostać szerokość pasma, co nie jest optymalnym rozwiązaniem z uwagi na ograniczoność tego zasobu \cite{Computer-networks-Tanenbaum}.
+Rozważmy też przypadek, w którym nadawane jest naprzemiennie 1 i 0 --- otrzymamy wówczas okres równy 2 bity, co oznacza, że potrzebujemy pasma B/2 Hz przy prędkości B bit/s.
+Nie trudno zauważyć, że do szybszego nadawnia zwiększona musi zostać szerokość pasma, co nie jest optymalnym rozwiązaniem z uwagi na ograniczoność tego zasobu \cite{Computer-networks-Tanenbaum}.
 
 Jednym z rozwiązań tego problemu jest wykorzystanie większej ilości poziomów napięcia. W powyższym przykładzie zastosowane zostały dwa poziomy, a co za tym idzie mamy do dyspozycji dwa symbole przesyłane przez kanał.
 Zwiększenie poziomów do 4 dałoby nam 4 różne symbole, a więc 2 bity informacji. W rezultacie przepływność wzrosła dwukrotnie, natomiast szerokość pasma nie zmieniła się. Technika zadziała pod warunkiem, że strona odbiorcza dysponuje sprzętem, który pozwoli jej na
@@ -80,11 +80,11 @@ stosuje się mechaznizmy zamiany wprowadzonych danych na bardziej zróżnicowany
 
 PAM3 --- trzypoziomowa modulacja PAM --- do przesyłu wykorzystuje wartości $+1$, $0$, $-1$. Jeden symbol koduje $log_{2}{3} \approx 1,58 \text{ bit/symbol}$.
 PAM3 użyty został m.in. w standardach 100BASE-T4 (wczesna implementacja Fast Ethernet) i BroadR-Reach Ethernet standard --- wykorzystywany w branży automotive, opracowany przez firmę Broadcom Corporation.
-Nie jest to schemat modulacji PAM, który często pojawia się w praktycznych rozwiązaniach, z uwagi na to, że technologie wykorzystujące tą technikę nie zostały szeroko przyjęte.
+Nie jest to schemat modulacji PAM, który często pojawia się w praktycznych rozwiązaniach z uwagi na to, że technologie wykorzystujące tę technikę nie zostały szeroko przyjęte.
 
-Ciekawym aspektem jest podział bitów na symbole. Na pierwszy rzut oka widać, że istnieje problem z grupowaniem bitów --- nie można przecież przesłać $1,58$ bita. W modulacjach z liczbą poziomów będącą potęgą $2$ podział jest bardzo prosty --- bity grupujemy w dwójki, czwórki \dots i bezpośrednio mapujemy na symbole.
+Ciekawym aspektem jest podział bitów na symbole. Na pierwszy rzut oka widać, że istnieje problem z grupowaniem bitów --- nie można przecież przesłać $1,58$ bita. W modulacjach z liczbą poziomów będącą potęgą $2$ podział jest bardzo prosty --- bity grupujemy w dwójki, czwórki\dots i bezpośrednio mapujemy na symbole.
 
-Tutaj rozwiązaniem jest tymczasowa zamiana bitów na trity (system trójkowy). Przykładowo, w wersji drugiej USB4, dane dzieli się 11-bitowe grupy po czym każda z nich zamienana jest na 7 tritów, osiągając przy tym
+Tutaj rozwiązaniem jest tymczasowa zamiana bitów na trity (system trójkowy). Przykładowo w wersji drugiej USB4 dane dzieli się 11-bitowe grupy, po czym każda z nich zamienana jest na 7 tritów, osiągając przy tym
 efektywność rzędu $\frac{11/7}{log_{2}{3}} * 100\% \approx 99\% $
 
 
@@ -99,7 +99,7 @@ PAM4 --- czteropoziomowa modulacja PAM --- do przesyłu wykorzystuje wartości $
     \label{fig:pam4_vs_nrz}
 \end{figure}
 
-Warto zwrócić uwagę, że w NRZ mamy jedno narastające zbocze ($0 \rightarrow 1$) i jedno opadające zbocze ($1 \rightarrow 0$), co daje dwie zmiany napięcia. W przypadku PAM4 jest to 6 narastających zbocz
+Warto zwrócić uwagę na to, że w NRZ mamy jedno narastające zbocze ($0 \rightarrow 1$) i jedno opadające zbocze ($1 \rightarrow 0$), co daje dwie zmiany napięcia. W przypadku PAM4 jest to 6 narastających zbocz
 ($00 \rightarrow 01, 00 \rightarrow 10, 00 \rightarrow 11, 01 \rightarrow 10, 01 \rightarrow 11, 10 \rightarrow 11$) oraz 6 opadających zbocz
 ($11 \rightarrow 10, 11 \rightarrow 01, 11 \rightarrow 00, 10 \rightarrow 01, 10 \rightarrow 00, 01 \rightarrow 00$), które łącznie dają 12 różnych zmian napięcia.
 Ma to znaczący wpływ na stosunek sygnału do szumu (SNR).
@@ -135,8 +135,8 @@ Modulacja PAM16 wykorzystywana jest w technologiach 10GBASE-T, 25GBASE-T czy 40G
 
 \subsubsection{PAM --- podsumowanie}
 
-Według artykułu \cite{Higher-order-modulation}, przejście z PAM4 na modulacje wyższych rzędów podlega dyskusji. W przypadku PAM4, dwukrotnie większa liczba
-poziomów niż w NRZ, była opłacalna pomimo mniejszego stosunku sygnału do szumu (SNR). Jednakże przejście z PAM4 na PAM16 nie jest pod tym kątem wydajne, ponieważ
+Według artykułu \cite{Higher-order-modulation} przejście z PAM4 na modulacje wyższych rzędów podlega dyskusji. W przypadku PAM4, dwukrotnie większa liczba
+poziomów niż w NRZ była opłacalna pomimo mniejszego stosunku sygnału do szumu (SNR). Jednakże przejście z PAM4 na PAM16 nie jest pod tym kątem wydajne, ponieważ
 opiera się na bardziej wyrafinowanych technikach odczytu i interpretacji przesyłanych symboli, co wymaga większego zużycia energii.
 
 Z drugiej strony modulacje PAM wyższych rzędów pozwalają na zwiększenie przepustowości w systemach z ograniczoną szerokością pasma --- co
