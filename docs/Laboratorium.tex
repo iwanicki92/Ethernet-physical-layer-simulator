@@ -118,3 +118,92 @@ następnie wysyłane są na medium. Wynik symulacji przedstawiony jest w dolnej 
     \item Prześlij ciąg składający się z samych jedynek (fffffff \dots). Popatrz na wynik symulacji. Jak nazywa się zaobserwowane zjawisko? Czy znasz sposoby,
     które zapobiegają jego wystąpieniu? Zanotuj w sprawozdaniu.
 \end{enumerate}
+
+\subsubsection{Wstęp teoretyczny}
+\subsection{Ćwiczenie dydaktyczne --- PAM16 w 40GBASE-T}
+Ciekawą kwestią w przypadku modulacji PAM jest także zamiana bitów na konkretne symbole alfabetu modulacji.
+Możemy sobie wyobrazić, że w najprostszym przypadku wartość 0 mapowana jest na najmniejszy symbol, natomiast 1111
+--- na największy. Istnieją także bardziej wyrafinowane sposoby mapowania, przykładowo popularnym jest zastosowanie kodu Graya.
+W tym ćwiczeniu zobaczymy podejście, które zostało zastosowane w standardach 25GBASE-T oraz 40GBASE-T.
+
+Wyżej wymienione standardy korzystają z modulacji PAM16, natomiast symbole nadawane na parach skrętki wybierane są według diagramu
+konstelacji DSQ128. Aby wyjaśnić czym on jest, spójrzmy pierw na 64QAM (Quadrature Amplitude Modulation). 64QAM to modulacja, która jest
+połączeniem modulacji amplitudy oraz fazy (dane kodowane są poprzez zmianę amplitudy oraz fazy sygnału). Symbole wybierane są na podstawie
+diagramu konstelacji 64QAM - rys. \ref{fig:lab-64QAM}.
+
+Diagram podzielony jest na cztery części. Oś X odnosi się do fazy, a oś Y --- amplitudy. Każdy symbol, który chcemy nadać,
+jest krotką (x, y), która oznacza punkt na diagramie dla danej wartości. Jak można zauwarzyć, sąsiednie punkty różnią się
+między sobą jednym bitem --- dzięki czemu, gdy nastąpi przekłamanie, najprawdopodobniej tylko jeden bit będzie zły.
+
+W standardach 25GBASE-T i 40GBASE-T symbole dobierane są na podstawie diagramu konstelacji DSQ128, który jest złożeniem dwóch
+diagramów 64QAM - rys. \ref{fig:lab-dsq128}.
+
+Dane grupowane są w 7-bitowe grupy ($u_0$, $u_1$, $u_2$), ($c_0$, $c_1$, $c_2$, $c_3$), po czym każda taka grupa mapowana jest na krotkę (PAM16$_1$, PAM16$_2$) według algorytmu:
+
+Krok 1:
+\begin{align*}
+    x_{13} &= \neg u_0 * u_2 \\
+    x_{12} &= u_0 \oplus u_2 \\
+    x_{11} &= c_0 \\
+    x_{10} &= c_0 \oplus c_1 \\
+    x_{23} &= (u_1 * u_2) + (u_0 * \neg u_1) \\
+    x_{22} &= u_1 \oplus u_2 \\
+    x_{21} &= c_2 \\
+    x_{20} &= c_2 \oplus c_3
+\end{align*}
+
+Krok 2:
+\begin{align*}
+    x_1 &= 8x_{13} + 4x_{12} + 2x_{11} + x_{10} \\
+    x_2 &= 8x_{23} + 4x_{22} + 2x_{21} + x_{20}
+\end{align*}
+
+Krok 3:
+\begin{align*}
+    y_1 &= (x_1 + x_2) \mod 16 \\
+    y_2 &= (-x_1 + x_2) \mod 16
+\end{align*}
+
+Krok 4:
+\begin{align*}
+    \text{PAM16}_1 &= 2y_1 - 15 \\
+    \text{PAM16}_2 &= 2y_2 - 15
+\end{align*}
+
+Symbole są następnie nadawane na kolejnych parach skrętki:
+\begin{table}[h]
+    \centering
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{c | c c c c c c c |}
+        \cmidrule{2-8}
+        Pair A & PAM16$_1$<0> & PAM16$_2$<0> & PAM16$_1$<4> & PAM16$_2$<4> & \ldots & PAM16$_1$<508> & PAM16$_2$<508> \\
+        \cmidrule{2-8}
+        Pair B & PAM16$_1$<1> & PAM16$_2$<1> & PAM16$_1$<5> & PAM16$_2$<5> & \ldots & PAM16$_1$<509> & PAM16$_2$<509> \\
+        \cmidrule{2-8}
+        Pair C & PAM16$_1$<2> & PAM16$_2$<2> & PAM16$_1$<6> & PAM16$_2$<6> & \ldots & PAM16$_1$<510> & PAM16$_2$<510> \\
+        \cmidrule{2-8}
+        Pair D & PAM16$_1$<3> & PAM16$_2$<3> & PAM16$_1$<7> & PAM16$_2$<7> & \ldots & PAM16$_1$<511> & PAM16$_2$<511> \\
+        \cmidrule{2-8}
+    \end{tabular}}
+\end{table}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=0.4]{64QAM-constellation-diagram.png}
+    \caption{Diagram konstelacji 64QAM}
+    \label{fig:lab-64QAM}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=0.4]{dsq128.png}
+    \caption{Diagram konstelacji DSQ128}
+    \label{fig:lab-dsq128}
+\end{figure}
+
+\subsubsection{Zadania do realizacji}
+
+\begin{enumerate}
+    \item Zastosowanie DSQ128 nie eliminuje możliwości wystąpienia stałej składowej. Znajdź ciąg, który
+    temu dowodzi i zanotuj go w sprawozdaniu.
+\end{enumerate}
