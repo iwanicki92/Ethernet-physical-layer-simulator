@@ -174,7 +174,7 @@ Mając taki element prymitywny jesteśmy w stanie stworzyć wielomian generując
 \end{align*}
 Aby utworzyć słowo kodowe wystarczy pomnożyć wielomian $p_m(x)$ przez wielomian generujący $g(x)$
 
-\paragraph{systematyczny kod BCH}
+\paragraph{systematyczny kod BCH}\label{systematic-bch-rs}
 
 Aby uzyskać systematyczne słowo kodowe $s(x)$ musimy obliczyć:
 \begin{align*}
@@ -228,9 +228,18 @@ Po prawej stronie mamy dane wejściowe oraz aktualny stan rejestrów $p_i$. `Fil
     Czy wiesz dlaczego otrzymałeś takie słowa kodowe?
     \item Zakładka: Reed-Solomon, ustawienia programu: kod systematyczny BCH, $n=15$, $GF=2^4$.
     Dla $k \in \{ 2, 6, 10, 13 \}$ sprawdź wartość słowa kodowego dla k-symbolowej wiadomości zawierającej same zera. Dlaczego otrzymałeś takie słowa kodowe?
-    \item Zakładka: Reed-Solomon, ustawienia programu: 25/40GBASE-T,
-    kod systematyczny BCH. Wpisz wiadomość do zakodowania: `hello world` i zmień format na szesnastkowy. Sprawdź i zapisz ile błędnych symboli koder jest w stanie poprawić i wykryć
-    \item Zakładka: Reed-Solomon Shift Register, ustawienia programu: $n = 7$, $k = 3$, $GF = 2^3$. Oblicz wielomiany prymitywne automatycznie naciskając przycisk `Calculate primitive poly/element'.
-    Zakoduj i zapisz 3 dowolne niezerowe wiadomości.
-    Przejdź do zakładki Reed-Solomon i powtórz działania używając tych samych wiadomości oraz używając kodera systematycznego BCH z tymi samymi $n$, $k$, $GF$.
+    \item Zakładka: Reed-Solomon, ustawienia programu: $n = 7$, $k = 3$, $GF = 2^3$,
+    kod systematyczny BCH, tryb dziesiętny, wiadomość wejściowa `1 2 3'.
+    Sprawdź dla błędów `3', `3 2', `3 2 1' oraz `3 2 1 4' czy dekoder jest w stanie
+    wykryć błędy oraz czy jest w stanie je poprawić a jeżeli tak to czy poprawnie.
+    Czy wiesz dlaczego pojawiły się rozbieżności między błędami poprawionymi a wykrytymi?
+    \item Zakładka: Reed-Solomon Shift Register, ustawienia programu:
+    $n = 7$, $k = 3$, $GF = 2^3$. Oblicz wielomiany prymitywne naciskając przycisk
+    `Calculate primitive poly/element'.
+    Zakoduj wiadomość: `1 2 3 4 5' w symulatorze po czym zakoduj wiadomość
+    używając wzoru z sekcji~\ref{systematic-bch-rs}. Porównaj wyniki.
+    \item Zakładka: Reed-Solomon, ustawienia programu: $n = 15$, $k=7$, $GF = 2^4$,
+    kod systematyczny BCH.
+    Zakoduj dowolną k-symbolową wiadomość. Sprawdź czy przesunięcia słowa kodowego
+    (z użyciem strzałek przy słowie `encoded') także będą słowem kodowym.
 \end{itemize}

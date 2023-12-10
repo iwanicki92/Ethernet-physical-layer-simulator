@@ -12,6 +12,7 @@
 \usepackage{enumitem}
 \usepackage{titlesec}
 \usepackage{float}
+\usepackage{pdfpages}
 \graphicspath{ {./images/} }
 \linespread{1.5}
 \setcounter{secnumdepth}{4}
@@ -22,7 +23,8 @@
 \begin{document}
 \newcommand{\modulo}[1]{\mathbb{Z} / #1 \mathbb{Z}}
 
-\include{Title}
+%\include{Title}
+\includepdf[pages={1}]{StronaTytulowa.pdf}
 
 \tableofcontents
 
