@@ -34,7 +34,7 @@ Aby wyjaśnić, czym jest DSQ128, pierw spójrzmy na modulację 64QAM. 64QAM (Qu
 
 \includegraphics[scale=0.6]{64QAM-constellation-diagram.png}
 
-Diagam podzielony jest na 4 sekcje, każda z nich zawiera 16 maksymalnie oddzielonych od siebie punktów. Punkty znajdujące się obok siebie różnią się jednym bitem --- dzięki czemu, gdy odbiorca otrzyma zły symbol, najprawdopodobniej tylko jeden bit będzie przekłamany.
+Diagram podzielony jest na 4 sekcje, każda z nich zawiera 16 maksymalnie oddzielonych od siebie punktów. Punkty znajdujące się obok siebie różnią się jednym bitem --- dzięki czemu, gdy odbiorca otrzyma zły symbol, najprawdopodobniej tylko jeden bit będzie przekłamany.
 
 DSQ128 jest złożeniem dwóch modulacji 64QAM i składa się z ośmiu sekcji, a każda z nich zawiera 16 punktów. Mając 7-bitową grupe ($u_0$, $u_1$, $u_2$), ($c_0$, $c_1$, $c_2$, $c_3$), pierwsze 3 bity definiują lewy dolny punkt w jednym z 8 regionów, natomiast na podstawie 4 kolejnych bitów wybierany jest jeden z 16 punktów w danym regionie. Proces ten opisany jest szczegółowo w \ref{mapowanie}
 
