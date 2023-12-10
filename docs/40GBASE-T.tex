@@ -15,7 +15,7 @@
 \end{figure}
 
 \subsection{Media-Independent Interface}
-MII czyli Media-Independent Interface to interfejs pomiędzy warstwą MAC oraz PHY. Powstał po to aby warstwy MAC oraz PHY były niezależne od siebie - pozwala na pracę kontrolera MAC z warstwą PHY, bez względu na to jakie medium jest w użyciu.
+MII czyli Media-Independent Interface to interfejs pomiędzy warstwą MAC oraz PHY. Powstał po to, aby warstwy MAC oraz PHY były niezależne od siebie - pozwala na pracę kontrolera MAC z warstwą PHY bez względu na to, jakie medium jest w użyciu.
 W technologii 40GBASE-T MII określany jest jako XLGMII. Składa się z dwóch wektorów 64-bitowych TXD i RXD - odpowiedzialne za przesył danych w obu kierunkach, dwóch wektorów 8-bitowych TXC i RXC - wykorzystywane do przesyłu sygnałów kontrolnych oraz TX\_CLK i RX\_CLK - którymi podawany jest sygnał zegara. XLGMII pozwala na przesył danych na poziomie 40 Gb/s, w obu kierunkach.
 
 \subsection{Warstwa PCS}\label{subsection:pcs}
@@ -30,7 +30,7 @@ W ciągu każdej sekundy przesyłanych jest 3200 milionów symboli co przekłada
 \subsubsection{Double Square Quadrature Amplitude Modulation}
 Jak opisano w \ref{subsection:pcs}, warstwa PCS koduje otrzymane dane w 7-bitowe grupy. W technologii 40GBASE-T symbole nadawane przez warstwę PMA wybierane są z konstelacji DSQ128 (Double Square Quadrature Amplitude Modulation).
 
-Aby wyjaśnić czym jest DSQ128, pierw spójrzmy na modulację 64QAM. 64QAM (Quadrature Amplitude Modulation) to modulacja, która jest połączeniem modulacji amplitudy oraz fazy. Bity zamieniane są na symbole według diagramu konstelacji:
+Aby wyjaśnić, czym jest DSQ128, pierw spójrzmy na modulację 64QAM. 64QAM (Quadrature Amplitude Modulation) to modulacja, która jest połączeniem modulacji amplitudy oraz fazy. Bity zamieniane są na symbole według diagramu konstelacji:
 
 \includegraphics[scale=0.6]{64QAM-constellation-diagram.png}
 
