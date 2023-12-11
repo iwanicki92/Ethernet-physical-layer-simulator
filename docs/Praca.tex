@@ -13,6 +13,7 @@
 \usepackage{titlesec}
 \usepackage{float}
 \usepackage{pdfpages}
+\usepackage{newclude}
 \graphicspath{ {./images/} }
 \linespread{1.5}
 \setcounter{secnumdepth}{4}
@@ -47,7 +48,6 @@
 \bibliographystyle{unsrt}
 \bibliography{references}
 
-\begin{appendices}
 \include{Laboratorium}
 \include{Laboratorium-RS}
 
@@ -55,9 +55,8 @@
 
 \include{Zadania}
 
-\include{Kod}
+\input{Kod}
 
-\include{Instalacja}
-\end{appendices}
+\input{Instalacja}
 
 \end{document}

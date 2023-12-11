@@ -4,60 +4,42 @@
 
 \begin{enumerate}
     \item Zakładka: Reed-Solomon, ustawienia programu: kod systematyczny BCH, $n=15$, $GF=2^4$.
-    Dla $k \in \{ 2, 6, 10, 13 \}$ sprawdź wartość słowa kodowego dla k-symbolowej wiadomości zawierającej same zera. Dlaczego otrzymałeś takie słowa kodowe?\\ \\ \\ \\ \\ \\ \\
-    
-    \item Zakładka: Reed-Solomon, ustawienia programu: $n = 7$, $k = 3$, $GF = 2^3$, tryb dziesiętny, wiadomość wejściowa: "1 2 3",
-    kod systematyczny BCH. Wpisz wiadomość do zakodowania. Sprawdź i zapisz, ile błędnych symboli koder jest w stanie poprawić i wykryć.
+    Dla $k \in \{ 2, 6, 10, 13 \}$ sprawdź wartość słowa kodowego dla k-symbolowej wiadomości zawierającej same zera. Dlaczego otrzymałeś takie słowa kodowe?\\ \\ \\ \\ \\
+    \item Zakładka: Reed-Solomon, ustawienia programu: $n = 7$, $k = 3$, $GF = 2^3$,
+    kod systematyczny BCH, tryb dziesiętny, wiadomość wejściowa `1 2 3'.
+    Sprawdź dla błędów `3', `3 2', `3 2 1' oraz `3 2 1 4' czy dekoder jest w stanie
+    wykryć błędy oraz czy jest w stanie je poprawić a jeżeli tak to czy poprawnie.
+    Czy wiesz dlaczego pojawiły się rozbieżności między błędami poprawionymi a wykrytymi? \\ \\ \\
     \begin{table}[h]
-    \renewcommand{\arraystretch}{1.8}
-    \centering
-    \begin{tabular}{|c|c|c|>{\centering\arraybackslash}p{5cm}|}
-        \hline
-        \textbf{Błąd} & \textbf{Wykryto} & \textbf{Poprawiono} & \textbf{Ile} \\
-        \hline
-        "3" & & & \\
-        \hline
-        "3 2" & & & \\
-        \hline
-        "3 2 1" & & & \\
-        \hline
-    \end{tabular}
-    \label{tab:rs2}
-\end{table}
-    \item Zakładka: Reed-Solomon Shift Register, ustawienia programu: $n = 7$, $k = 3$, $GF = 2^3$. Oblicz wielomiany prymitywne automatycznie naciskając przycisk `Calculate primitive poly/element'.
-    Zakoduj i zapisz 3 dowolne niezerowe wiadomości.
-    Przejdź do zakładki Reed-Solomon i powtórz działania używając tych samych wiadomości oraz używając kodera systematycznego BCH z tymi samymi $n$, $k$, $GF$.\\ \\ \\ \\
-    \item Zakładka: Reed-Solomon, ustawienia programu: kod systematyczny BCH, $n=7$, $k=2$, $GF=2^3$.
-    Oblicz słowo kodowe dla wiadomości składającej się z liczb dziesiętnych `3 1'.
-    Zwiększ $k$ o 1 i dodaj k-ty symbol ze słowa kodowego do wiadomości. Powtarzaj aż do $k=6$.
-    Zapisz słowa kodowe i zanotuj spostrzeżenia.
-    Czy wiesz, dlaczego otrzymałeś takie słowa kodowe?
-    
-\begin{table}[h]
-    \renewcommand{\arraystretch}{1.8}
-    \centering
-    \begin{tabular}{|c|>{\centering\arraybackslash}p{12cm}|}
-        \hline
-        \textbf{k} & \textbf{Słowo kodowe} \\
-        \hline
-        1 & \\
-        \hline
-        2 & \\
-        \hline
-        3 & \\
-        \hline
-        4 & \\
-        \hline
-        5 & \\
-        \hline
-        6 & \\
-        \hline
-    \end{tabular}
-    \label{tab:rs4}
-\end{table}
-\newpage
-\item Zamień numer swojego indeksu na postać szesnastkową i wykorzystaj go jako liczbę do przesłania. Przeprowadź symulację. Zanotuj w sprawozdaniu
-przybliżony czas transmisji oraz liczbę poziomów natężenia. Opisz wnioski, które nasuwają Ci się po wykonanym ćwiczeniu. \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\
-\item Prześlij ciąg składający się z samych jedynek (fffffff \dots). Popatrz na wynik symulacji. Jak nazywa się zaobserwowane zjawisko? Czy znasz sposoby,
-które zapobiegają jego wystąpieniu? Zanotuj w sprawozdaniu.
-\end{itemize}
+        \renewcommand{\arraystretch}{1.8}
+        \centering
+        \begin{tabular}{|c|c|c|>{\centering\arraybackslash}p{5cm}|}
+            \hline
+            \textbf{Błąd} & \textbf{Wykrywa [TAK/NIE]} & \textbf{Poprawia [Ile]} & \textbf{Poprawia poprawnie [TAK/NIE]} \\
+            \hline
+            3 & & & \\
+            \hline
+            3 2 & & & \\
+            \hline
+            3 2 1 & & & \\
+            \hline
+            3 2 1 4 & & & \\
+            \hline
+        \end{tabular}
+        \label{tab:rs2}
+    \end{table}
+    \item Zakładka: Reed-Solomon Shift Register, ustawienia programu:
+    $n = 7$, $k = 3$, $GF = 2^3$. Oblicz wielomian prymitywny i generator naciskając
+    przycisk `Calculate primitive poly/element'.
+    Zakoduj wiadomość: `1 2 3 4 5' w symulatorze po czym zakoduj wiadomość
+    używając wzoru z sekcji `Systematyczny kod BCH'. Porównaj wyniki.
+    \newpage
+    \item Zakładka: Reed-Solomon, ustawienia programu: $n = 15$, $k=7$, $GF = 2^4$,
+    kod systematyczny BCH.
+    Zakoduj dowolną niezerową $k$-symbolową wiadomość. Sprawdź czy przesunięcia słowa kodowego
+    (z użyciem strzałek przy słowie `encoded') także będą słowem kodowym. \\ \\ \\ \\ \\
+    \item Zamień numer swojego indeksu na postać szesnastkową i wykorzystaj go jako liczbę do przesłania. Przeprowadź symulację. Zanotuj w sprawozdaniu
+    przybliżony czas transmisji oraz liczbę poziomów natężenia. Opisz wnioski, które nasuwają Ci się po wykonanym ćwiczeniu.  \\ \\ \\ \\ \\
+    \item Prześlij ciąg składający się z samych jedynek (fffffff \dots). Popatrz na wynik symulacji. Jak nazywa się zaobserwowane zjawisko? Czy znasz sposoby,
+    które zapobiegają jego wystąpieniu? Zanotuj w sprawozdaniu.
+\end{enumerate}
