@@ -81,8 +81,20 @@
     Zakoduj dowolną niezerową $k$-symbolową wiadomość. Sprawdź czy przesunięcia słowa kodowego
     (z użyciem strzałek przy słowie `encoded') także będą słowem kodowym. \\ \\
     Odpowiedź: Dla wiadomości `1 2 3 4 5 6 7' wszystkie przesunięcia były poprawnie i bezbłędnie dekodowane.
-    \item Zamień numer swojego indeksu na postać szesnastkową i wykorzystaj go jako liczbę do przesłania. Przeprowadź symulację. Zanotuj w sprawozdaniu
+    \item Zakładka: PAM, Zamień numer swojego indeksu na postać szesnastkową i wykorzystaj go jako liczbę do przesłania. Przeprowadź symulację. Zanotuj w sprawozdaniu
     przybliżony czas transmisji oraz liczbę poziomów natężenia. Opisz wnioski, które nasuwają Ci się po wykonanym ćwiczeniu. \\ \\
-    \item Prześlij ciąg składający się z samych jedynek (fffffff \dots). Popatrz na wynik symulacji. Jak nazywa się zaobserwowane zjawisko? Czy znasz sposoby,
-    które zapobiegają jego wystąpieniu? Zanotuj w sprawozdaniu.
+    Odpowiedź:
+    \begin{itemize}
+        \item NRZ: 62ns, dwa poziomy
+        \item PAM4: 33ns, cztery poziomy
+        \item PAM16: 17ns, cztery poziomy (przesyłany numer indeksu jest na tyle mały, że nie wszystkie poziomy zostaną wykorzystane)
+    \end{itemize} 
+    Stosowanie modulacji PAM wyższych poziomów pozwala na lepsze upakowanie danych, ale różnica pomiędzy wysyłanymi symbolami maleje.
+    \item Zakładka: PAM, Prześlij ciąg składający się z samych jedynek (fffffff \dots) lub zer (000000 \dots). Popatrz na wynik symulacji. Jak nazywa się zaobserwowane zjawisko? Czy znasz sposoby,
+    które zapobiegają jego wystąpieniu? Zanotuj w sprawozdaniu. \\ \\
+    Odpowiedź: Na symulacji widać stałą składową. Można jej zapobiegać używając np. kodowania liniowego 64b/66b albo skramblera.
+    \item Zakładka: PAM16, Zastosowanie DSQ128 nie eliminuje możliwości wystąpienia stałej składowej. Znajdź ciąg, który
+    temu dowodzi i zanotuj go w sprawozdaniu. \\ \\
+    Odpowiedź: Na przykład: 0x000000 \dots, 0x111111 \dots (0b000100010001 \dots),\\0x22222 \dots (0b001000100010 \dots),
+    0x444444 \dots (0b010001000100 \dots).
 \end{enumerate}

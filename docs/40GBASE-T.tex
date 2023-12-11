@@ -19,8 +19,18 @@ MII czyli Media-Independent Interface to interfejs pomiędzy warstwą MAC oraz P
 W technologii 40GBASE-T MII określany jest jako XLGMII. Składa się z dwóch wektorów 64-bitowych TXD i RXD - odpowiedzialne za przesył danych w obu kierunkach, dwóch wektorów 8-bitowych TXC i RXC - wykorzystywane do przesyłu sygnałów kontrolnych oraz TX\_CLK i RX\_CLK - którymi podawany jest sygnał zegara. XLGMII pozwala na przesył danych na poziomie 40 Gb/s, w obu kierunkach.
 
 \subsection{Warstwa PCS}\label{subsection:pcs}
-40GBASE-T PCS (Physical Coding Sublayer) jest warstwą odpowiedzialną m.in. za kodowanie i dekodowanie oraz skramblowanie i deskramblowanie. W jej skład wchodzą m.in. skrambler i deskrambler, kodery i dekodery RS-FEC i LDPC oraz układ mapujący bity na DSQ128.
-Dane trafiają z warstwy MAC do PCS przez XLGMII i gromadzone są w 64-bitowe bloki. Po zebraniu 50 takich bloków, pierwsze 48 z nich transkodowane są w 512-bitowe bloki, a pozostałe są do nich dołączane. Dane są następnie skramblowane i dołączany jest do nich bit pomocniczy (auxiliary bit), po czym dzielone są na dwa zbiory --- pierwszy z nich trafia do kodera Reed-Solomona, a drugi przetwarzany jest przez koder LDPC (Low density parity check). Otrzymuje się w ten sposób $512*3$ bitów zakodowanych przez RS-FEC oraz $512*4$ bitów --- LDPC, które łączone są w 7-bitowe grupy  ($u_0$, $u_1$, $u_2$), ($c_0$, $c_1$, $c_2$, $c_3$).
+40GBASE-T PCS (Physical Coding Sublayer) jest warstwą odpowiedzialną za kodowanie i dekodowanie oraz skramblowanie i deskramblowanie.
+W jej skład wchodzą m.in.:
+\begin{enumerate}
+    \item skrambler, deskrambler --- urządzenie, które modyfikuje (miesza, zamienia w bardziej losowy ciąg) przesyłane dane,
+        aby były lepiej dostosowane do transmisji. Zapewnia synchronizację zegara strony nadawczej i odbiorczej, chroni przed stałą składową,
+        pomaga redukować błędy transmisyjne. Deskrambler zamienia odebrany, zmodyfikowany ciąg w jego oryginalną formę.
+    \item Koder i dekoder RS-FEC (Reed-Solomon Forward Error Correction).
+    \item Koder i dekoder LDPC (Low-Density Parity Check) --- kod korekcyjny, używany równolegle z kodowaniem Reeda-Solomona.
+    \item Układ mapujący bity na symbole DSQ128
+\end{enumerate}
+
+Dane trafiają z warstwy MAC do PCS przez XLGMII i gromadzone są w 64-bitowe bloki. Po zebraniu 50 takich bloków, pierwsze 48 z nich transkodowane są w 512-bitowe bloki, a pozostałe są do nich dołączane. Dane są następnie skramblowane i dołączany jest do nich bit pomocniczy (auxiliary bit), po czym dzielone są na dwa zbiory --- pierwszy z nich trafia do kodera Reed-Solomona, a drugi przetwarzany jest przez koder LDPC. Otrzymuje się w ten sposób $512*3$ bitów zakodowanych przez RS-FEC oraz $512*4$ bitów --- LDPC, które łączone są w 7-bitowe grupy  ($u_0$, $u_1$, $u_2$), ($c_0$, $c_1$, $c_2$, $c_3$).
 
 \subsection{Modulacja w 40GBASE-T}
 Technologia 40GBASE-T wykorzystuje 16-poziomową modulację PAM - mając 16 różnych poziomów amplitudy możemy zakodować 16 różnych wartości co daje nam 4 bity danych.
@@ -90,3 +100,10 @@ Otrzymane w ten sposób symbole są transmitowane na odpowiednich parach skrętk
         \cmidrule{2-8}
     \end{tabular}}
 \end{table}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=\textwidth]{tp.png}
+    \caption{Skrętka}
+    \label{fig:skretka-zdj}
+\end{figure}
