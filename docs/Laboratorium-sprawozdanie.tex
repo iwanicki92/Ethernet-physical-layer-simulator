@@ -15,7 +15,7 @@ Przygotowania sali do zajęć dydaktycznych z grupą studentów rozpoczęły si�
 \subsubsection{Podjęte działania}
 W pierwszej kolejności spróbowano zainstalować i uruchomić symulator na komputerze z Ubuntu 18. Instalacja przez Internet okazała się niemożliwa ze względu na nieprzygotowanie zależności pod specyfikę tego systemu operacyjnego. Windows 10 okazał się bezproblemowy i, po użyciu dwóch poleceń: instalacja i uruchomienie symulatora, symulator był gotowy do używania.
 
-W związku z brakiem pakietu libngspice0 na Ubuntu 18 który jest potrzebny do uruchomienia symulacji skrętki zdecydowano się zainstalować na tych komputerach Linux Mint. Po tym czasochłonnym procesie symulator uruchamiał się, jednak napotkano kolejny problem - okno symulatora wykraczało poza ekran i nie było możliwości jego zmniejszenia. Winą była wykorzystana w programie ilustracja. Naprawiono to dodając do polecenia uruchomienia symulatora dwa opcjonalne parametry określające maksymalny
+W związku z brakiem pakietu libngspice0 na Ubuntu 18, który jest potrzebny do uruchomienia symulacji skrętki zdecydowano się zainstalować na tych komputerach Linux Mint. Po tym czasochłonnym procesie symulator uruchamiał się, jednak napotkano kolejny problem - okno symulatora wykraczało poza ekran i nie było możliwości jego zmniejszenia. Winą była wykorzystana w programie ilustracja. Naprawiono to dodając do polecenia uruchomienia symulatora dwa opcjonalne parametry określające maksymalny
 rozmiar tej ilustracji.
 
 W tym momencie sala była w ocenie prowadzących gotowa do przeprowadzenia zajęć. Ostatecznie dostępne były cztery komputery z Windows 10 oraz cztery komputery z Linux Mint.
@@ -23,12 +23,11 @@ W tym momencie sala była w ocenie prowadzących gotowa do przeprowadzenia zaję
 \subsubsection{Problemy}
 Podczas przygotowywania sali napotkano następujące problemy:
 \begin{itemize}
-    \item W sali istnieje problem z dostępem do Internetu na więcej niż jednym komputerze,
-    \item Monitory dostępne w sali miały specyficzne proporcje,
-    \item Dla Ubuntu 18 nie było w repozytorium pakietu libngspice0
+    \item Monitory dostępne w sali miały specyficzne proporcje 4:3, więc wymagane były drobne poprawki interfejsu symulatora,
+    \item Dla Ubuntu 18 nie było w repozytorium pakietu libngspice0,
     \item Na Linux Mint okno programu rozszerzało się do wymiarów większych niż dostępna wielkosć monitora bez możliwości zmniejszenia,
     \item Aplikacja nie instalowała się na Pythonie 3.12 z powodu niekompatybilności
-    modułów od których zależy symulator
+    modułów, od których zależy symulator.
 \end{itemize}
 
 \subsection{Przebieg zajęć}
