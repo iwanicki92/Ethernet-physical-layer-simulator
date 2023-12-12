@@ -101,7 +101,7 @@ Zakładka PAM (Rysunek ~\ref{fig:pam_sim_png}) przedstawia różnice modulacji: 
 \end{figure}
 
 \subsubsection{Symulacja przesyłu sygnału}
-Symulator (Rysunek ~\ref{fig:sim_png}) umożliwia symulację przesyłu danych przez pojedynczą cskrętkę, w której można śledzić zmiany napięć. W tym przypadku wykorzystana została biblioteka PySpice. Dzięki niej można nadać wykorzystywanemu przewodowi pożądane parametry, między innymi: opór, długość i indukcyjność.
+Zakładka Twisted-pair simulation (Rysunek ~\ref{fig:sim_png}) pozwala na śledzenie zmian napięć podczas przesyłu danych przez pojedynczą skrętkę. W tym przypadku wykorzystana została biblioteka PySpice. Dzięki niej można nadać wykorzystywanemu przewodowi pożądane parametry, między innymi: opór, długość i indukcyjność.
 
 \begin{figure}[H]
     \centering
@@ -119,12 +119,12 @@ Użytkownik ma możliwość podawania tych parametrów w przewijalnym oknie, gdz
         \hline
         \textbf{Parametr} & \textbf{Od} & \textbf{Do} & \textbf{Domyślnie} \\
         \hline
-        Voltage offset [V] & <0 & 10> & 0 \\
-        Output impedance [$\Omega$] & (0 & 200> & 100 \\
-        Length [m] & <1 & 100> & 2 \\
-        Resistence [$\Omega$] & (0 & 100> & 0.19 \\
-        Inductance [nH] & (0 & 1000> & 525 \\
-        Capacitance [pF] & (0 & 100> & 52 \\
+        Voltage offset\tablefootnote{Napięcie niezrównoważnienia - napięcie, które musi być przyłożone do wejścia, aby wyjście wynosiło 0.} [V] & <0 & 10> & 0 \\
+        Output impedance\tablefootnote{Impendacja wyjściowa - stosunek napięcia wyjściowego do natężenia prądu wyjściowego układu.} [$\Omega$] & (0 & 200> & 100 \\
+        Length\tablefootnote{Długość skrętki.} [m] & <1 & 100> & 2 \\
+        Resistence\tablefootnote{Rezystancja - wielkość charakteryzująca relację między napięciem a natężeniem prądu elektrycznego w obwodach.} [$\Omega$] & (0 & 100> & 0.19 \\
+        Inductance\tablefootnote{Indukcyjność - zdolność obwodu do wytwarzania strumienia pola magnetycznego powstającego w wyniku przepływu przez obwód prądu elektrycznego.} [nH] & (0 & 1000> & 525 \\
+        Capacitance\tablefootnote{Pojemność elektryczna – wielkość fizyczna opisująca zdolność ciała do gromadzenia ładunku elektrycznego.} [pF] & (0 & 100> & 52 \\
         \hline
     \end{tabular}
     \label{tab:parametry}
