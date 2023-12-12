@@ -33,6 +33,7 @@ W jej skład wchodzą m.in.:
 Dane trafiają z warstwy MAC do PCS przez XLGMII i gromadzone są w 64-bitowe bloki. Po zebraniu 50 takich bloków, pierwsze 48 z nich transkodowane są w 512-bitowe bloki, a pozostałe są do nich dołączane. Dane są następnie skramblowane i dołączany jest do nich bit pomocniczy (auxiliary bit), po czym dzielone są na dwa zbiory --- pierwszy z nich trafia do kodera Reed-Solomona, a drugi przetwarzany jest przez koder LDPC. Otrzymuje się w ten sposób $512*3$ bitów zakodowanych przez RS-FEC oraz $512*4$ bitów --- LDPC, które łączone są w 7-bitowe grupy  ($u_0$, $u_1$, $u_2$), ($c_0$, $c_1$, $c_2$, $c_3$).
 
 \subsection{Modulacja w 40GBASE-T}
+
 Technologia 40GBASE-T wykorzystuje 16-poziomową modulację PAM - mając 16 różnych poziomów amplitudy możemy zakodować 16 różnych wartości co daje nam 4 bity danych.
 Oprócz bitów niosących dane, przesyła się również bity pomocnicze (auxiliary bits), przez co w rzeczywistości jeden symbol PAM16 koduje 3,125 bitów informacji.
 W ciągu każdej sekundy przesyłanych jest 3200 milionów symboli co przekłada się na prędkość transmisji równą 10 Gb/s (3,125 bit/symbol * 3200 MBd) na każdej z czterech par skrętki, co sumarycznie daje transmisję 40 Gb/s.
@@ -40,15 +41,27 @@ W ciągu każdej sekundy przesyłanych jest 3200 milionów symboli co przekłada
 \subsubsection{Double Square Quadrature Amplitude Modulation}
 Jak opisano w \ref{subsection:pcs}, warstwa PCS koduje otrzymane dane w 7-bitowe grupy. W technologii 40GBASE-T symbole nadawane przez warstwę PMA wybierane są z konstelacji DSQ128 (Double Square Quadrature Amplitude Modulation).
 
-Aby wyjaśnić, czym jest DSQ128, pierw spójrzmy na modulację 64QAM. 64QAM (Quadrature Amplitude Modulation) to modulacja, która jest połączeniem modulacji amplitudy oraz fazy. Bity zamieniane są na symbole według diagramu konstelacji:
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.4]{64QAM-constellation-diagram.png}
+    \caption{Diagram konstelacji 64QAM}
+    \label{fig:40gbase-t-64QAM}
+\end{figure}
 
-\includegraphics[scale=0.6]{64QAM-constellation-diagram.png}
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{dsq128.png}
+    \caption{Diagram konstelacji DSQ128}
+    \label{fig:40gbase-t-dsq128}
+\end{figure}
+
+Aby wyjaśnić, czym jest DSQ128, pierw spójrzmy na modulację 64QAM. 64QAM (Quadrature Amplitude Modulation) to modulacja, która jest połączeniem modulacji amplitudy oraz fazy.
+Bity zamieniane są na symbole według diagramu konstelacji rys. \ref{fig:40gbase-t-64QAM}.
 
 Diagram podzielony jest na 4 sekcje, każda z nich zawiera 16 maksymalnie oddzielonych od siebie punktów. Punkty znajdujące się obok siebie różnią się jednym bitem --- dzięki czemu, gdy odbiorca otrzyma zły symbol, najprawdopodobniej tylko jeden bit będzie przekłamany.
 
-DSQ128 jest złożeniem dwóch modulacji 64QAM i składa się z ośmiu sekcji, a każda z nich zawiera 16 punktów. Mając 7-bitową grupe ($u_0$, $u_1$, $u_2$), ($c_0$, $c_1$, $c_2$, $c_3$), pierwsze 3 bity definiują lewy dolny punkt w jednym z 8 regionów, natomiast na podstawie 4 kolejnych bitów wybierany jest jeden z 16 punktów w danym regionie. Proces ten opisany jest szczegółowo w \ref{mapowanie}
-
-\includegraphics[scale=0.4]{dsq128.png}
+DSQ128 jest złożeniem dwóch modulacji 64QAM i składa się z ośmiu sekcji, a każda z nich zawiera 16 punktów (rys.\ref{fig:40gbase-t-dsq128}). Mając 7-bitową grupe ($u_0$, $u_1$, $u_2$), ($c_0$, $c_1$, $c_2$, $c_3$), pierwsze 3 bity definiują lewy dolny punkt w jednym z 8 regionów, natomiast na podstawie 4 kolejnych bitów wybierany jest jeden z 16 punktów w danym regionie.
+Proces ten opisany jest szczegółowo w kolejnej sekcji.
 
 \subsubsection{Mapowanie ramki LDPC na DSQ128}\label{mapowanie}
 Zamianę 7-bitów ($u_0$, $u_1$, $u_2$), ($c_0$, $c_1$, $c_2$, $c_3$) pokazuje poniższy algorytm:
