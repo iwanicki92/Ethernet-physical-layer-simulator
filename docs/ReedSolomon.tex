@@ -97,8 +97,8 @@ wielomianu~(\ref{gf_extended:binary}).
 
 Różne kody Reeda-Solomona są wykorzystywane w wielu standardach Ethernet,
 wyróżnione w tablicy~\ref{standards:title}. Zapisane są one w formacie RS($n$,$k$),
-gdzie $n$ to długość słowa kodowego a $k$ to długość wiadomości.
-Na czerwono zaznaczono standard który w tej pracy został opisany.
+gdzie $n$ to długość słowa kodowego, a $k$ to długość wiadomości.
+Na czerwono zaznaczono standard, na którym skupiono się w tej pracy.
 
 \begingroup
 \hyphenpenalty10000
@@ -128,7 +128,7 @@ Na czerwono zaznaczono standard który w tej pracy został opisany.
 \subsection{Właściwości kodu}\label{subsection:wlasciwosci}
 Kody Reeda-Solomona cechują się możliwością korekty $\lfloor \frac{n-k}{2} \rfloor$
 oraz wykrycia $n-k$ błędnych symboli. Symbol w ciele $\mathbb{F}_{2^m}$ składa się
-z $m$ bitów co w przypadku błędów grupowych daje możliwość korekty maksymalnie
+z $m$ bitów, co w przypadku błędów grupowych daje możliwość korekty maksymalnie
 $m \cdot \lfloor \frac{n-k}{2} \rfloor$ bitów bądź detekcji $m(n-k)$ przekłamanych
 bitów
 
@@ -146,7 +146,7 @@ gdzie $a_i$ to różne elementy ciała $\mathbb{F}_q$.
 \begin{minipage}{\textwidth}
 Przykład:
 \newline
-Kod solomona dla $k=7$, $n=4$, $\mathbb{F}_{2^3}$, wielomian nierozkładalny $p(x) = x^3 + x + 1$ i wiadomości $m = 7654$ wynosi $c = 4022233$
+Kod Reeda-Solomona dla $k=7$, $n=4$, $\mathbb{F}_{2^3}$, wielomian nierozkładalny $p(x) = x^3 + x + 1$ i wiadomości $m = 7654$ wynosi $c = 4022233$
 \end{minipage}
 \begin{align*}
     p_m(x) &= 7x^3 + 6x^2 + 5x + 4 \\
@@ -170,8 +170,8 @@ w pierwszych $k$ elementach.
 \begin{minipage}{\textwidth}
 Przykład:
 \newline
-Używając danych z poprzedniego przykładu z sekcji~(\ref{subsection:original}) i
-obliczając wielomian $p_m(x)$ używając interpolacji Lagrange otrzymujemy
+Używając danych z poprzedniego przykładu z sekcji~(\ref{subsection:original}),
+obliczając wielomian $p_m(x)$ oraz używając interpolacji Lagrange, otrzymujemy
 \end{minipage}
 \begin{align*}
     p_m(x) &= x + 7 \\
@@ -204,7 +204,7 @@ Aby utworzyć słowo kodowe $c(x)$, należy pomnożyć wielomian wiadomości $p_
 \begin{minipage}{\textwidth}
 Przykład:
 \newline
-Używając danych z przykładu z sekcji~(\ref{subsection:original}) otrzymujemy:
+Używając danych z przykładu z sekcji~(\ref{subsection:original}), otrzymujemy:
 \end{minipage}
 \begin{align*}
     g(x) &= \prod_{i=0}^{2} (x - \alpha^i) = (x - 1)(x - \alpha)(x - \alpha^2) \\
@@ -226,7 +226,7 @@ Aby uzyskać systematyczne słowo kodowe $c(x)$, musimy obliczyć:
 \begin{minipage}{\textwidth}
 Przykład:
 \newline
-Używając danych z przykładu z sekcji~(\ref{subsubsection:bch}) otrzymujemy:
+Używając danych z przykładu z sekcji~(\ref{subsubsection:bch}), otrzymujemy:
 \end{minipage}
 \begin{align*}
     c_r(x) &= (7x^3 + 6x^2 + 5x + 4) \cdot x^3 \mod x^3 + 7x^2 + 5x + 3 \\
