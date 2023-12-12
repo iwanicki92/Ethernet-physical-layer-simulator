@@ -31,7 +31,7 @@ Istnieją również inne popularne narzędzia, które mogą być użyteczne do s
 \subsection{Interfejs użytkownika}\label{subsection:interfejs}
 Interfejs użytkownika został wykonany przy użyciu PyQt5 oraz Qt Designer. Qt Designer to graficzne narzędzie do projektowania interfejsów użytkownika w ramach frameworka Qt. Umożliwia łatwe tworzenie i dostosowywanie wyglądu aplikacji oraz następne jego wygenerowanie jako kodu w języku Python lub C++.
 
-Interfejs składa się z kilku zakładek (Rysunek~\ref{fig:zakladki_sim_image}), które umożliwiają przełączanie między częściami aplikacji bez utraty wyników dotychczasowej pracy. Każda zakładka przeznaczona jest do innego zadania laboratoryjnego i zawiera symulacje innych rozwiązań ethernetowych. 
+Interfejs składa się z kilku zakładek (Rysunek~\ref{fig:zakladki_sim_image}), które umożliwiają przełączanie między częściami aplikacji bez utraty wyników dotychczasowej pracy. Każda zakładka przeznaczona jest do innego zadania laboratoryjnego i zawiera symulacje innych rozwiązań ethernetowych.
 
 \begin{figure}[H]
     \centering
@@ -119,12 +119,12 @@ Użytkownik ma możliwość podawania tych parametrów w przewijalnym oknie, gdz
         \hline
         \textbf{Parametr} & \textbf{Od} & \textbf{Do} & \textbf{Domyślnie} \\
         \hline
-        Voltage offset & 0 & 10 & 0 \\
-        Output impedance & 0 & 200 & 100 \\
-        Length & 1 & 100 & 2 \\
-        Resistence & 0 & 100 & 0.19 \\
-        Inductance & 0 & 1000 & 525 \\
-        Capacitance & 0 & 100 & 52 \\
+        Voltage offset [V] & <0 & 10> & 0 \\
+        Output impedance [$\Omega$] & (0 & 200> & 100 \\
+        Length [m] & <1 & 100> & 2 \\
+        Resistence [$\Omega$] & (0 & 100> & 0.19 \\
+        Inductance [nH] & (0 & 1000> & 525 \\
+        Capacitance [pF] & (0 & 100> & 52 \\
         \hline
     \end{tabular}
     \label{tab:parametry}

@@ -184,7 +184,18 @@ Aby uzyskać systematyczne słowo kodowe $s(x)$ musimy obliczyć:
 
 \subsubsection{Narzędzia}
 \paragraph{Reed-Solomon}
-\includegraphics[width=\textwidth]{rs-tab.png}
+\begin{center}
+    \includegraphics[width=0.95\textwidth,keepaspectratio]{rs-tab.png}
+\end{center}
+Narzędzie pozwala na:
+\begin{itemize}
+    \item Kodowanie i dekodowanie wiadomości różnymi koderami o różnych
+    parametrach
+    \item Nakładanie na zakodowaną wiadomość błędów w celu przetestowania
+    możliwości detekcji i korekty błędów przez kod Reeda-Solomona
+    \item Zmianę formatu symboli w celu łatwiejszego zobrazowania co się
+    dzieje w poszczególnych etapach
+\end{itemize}
 
 Zakładka Reed-Solomon składa się z 3 części
 \begin{itemize}
@@ -208,7 +219,15 @@ znaków, część jest zamieniana na znaki zapytania a część jest tzw.
 Strzałki przy `encoded' pozwalają na przesunięcie symboli w lewo i prawo.
 
 \paragraph{Reed-Solomon Shift Register}
-\includegraphics[width=\textwidth]{rs-register-tab.png}
+\begin{center}
+    \includegraphics[width=0.95\textwidth,keepaspectratio]{rs-register-tab.png}
+\end{center}
+Narzędzie pozwala na:
+\begin{itemize}
+    \item Obliczanie wielomianu generującego kod Reeda-Solomona
+    \item Zobrazowanie jak działa przykładowy koder Reeda-Solomona
+    \item Zaznajomienie się z reprezentacją w postaci wielomianowej symboli z ciała $\mathbb{F}_{2^m}$
+\end{itemize}
 
 W tej zakładce koder RS zaimplementowany został zgodnie z modelem
 funkcyjnym udostępnionym w standarcie Ethernet. Po przejściu
