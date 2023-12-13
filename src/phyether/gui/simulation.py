@@ -130,7 +130,7 @@ class SimulationFormWidget(QFrame):
         self.combobox_widget.setLayout(self.combobox_layout)
         self.form_layout.addRow(self.combobox_widget)
 
-        # Create six number inputs using QSpinBox
+        # Create 8 number inputs using QSpinBox
         self.parameter_labels: List[Parameters] = [
             {"label" : "Rise time [ns]", "arg": "rise_time", "type" : "float", "default": 0.1},
             {"label" : "Signal width [ns]", "arg": "on_time", "type" : "float", "default": 1},
@@ -138,8 +138,8 @@ class SimulationFormWidget(QFrame):
             {"label" : "Output impedance [Ohm]", "arg": "output_impedance", "type" : "float", "default": 100},
             {"label" : "Length [m]", "arg": "length", "type" : "int", "default": 2},
             {"label" : "Resistance [Ohm]", "arg": "resistance", "type" : "float", "default": 0.188},
-            {"label" : "Inductance [H]", "arg": "inductance", "type" : "float", "default": 525},
-            {"label" : "Capacitance [F]", "arg": "capacitance", "type" : "float", "default": 52},
+            {"label" : "Inductance [nH]", "arg": "inductance", "type" : "float", "default": 525},
+            {"label" : "Capacitance [pF]", "arg": "capacitance", "type" : "float", "default": 52},
         ]
         self.number_inputs: Dict[str, Union[QDoubleSpinBox, QSpinBox]] = {}
         for i, parameter in enumerate(self.parameter_labels):
@@ -168,7 +168,7 @@ class SimulationFormWidget(QFrame):
         print(f"Created SimulationFormWidget, label = {label}")
 
     def delete(self):
-        print("Deleteing form...")
+        print("Deleting form...")
         self.setParent(None)
 
 class SimulatorCanvas(FigureCanvasQTAgg):
