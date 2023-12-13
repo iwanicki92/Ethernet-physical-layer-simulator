@@ -46,19 +46,23 @@ class RS_Original:
     def expand_message(self, message: Union[str, List[int]],
                        size: int) -> Tuple[int, Union[str, List[int]]]:
         if isinstance(message, str):
-            message_bytes = string_to_bytes(message)
-            original_size = len(message_bytes)
-            message = list(message_bytes.rjust(size, b'\xff'))
+            message = string_to_list(message)
+            original_size = len(message)
+            message = ([self.gf.order - 1] * (size - len(message))) + message
             return original_size, iterable_to_string(message)
         else:
             original_size = len(message)
-            message = ([255] * (size - len(message))) + message
+            message = ([self.gf.order - 1] * (size - len(message))) + message
             return original_size, message
 
     def shorten_codeword(self, codeword: Union[str, List[int]],
                          original_message_size: int) -> Union[str, List[int]]:
 
         return codeword[-(original_message_size + self.parity_length):]
+
+    def detect(self, codeword: Union[str, List[int]]) -> bool:
+        list_codeword = string_to_list(codeword) if isinstance(codeword, str) else codeword
+        return cast(bool, self.rs.detect(list_codeword))
 
 
     @overload

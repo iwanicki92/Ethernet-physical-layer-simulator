@@ -27,10 +27,11 @@ class NRZ(PAM):
     def hex_to_signals(self, hex_data: str) -> str:
         if not re.match("^[a-f0-9]+$", hex_data):
             raise ValueError("Input must be a valid hexadecimal string")
-        return ' '.join([
-            '1' if bit == '1' else '-1'
-            for bit in format(int(hex_data, 16), 'b')
-            ])
+
+        bits = bin(int(hex_data, 16))[2:].zfill(len(hex_data) * 4)
+        return ' '.join(
+            '1' if bit == '1' else '-1' for bit in bits
+        )
 
 class PAM4(PAM):
     @property
@@ -41,12 +42,10 @@ class PAM4(PAM):
         if not re.match("^[a-f0-9]+$", hex_data):
             raise ValueError("Input must be a valid hexadecimal string")
 
-        binary = format(int(hex_data, 16), 'b')
-        if len(binary) % 2 == 1:
-            binary.rjust(len(binary) + 1, '0')
+        bits = bin(int(hex_data, 16))[2:].zfill(len(hex_data) * 4)
         return ' '.join(
-            str(-3 + 2*int(binary[bit:bit+2], 2))
-            for bit in range(0, len(binary), 2))
+            str(-3 + 2*int(bits[i:i+2], 2)) for i in range(0, len(bits), 2)
+        )
 
 class PAM16(PAM):
     @property
@@ -97,9 +96,9 @@ class PAM16(PAM):
 
     @staticmethod
     def _hex_to_signals_dsq128(hex_data: str):
-        bits = bitarray(format(int(hex_data, 16), 'b'))
+        bits = bitarray(bin(int(hex_data, 16))[2:].zfill(len(hex_data) * 4))
         padding_length = (28 - (len(bits) % 28)) % 28
-        bits[-28 + padding_length : -28 + padding_length] = bitarray('0' * padding_length)
+        bits = bitarray("0" * padding_length) + bits
         twisted_pairs_output = ["", "", "", ""]
 
         for i in range(0, len(bits), 28):

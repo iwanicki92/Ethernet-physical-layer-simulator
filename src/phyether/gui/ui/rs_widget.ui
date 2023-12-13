@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>461</width>
+    <width>520</width>
     <height>564</height>
    </rect>
   </property>
@@ -342,13 +342,6 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="label_9">
-          <property name="text">
-           <string>encoded</string>
-          </property>
-         </widget>
-        </item>
         <item row="1" column="1">
          <widget class="QLineEdit" name="encoded_lineEdit">
           <property name="toolTip">
@@ -407,6 +400,49 @@
           </property>
          </widget>
         </item>
+        <item row="1" column="0">
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="label_9">
+            <property name="text">
+             <string>encoded</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="shift_left_pushButton">
+            <property name="maximumSize">
+             <size>
+              <width>20</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>&lt;</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="shift_right_pushButton">
+            <property name="maximumSize">
+             <size>
+              <width>20</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>&gt;</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
        </layout>
       </widget>
      </item>
@@ -423,6 +459,13 @@
           </property>
           <property name="text">
            <string>Encode/Decode</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="detect_errors_pushButton">
+          <property name="text">
+           <string>Detect Errors</string>
           </property>
          </widget>
         </item>
@@ -575,6 +618,70 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>detect_errors_pushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>RS_Form</receiver>
+   <slot>detect()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>171</x>
+     <y>532</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>259</x>
+     <y>281</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>systematic_checkBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>RS_Form</receiver>
+   <slot>systematic_changed(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>381</x>
+     <y>209</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>259</x>
+     <y>281</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>shift_left_pushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>RS_Form</receiver>
+   <slot>shift_left()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>88</x>
+     <y>395</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>259</x>
+     <y>281</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>shift_right_pushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>RS_Form</receiver>
+   <slot>shift_right()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>114</x>
+     <y>395</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>259</x>
+     <y>281</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>bch_changed(bool)</slot>
@@ -583,6 +690,10 @@
   <slot>gf_changed(int)</slot>
   <slot>n_changed(int)</slot>
   <slot>comboBoxChanged(QString)</slot>
+  <slot>detect()</slot>
+  <slot>systematic_changed(bool)</slot>
+  <slot>shift_left()</slot>
+  <slot>shift_right()</slot>
  </slots>
  <buttongroups>
   <buttongroup name="formatButtonGroup"/>
