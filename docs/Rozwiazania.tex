@@ -7,7 +7,7 @@
     \item Podaj definicję dodawania i mnożenia w $\mathbb{F}_2$ bądź wypisz wynik tych
     działań dla wszystkich możliwych kombinacji elementów.
     \begin{itemize}
-        \item Odpowiedź: dodawanie to XOR mnożenie to AND. Pozostałe możliwe odpowiedzi to Tablica~\ref{truth_table:title} bądź~(\ref{modulo_addition})
+        \item Odpowiedź: dodawanie to XOR a mnożenie to AND. Pozostałe możliwe odpowiedzi to Tablica~\ref{truth_table:title} bądź~(\ref{modulo_addition})
         oraz~(\ref{modulo_multiplication})
     \end{itemize}
     \item Czym się różni słowo kodowe wygenerowane kodem systematycznym i niesystematycznym
@@ -34,6 +34,10 @@
         c(x) &= 0 \cdot x^t - 0 \\
         c(x) &= 0
     \end{align*}
+
+    Odpowiedź 2: Kod BCH jest kodem systematycznym dlatego pierwsze $k$ symboli
+    także będzie miało zera. Aby obliczyć pozostałe $n-k$ symboli musimy mnożyć
+    i dodawać przez 0 w związku z czym otrzymamy same zera.
     \item Zakładka: Reed-Solomon, ustawienia programu: $n = 7$, $k = 3$, $GF = 2^3$,
     kod systematyczny BCH, tryb dziesiętny, wiadomość wejściowa `1 2 3'.
     Sprawdź dla błędów `3', `3 2', `3 2 1' oraz `3 2 1 4' czy dekoder jest w stanie
@@ -41,6 +45,8 @@
     Czy wiesz dlaczego pojawiły się rozbieżności między błędami poprawionymi a wykrytymi? \\ \\
     Odpowiedź: Według właściwości kodu Reeda-Solomona opisanych w sekcji~\ref{subsection:wlasciwosci} jest on w stanie poprawić $\lfloor \frac{n-k}{2} \rfloor$ błędnych symboli i wykryć $n-k$ błędnych symboli.
     W tym zadaniu wszystkie błędy były wykryte i jedynie $\lfloor \frac{n-k}{2} \rfloor$ czyli 2 błędy były poprawnie skorygowane.
+    Odpowiedź 2: Ponieważ kod Reeda-Solomona jest w stanie wykryć 2 razy więcej
+    błędów niż poprawić.
     \begin{table}[H]
         \renewcommand{\arraystretch}{1.8}
         \centering
@@ -76,6 +82,7 @@
             s(x) &= (2,1,3)
         \end{aligned}
     \end{equation*}
+
     \item Zakładka: Reed-Solomon, ustawienia programu: $n = 15$, $k=7$, $GF = 2^4$,
     kod systematyczny BCH.
     Zakoduj dowolną niezerową $k$-symbolową wiadomość. Sprawdź czy przesunięcia słowa kodowego
@@ -88,7 +95,7 @@
         \item NRZ: 62ns, dwa poziomy
         \item PAM4: 33ns, cztery poziomy
         \item PAM16: 17ns, cztery poziomy (przesyłany numer indeksu jest na tyle mały, że nie wszystkie poziomy zostaną wykorzystane)
-    \end{itemize} 
+    \end{itemize}
     Stosowanie modulacji PAM wyższych poziomów pozwala na lepsze upakowanie danych, ale różnica pomiędzy wysyłanymi symbolami maleje.
     \item Zakładka: PAM, Prześlij ciąg składający się z samych jedynek (fffffff \dots) lub zer (000000 \dots). Popatrz na wynik symulacji. Jak nazywa się zaobserwowane zjawisko? Czy znasz sposoby,
     które zapobiegają jego wystąpieniu? Zanotuj w sprawozdaniu. \\ \\
