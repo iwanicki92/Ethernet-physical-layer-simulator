@@ -179,7 +179,7 @@ class EthernetGuiApp(QMainWindow):
 
         self.simulator_signals = QLineEdit()
         signals_layout = QHBoxLayout()
-        signals_layout.addWidget(QLabel(f"Twisted pair signals"))
+        signals_layout.addWidget(QLabel(f"Signals separated with spaces:"))
         signals_layout.addWidget(self.simulator_signals)
 
         options_layout.addLayout(signals_layout)
@@ -199,11 +199,15 @@ class EthernetGuiApp(QMainWindow):
         self.tabs[3].layout().addWidget(self.tp_canvas)
 
     def add_simulation_form(self):
+        # Fixing forms
+        self.tp_simulation_forms = [f for f in self.tp_simulation_forms if f.parent()]
+        for i, form in enumerate(self.tp_simulation_forms):
+            # Fixing labels
+            form.name_label.setText(f"{i+1}. Simulation parameters")
+
         index = len(self.tp_simulation_forms)
         self.tp_simulation_forms.append(SimulationFormWidget("Simulation parameters", index + 1))
-        self.tp_simulation_form.insertRow(index, self.tp_simulation_forms[-1])
-
-        # self.tp_simulation_form.insertRow(input_index - 1, f"{input_index}. simulation parameters:", self.tp_simulation_forms[-1])
+        self.tp_simulation_form.insertRow(self.tp_simulation_form.rowCount() - 1, self.tp_simulation_forms[-1])
 
     def pam16_simulate(self):
         self.pam16_simulate_button.setDisabled(True)
