@@ -287,6 +287,7 @@ class EthernetGuiApp(QMainWindow):
                                         inductance=args["inductance"],
                                         capacitance=args["capacitance"])
             run = SimulationRunArgs(voltage_offset=args["voltage_offset"]) # type: ignore
+            print(f"Gui simulate: index={form.name_label.text().split('.')[0]}")
             simulation_args.append(SimulationArgs(init_args=init,
                                                   run_args=run,
                                                   input=self.simulator_signals.text(),

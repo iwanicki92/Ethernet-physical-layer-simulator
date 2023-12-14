@@ -49,7 +49,7 @@ class SimulationArgs(DictMapping):
     init_args: SimulationInitArgs
     run_args: SimulationRunArgs
     input: str
-    index: int
+    index: str
 
 
 class SimulationDisplay(str, Enum):
