@@ -49,6 +49,7 @@ class SimulationArgs(DictMapping):
     init_args: SimulationInitArgs
     run_args: SimulationRunArgs
     input: str
+    index: int
 
 
 class SimulationDisplay(str, Enum):
@@ -61,7 +62,7 @@ class SimulationDisplay(str, Enum):
 
 
 class PairSimulation(QObject):
-    simulation_signal = pyqtSignal(TransientAnalysis, float)
+    simulation_signal = pyqtSignal(TransientAnalysis, float, str)
     simulation_finished_signal = pyqtSignal()
     error_signal = pyqtSignal()
 
@@ -72,15 +73,17 @@ class PairSimulation(QObject):
     def simulate_one(self,
                      init_args: SimulationInitArgs,
                      run_args: SimulationRunArgs,
-                     input: str):
+                     input: str,
+                     index: str):
         twisted_pair = TwistedPair(**init_args)
         symbols = [int(symbol) for symbol in input.split()
                                 if symbol.removeprefix('-').isdecimal()]
 
         try:
             analysis = twisted_pair.simulate(symbols, **run_args)
-            self.simulation_signal.emit(analysis, twisted_pair.transmission_delay)
-        except Exception:
+            self.simulation_signal.emit(analysis, twisted_pair.transmission_delay, index)
+        except Exception as e:
+            print(f"Error: {e}")
             self.error_signal.emit()
 
 
@@ -184,6 +187,7 @@ class SimulatorCanvas(FigureCanvasQTAgg):
         self.figure.text(0.04, 0.5, 'Voltage (V)', va='center', rotation='vertical')
         print("Created canvas")
 
+        self.plot_labels: List[str] = []
         self.simulation: Optional[PairSimulation] = None
         self.thread: QThread = QThread(self)
         self.simulations: List[Tuple[TransientAnalysis, float]] = []
@@ -194,11 +198,12 @@ class SimulatorCanvas(FigureCanvasQTAgg):
         self._display_params = display_params
         self._draw_plot()
 
-    def _add_simulation(self, analysis: TransientAnalysis, transmission_delay: float):
-        index = len(self.simulations)
+    def _add_simulation(self, analysis: TransientAnalysis, transmission_delay: float, index: str):
+        #index = len(self.simulations)
         self.simulations.append((analysis, transmission_delay))
-        print(f"Draw simulation: {index + 1}")
-        self._draw_add(self.simulations[-1], index)
+        self.plot_labels.append(index)
+        print(f"Draw simulation: {index}")
+        self._draw_add(self.simulations[-1], int(self.plot_labels[-1]))
 
     def _get_vin_x(self, analysis, delay):
         return analysis.time[analysis.time<(analysis.time[-1] - delay)]
@@ -242,7 +247,7 @@ class SimulatorCanvas(FigureCanvasQTAgg):
 
     def _draw_plot(self):
         self.clear_plot()
-        for index, simulation in enumerate(self.simulations):
+        for index, simulation in zip(self.plot_labels, self.simulations):
             self._draw_add(simulation, index)
 
     def simulation_error(self):
@@ -257,6 +262,7 @@ class SimulatorCanvas(FigureCanvasQTAgg):
     def simulate(self, sim_args: List[SimulationArgs]):
         print("Simulating")
         self.simulations.clear()
+        self.plot_labels.clear()
         self.simulating = True
         self.clear_plot()
         self.simulation = PairSimulation(sim_args)
