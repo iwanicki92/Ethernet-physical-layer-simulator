@@ -11,6 +11,7 @@ from phyether.dac import DAC
 from phyether.gui.pam_simulation import PAMSimulationCanvas, PAM16SimulationCanvas
 from phyether.gui.rs_register_tab import RSRegisterTab
 from phyether.gui.rs_tab import RSTab
+from phyether.gui.validators import IntListValidator
 from phyether.pam import NRZ, PAM, PAM16, PAM4
 from phyether.gui.simulation import (SimulationArgs, SimulationDisplay,
                                      SimulationFormWidget, SimulationInitArgs,
@@ -178,6 +179,7 @@ class EthernetGuiApp(QMainWindow):
         options_layout.addLayout(checkbox_layout)
 
         self.simulator_signals = QLineEdit()
+        self.simulator_signals.setValidator(IntListValidator(min=-16, max=16))
         signals_layout = QHBoxLayout()
         signals_layout.addWidget(QLabel(f"Signals separated with spaces:"))
         signals_layout.addWidget(self.simulator_signals)

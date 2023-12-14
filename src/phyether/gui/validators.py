@@ -14,7 +14,7 @@ class ListValidator(QValidator):
     def validate(self, a0: str, a1: int) -> Tuple[QValidator.State, str, int]:
         valid = QValidator.State.Acceptable
         items = a0.split()
-        if len(items) > self.max_items:
+        if self.max_items is not None and len(items) > self.max_items:
             return QValidator.State.Invalid, a0, a1
         for num in items:
             new_valid = self.validate_item(num)
@@ -28,14 +28,17 @@ class ListValidator(QValidator):
 
 
 class IntListValidator(ListValidator):
-    def __init__(self, max, *args) -> None:
-        super().__init__(*args)
+    def __init__(self, *, min = 0, max, max_items = None) -> None:
+        super().__init__(max_items=max_items)
+        self.min = min
         self.max = max
 
     def validate_item(self, item: str) -> QValidator.State:
+        if len(item) == 1 and item[0] == "-":
+            return QValidator.State.Intermediate
         try:
             val = int(item)
-            if 0 <= val <= self.max:
+            if self.min <= val <= self.max:
                 return QValidator.State.Acceptable
             else:
                 return QValidator.State.Invalid

@@ -80,8 +80,8 @@ class RSRegisterTab(QWidget, Ui_rsRegisterForm):
 
     def update_validators(self):
         field_order = self.current_arguments.gf.order
-        self.input_lineEdit.setValidator(IntListValidator(field_order - 1,
-                                                          self.rs_k_spinBox.value()))
+        self.input_lineEdit.setValidator(IntListValidator(max=field_order - 1,
+                                                          max_items=self.rs_k_spinBox.value()))
         self.fill_SpinBox.setMaximum(field_order - 1)
 
     @pyqtSlot(bool)

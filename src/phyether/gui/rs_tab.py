@@ -228,7 +228,6 @@ class EncodingWorker(QObject):
             decoded_message = decoded_message[-len(self.message_input):]
             decoded = cast(str, encode_decode_converters[self.format][1](
                 decoded_message, reed_solomon.gf.degree))
-            print(f"{decoded=}, {self.format.name=}, {reed_solomon.gf.degree=}")
             self.decoded_signal.emit(decoded, errors, fixed)
         except Exception as ex:
             print_exc()
@@ -250,7 +249,8 @@ class RSTab(QWidget, Ui_RS_Form):
         # validators for different format and max input size
         self.validators: Dict[Format, QValidator] = {
             Format.TEXT: NoValidation(self),
-            Format.DEC: IntListValidator(2**self.rs_gf_spinBox.value() - 1, self.rs_n_spinBox.value()),
+            Format.DEC: IntListValidator(
+                max = 2**self.rs_gf_spinBox.value() - 1, max_items = self.rs_n_spinBox.value()),
             Format.HEX: HexListValidator(2**self.rs_gf_spinBox.value() - 1, self.rs_n_spinBox.value()),
             Format.BIN: BinListValidator(self.rs_gf_spinBox.value(), self.rs_n_spinBox.value())
             }
