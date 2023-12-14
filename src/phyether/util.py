@@ -1,4 +1,4 @@
-from typing import Iterable, Literal, List
+from typing import Iterable, Literal, List, Optional
 from collections.abc import Mapping
 
 def list_from_string(string: str, base: int = 10):
@@ -9,17 +9,20 @@ def list_from_string(string: str, base: int = 10):
     """
     return [int(x, base) for x in string.split()]
 
-def list_to_string(list_to_convert: List[int], base: Literal[2, 10, 16] = 10):
+def list_to_string(
+        list_to_convert: List[int],
+        base: Literal[2, 10, 16] = 10,
+        fill: int = 0):
     """convert List[int]: [1,2,3,...] to string: "1 2 3 ..."
 
     :param list_to_convert: list with integers to convert
     """
     if base == 2:
-        int_to_base = lambda x: f'{x:08b}'
+        int_to_base = lambda x: f'{x:0{fill}b}'
     elif base == 10:
         int_to_base = lambda x: f'{x}'
     else:
-        int_to_base = lambda x: f'{x:02x}'
+        int_to_base = lambda x: f'{x:0{fill}x}'
 
     return ' '.join(int_to_base(x) for x in list_to_convert)
 
