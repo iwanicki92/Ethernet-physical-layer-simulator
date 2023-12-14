@@ -333,6 +333,10 @@ class RSTab(QWidget, Ui_RS_Form):
         self.rs_n_spinBox.setMaximum(2**value - 1)
         self.rs_k_spinBox.setMaximum(2**value - 2)
 
+        # clearing inputs
+        self.input_lineEdit.setText("")
+        self.errors_lineEdit.setText("")
+
     @pyqtSlot(int)
     def n_changed(self, value):
         self.validators[Format.DEC].max_items = value  # type: ignore
