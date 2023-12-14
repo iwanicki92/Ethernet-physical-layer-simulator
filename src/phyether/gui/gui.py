@@ -289,7 +289,8 @@ class EthernetGuiApp(QMainWindow):
             run = SimulationRunArgs(voltage_offset=args["voltage_offset"]) # type: ignore
             simulation_args.append(SimulationArgs(init_args=init,
                                                   run_args=run,
-                                                  input=self.simulator_signals.text()))
+                                                  input=self.simulator_signals.text(),
+                                                  index=form.name_label.text().split('.')[0]))
 
         try:
             self.tp_canvas.simulate(simulation_args)
