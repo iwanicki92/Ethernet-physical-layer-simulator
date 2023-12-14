@@ -1,0 +1,139 @@
+\section{Symulator}
+\subsection{Język programowania}
+
+Do stworzenia symulatora wybrano język programowania Python z uwagi na kilka istotnych powodów. Przede wszystkim, czytelność składni stanowi ogromne ułatwienie podczas wspólnego tworzenia oprogramowania, a prostota pozwala skupić się na istocie problemu, nie tracąc czasu na pokonywanie trudności języka.
+
+Dodatkowo wybór Pythona jest motywowany chęcią rozwijania naszych umiejętności w tym środowisku zarówno na poziomie indywidualnym, jak i zawodowym. Python cieszy się dużą popularnością jako uniwersalny język programowania, używany w różnych dziedzinach, takich jak analiza danych, sztuczna inteligencja czy aplikacje webowe. Posiadanie umiejętności programowania w Pythonie otwiera drzwi do szerszych możliwości zawodowych i dostępu do różnorodnych ciekawych projektów.
+
+Jednym z najważniejszych argumentów przemawiających za wyborem Pythona jest jego ogromna popularność. Związana z tym społeczność programistyczna tworzy rozbudowany ekosystem, oferujący dostęp do wielu gotowych rozwiązań, bibliotek i frameworków. W kontekście tworzenia symulatora istnieje wiele bibliotek w Pythonie, które mogą okazać się niezwykle przydatne. Na przykład biblioteki umożliwiające tworzenie interfejsów graficznych ułatwią korzystanie z symulatora, biblioteki do analizy i przetwarzania sygnałów pomogą modelować różne aspekty transmisji, a biblioteki do wizualizacji pozwolą na przedstawienie wyników w przystępny sposób.
+
+Inną cechą, która wyróżnia ten język programowania, jest jego przenośność. To ma dla nas duże znaczenie przy tworzeniu symulatora, który musi działać w warunkach laboratoryjnych, a więc na dowolnym popularniejszym systemie operacyjnym oraz charakteryzować się łatwością instalacji. Te wymagania Python w naszej ocenie spełnia.
+
+\subsection{Narzędzia, biblioteki i moduły}
+Jednym z celów postawionych przez promotora jest wykorzystanie gotowych rozwiązań podczas pracy nad symulatorem. W tym rozdziale zostaną przedstawione biblioteki i moduły języka Python oraz inne narzędzia, które mogą zostać wykorzystane w programie.
+
+Python oferuje wiele bibliotek, które mogą okazać się kluczowe: od interfejsu graficznego po gotowe narzędzia do symulacji. Oto przegląd kilku z nich, które brano pod uwagę przy projektowaniu rozwiązania:
+
+\begin{enumerate}
+    \item PyQt będzie biblioteką wykorzystywaną do stworzenia interfejsu graficznego użytkownika (GUI) dla symulatora. PyQt zapewnia szeroki zakres narzędzi do tworzenia rozbudowanych i przyjaznych użytkownikowi interfejsów, co jest szczególnie ważne w symulatorze dydaktycznym, gdzie interfejs musi być intuicyjny i nie stanowić niepotrzebnego wyzwania lub problemu dla biorących udział studentów
+    \item NumPy jest najpopularniejszą biblioteką Python implementującą algorytmy matematyczne. Między innymi oferuje generatory liczb pseudolosowych o różnych rozkładach, co jest wymagane do prawidłowego generowania ramek ethernetowych i błędów
+    \item  Matplotlib to popularna biblioteka do tworzenia wykresów. Może okazać się przydatna przy tworzeniu wykresów sygnałów
+\end{enumerate}
+
+
+Istnieją również inne popularne narzędzia, które mogą być użyteczne do symulacji rozwiązań warstwy fizycznej sieci Ethernet:
+\begin{enumerate}
+    \item SPICE (Simulation Program with Integrated Circuit Emphasis) jest powszechnie stosowanym narzędziem do symulacji obwodów elektronicznych. Jest to rozbudowany program, który umożliwia modelowanie i analizę zachowania obwodów złożonych, takich jak układy analogowe, cyfrowe czy mikroelektroniczne. W celu korzystania z tego narzędzia w środowisku Python dostępna jest biblioteka PySpice, będąca interfejsem umożliwiającym korzystanie ze SPICE,
+    \item MATLAB to znane i powszechnie używane narzędzie do obliczeń numerycznych, analizy danych i modelowania systemów. Posiada szeroki zakres narzędzi i funkcji przeznaczonych do tworzenia modeli matematycznych, symulacji dynamicznych itp.,
+    \item Scapy umożliwia tworzenie i przetwarzanie różnego rodzaju pakietów sieciowych, w tym ramek Ethernet, co jest kluczową funkcjonalnością symulatora.
+\end{enumerate}
+
+\subsection{Interfejs użytkownika}\label{subsection:interfejs}
+Interfejs użytkownika został wykonany przy użyciu PyQt5 oraz Qt Designer. Qt Designer to graficzne narzędzie do projektowania interfejsów użytkownika w ramach frameworka Qt. Umożliwia łatwe tworzenie i dostosowywanie wyglądu aplikacji oraz następne jego wygenerowanie jako kodu w języku Python lub C++.
+
+Interfejs składa się z kilku zakładek (Rysunek~\ref{fig:zakladki_sim_image}), które umożliwiają przełączanie między częściami aplikacji bez utraty wyników dotychczasowej pracy. Każda zakładka przeznaczona jest do innego zadania laboratoryjnego i zawiera symulacje innych rozwiązań ethernetowych.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics{images/zakladki.png}
+    \caption{Zakładki symulatora}
+    \label{fig:zakladki_sim_image}
+\end{figure}
+
+Wykresy przedstawione na Rysunku~\ref{fig:sim_png} są tworzone przy pomocy biblioteki Matplotlib. Została dodatkowo stworzona klasa, która zawiera stworzone wykresy i może być użyta jako element graficznego interfejsu użytkownika, a więc dodana do niego.
+
+\subsection{Symulacje wybranych rozwiązań}
+Aplikacja umożliwa symulowanie wybranych rozwiązań fizycznej warstwy sieci Ethernet. W każdym przypadku użytkownik ma swobodę podawania własnych parametrów wejściowych, zmieniania ich, co ma na celu lepsze zrozumienie działania tych rozwiązań.
+
+\subsubsection{Kodowanie korekcyjne Reeda-Solomona}
+Kodowanie korekcyjne Reed-Solomona to metoda kodowania korekcyjnego, mająca na celu wykrywanie i naprawianie błędów w przesyłanych danych. Stworzona została w 1960 roku przez dwóch amerykańskich matematyków: Irving S. Reed i Gustave Solomon. Od tego czasu znalazła szerokie zastosowanie w dziedzinie komunikacji, kodowaniu i obsłudze dysków.
+
+Główną ideą kodowania korekcyjnego Reed-Solomona jest dodawanie nadmiarowych danych do przesyłanych informacji, dzięki czemu w przypadku wystąpienia błędów, możliwe jest ich wykrycie i skorygowanie. Algorytm opiera się na algebraicznych właściwościach ciał skończonych, co umożliwia efektywne wykonywanie operacji matematycznych potrzebnych do kodowania i dekodowania.
+
+W symulatorze kodowanie i dekodowanie wykorzytuje metody klasy ReedSolomon udostępnionej w bibliotece galois. Jest ona rozszerzeniem, dodającym operacje na ciałach skończonych, innej popularnej biblioteki języka Python - NumPy. Jej nazwa pochodzi od nazwiska francuskiego matematyka Évariste Galois, który zasłynął badaniami ciał skończonych, które nazywane są również ciałami Galois.
+
+Zakładkę z kodowaniem Reeda-Solomona przedstawia Rysunek~\ref{fig:rs_png}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{images/rs.png}
+    \caption{Zakładka z kodowaniem Reeda-Solomona}
+    \label{fig:rs_png}
+\end{figure}
+
+\subsubsection{Rejestr przesuwający dla kodowania Reeda-Solomona}
+
+W tej zakładce (Rysunek~\ref{fig:rs_sr_png}) koder RS został zaimplementowany zgodnie z modelem
+funkcyjnym udostępnionym w standarcie Ethernet. Po przejściu
+wszystkich symboli wiadomości element `Switch' zaczyna przepuszczać symbole parzystości.
+W opcjach po lewej stronie możemy podobnie jak w poprzedniej zakładce wybrać
+parametry kodera oraz dodatkowo wybrać inne wielomiany i elementy prymitywne. Przycisk `Calculate generating polynomial' oblicza
+wielomian generujący, a `Calculate primitive poly/ement' oblicza element i wielomian prymitywny dla podanego ciała skończonego $\mathbb{F}_{2^m}$.
+Po prawej stronie mamy dane wejściowe oraz aktualny stan rejestrów $p_i$. `Fill symbol' jest symbolem, który będzie wysyłany, jeżeli zabraknie symboli na wejściu.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{images/rs-register-tab.png}
+    \caption{Zakładka z rejestrem przesuwającym kodowania Reeda-Solomona}
+    \label{fig:rs_sr_png}
+\end{figure}
+
+\subsubsection{PAM16}
+
+Zakładka PAM16 (Rysunek ~\ref{fig:pam16_sim_png}) przedstawia przesył danych podanych w formacie szesnastkowym przez użytkownika przez czteroparową skrętkę.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{images/prezentacja_pam16.png}
+    \caption{Zakładka z PAM16}
+    \label{fig:pam16_sim_png}
+\end{figure}
+
+\subsubsection{PAM}
+
+Zakładka PAM (Rysunek ~\ref{fig:pam_sim_png}) przedstawia różnice modulacji: NRZ, PAM4, PAM16. Symulacje są tworzone tak, jak w poprzedniej zakładce, na podstawie danych w formacie szesnastkowym podanych przez użytkownika.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{images/pam_tab.png}
+    \caption{Zakładka z różnymi modulacjami}
+    \label{fig:pam_sim_png}
+\end{figure}
+
+\subsubsection{Symulacja przesyłu sygnału}
+Zakładka Twisted-pair simulation (Rysunek ~\ref{fig:sim_png}) pozwala na śledzenie zmian napięć podczas przesyłu danych przez pojedynczą skrętkę. W tym przypadku wykorzystana została biblioteka PySpice. Dzięki niej można nadać wykorzystywanemu przewodowi pożądane parametry, między innymi: opór, długość i indukcyjność.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{images/sim.png}
+    \caption{Zakładka z symulacją}
+    \label{fig:sim_png}
+\end{figure}
+
+Użytkownik ma możliwość podawania tych parametrów w przewijalnym oknie, gdzie może dodawać również kolejne przewodniki. Patrz Tabela~\ref{tab:parametry}.
+
+\begin{table}[H]
+    \captionof{table}{Parametry symulacji}
+    \centering
+    \begin{tabular}{|c|c|c|c|}
+        \hline
+        \textbf{Parametr} & \textbf{Od} & \textbf{Do} & \textbf{Domyślnie} \\
+        \hline
+        Voltage offset\tablefootnote{Napięcie niezrównoważnienia - napięcie, które musi być przyłożone do wejścia, aby wyjście wynosiło 0.} [V] & <0 & 10> & 0 \\
+        Output impedance\tablefootnote{Impendacja wyjściowa - stosunek napięcia wyjściowego do natężenia prądu wyjściowego układu.} [$\Omega$] & (0 & 200> & 100 \\
+        Length\tablefootnote{Długość skrętki.} [m] & <1 & 100> & 2 \\
+        Resistence\tablefootnote{Rezystancja - wielkość charakteryzująca relację między napięciem a natężeniem prądu elektrycznego w obwodach.} [$\Omega$] & (0 & 100> & 0.19 \\
+        Inductance\tablefootnote{Indukcyjność - zdolność obwodu do wytwarzania strumienia pola magnetycznego powstającego w wyniku przepływu przez obwód prądu elektrycznego.} [nH] & (0 & 1000> & 525 \\
+        Capacitance\tablefootnote{Pojemność elektryczna – wielkość fizyczna opisująca zdolność ciała do gromadzenia ładunku elektrycznego.} [pF] & (0 & 100> & 52 \\
+        \hline
+    \end{tabular}
+    \label{tab:parametry}
+\end{table}
+
+Symulacja wykonywana jest w osobnym wątku. Dodatkowo możliwa jest jednoczesna symulacja wielu przewodów o różnych parametrach, które następnie przedstawiane są na jednym wykresie. Opcjonalnie można ukrywać lub pokazywać wybrane symulacji zaznaczając odpowiednie pola przy listach parametrów odpowiednich przewodów.
+
+\subsubsection{Uruchamianie}
+W celu uruchomienia poprawnie zainstalowanego symulatora wystarczy wpisać w terminalu: phyether. Dodatkowo możliwe jest podanie dwóch parametrów określających wielkość okna: \\ phyether <szerokość> <wysokość>.
+
+\subsubsection{Dokumentacja oprogramowania}
+Uznano za wystarczającą dokumentację strukturę projektu, wykorzystane nazwy i wyczerpujące komentarze. Projekt ma prostą strukturę oraz jest łatwo rozszerzalny, ponieważ każda symulacja stanowi odrębny moduł. Dodatkowe informacje dotyczące prawidłowej pracy z kodem programu zawarte są w pliku README.md dołączonym do kodu źródłowego.

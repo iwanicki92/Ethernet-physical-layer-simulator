@@ -1,31 +1,48 @@
-\section{Środowisko programistyczne}
-\subsection{Język programowania}
+\section{Wstęp}
+\subsection{Wprowadzenie}
 
-Do stworzenia symulatora wybrano język programowania Python z uwagi na kilka istotnych powodów. Przede wszystkim, czytelność składni stanowi ogromne ułatwienie podczas wspólnego tworzenia oprogramowania, a prostota pozwala skupić się na istocie problemu, nie tracąc czasu na pokonywanie trudności języka.
+Celem projektu jest opracowanie programu umożliwiającego przeprowadzenie symulacji wybranych rozwiązań warstwy fizycznej Ethernet.
+Przyjęty, wraz z promotorem, zakres prac zakłada realizację następujących elementów:
+\begin{itemize}
+    \item symulację sygnału w skrętce z możliwością modyfikacji parametrów wejściowych oraz kanału,
+    \item symulację wybranch modulacji PAM,
+    \item symulację kodowania korekcyjnego Reeda-Solomona.
+\end{itemize}
 
-Dodatkowo, wybór Pythona jest motywowany chęcią rozwijania naszych umiejętności w tym środowisku, zarówno na poziomie indywidualnym, jak i zawodowym. Python cieszy się dużą popularnością jako uniwersalny język programowania, używany w różnych dziedzinach, takich jak analiza danych, sztuczna inteligencja czy aplikacje webowe. Posiadanie umiejętności programowania w Pythonie otwiera drzwi do szerszych możliwości zawodowych i dostępu do różnorodnych ciekawych projektów.
+Ponadto w ramach pracy inżynierskiej dyplomanci przygotują scenariusz zajęć laboratoryjnych wykorzystujących opracowany symulator, jak
+również przeprowadzą te zajęcia z grupą studentów. Scenariusz zawrze takie elementy, jak wstęp teoretyczny do omawianych zagadnień,
+zadania na wejściówkę, zadania do realizacji na laboratoriach oraz opracowanie wymienionych zadań.
 
-Jednym z najważniejszych argumentów przemawiających za wyborem Pythona jest jego ogromna popularność. Związana z tym społeczność programistyczna tworzy rozbudowany ekosystem, oferujący dostęp do wielu gotowych rozwiązań, bibliotek i frameworków. W kontekście tworzenia symulatora, istnieje wiele bibliotek w Pythonie, które mogą okazać się niezwykle przydatne. Na przykład, biblioteki umożliwiające tworzenie interfejsów graficznych ułatwią korzystanie z symulatora, biblioteki do analizy i przetwarzania sygnałów pomogą modelować różne aspekty transmisji, a biblioteki do wizualizacji pozwolą na przedstawienie wyników w przystępny sposób.
+Podczas przygotowywania dyplomu autorzy zapoznają się ze standardem IEEE 802.3, specyfiką oraz problemami występującymi w warstwie fizycznej
+w sieciach Ethernet. Dzięki realizacji tych zadań dyplomanci poszerzą swoją wiedzę w wymienionych obszarach oraz podzielą się wynikami
+swojej pracy ze studentami.
 
-Inną cechą, która wyróżnia ten język programowania, jest jego przenośność. To ma dla nas duże znaczenie przy tworzeniu symulatora, który musi działać w warunkach laboratoryjnych, a więc na dowolnym popularniejszym systemie operacyjnym oraz charakteryzować się łatwością instalacji. Te wymagania Python w naszej ocenie spełnia.
+\subsection{Autorstwo fragmentów pracy}
 
-\subsection{Narzędzia, biblioteki i moduły}
-Jednym z celów postawionych przez promotora jest wykorzystanie gotowych rozwiązań podczas pracy nad symulatorem. W tym rozdziale zostaną przedstawione biblioteki i moduły języka Python oraz inne narzędzia, które mogą zostać wykorzystane w programie.
-
-Python oferuje wiele bibliotek, które mogą okazać się kluczowe: od interfejsu graficznego po gotowe narzędzia do symulacji. Oto przegląd kilku z nich, na które się zdecydowano:
-
-\begin{enumerate}
-    \item PyQt będzie biblioteką wykorzystywaną do stworzenia interfejsu graficznego użytkownika (GUI) dla symulatora. PyQt zapewnia szeroki zakres narzędzi do tworzenia rozbudowanych i przyjaznych użytkownikowi interfejsów, co jest szczególnie ważne w symulatorze dydaktycznym, gdzie interfejs musi być intuicyjny i nie stanowić niepotrzebnego wyzwania lub problemu dla biorących udział studentów
-    \item NumPy jest najpopularniejszą biblioteką Python implementującą algorytmy matematyczne. Między innymi oferuje generatory liczb pseudolosowych o różnych rozkładach, co jest wymagane do prawidłowego generowania ramek ethernetowych i błędów
-    \item Scapy umożliwia tworzenie i przetwarzanie różnego rodzaju pakietów sieciowych, w tym ramek Ethernet, co jest kluczową funkcjonalnością symulatora
-    \item  Matplotlib to popularna biblioteka do tworzenia wykresów. Może okazać się przydatna przy tworzeniu wykresów sygnałów
-\end{enumerate}
-
-
-Istnieją również inne popularne narzędzia, które mogą być użyteczne do symulacji rozwiązań warstwy fizycznej sieci Ethernet:
-\begin{enumerate}
-    \item SPICE (Simulation Program with Integrated Circuit Emphasis) jest powszechnie stosowanym narzędziem do symulacji obwodów elektronicznych. Jest to rozbudowany program, który umożliwia modelowanie i analizę zachowania obwodów złożonych, takich jak układy analogowe, cyfrowe czy mikroelektroniczne
-    \item MATLAB to znane i powszechnie używane narzędzie do obliczeń numerycznych, analizy danych i modelowania systemów. Posiada szeroki zakres narzędzi i funkcji przeznaczonych do tworzenia modeli matematycznych, symulacji dynamicznych itp
-\end{enumerate}
-
-Jednak zdecydowano się na stworzenie własnego modułu do symulacji warstwy fizycznej sieci Ethernet z wykorzystaniem wyżej wymienionych bibliotek.
+\begin{itemize}
+    \item Michał Iwanicki
+    \begin{itemize}
+        \item Kodowanie Reeda-Solomona --- rozdział 4, wstęp teoretyczny dla studentów
+        wraz z pytaniami na wejściówkę i zadaniami, implementacja w kodzie,
+        implementacja interfejsu graficznego
+        \item Symulacja sygnału --- implementacja symulacji w kodzie, częściowe
+        autorstwo interfejsu.
+    \end{itemize}
+    \item Marcin Garnowski
+    \begin{itemize}
+        \item Symulator --- rozdział 7,
+        \item Zajęcia dydaktyczne --- sprawozdanie --- rozdział 8, częściowe autorstwo,
+        \item Opis symulatora w instrukcji,
+        \item Pytanie na wejściówkę dotyczące symulatora,
+        \item Dodatki C, D, E,
+        \item Częściowe autorstwo interfejsu. \\
+    \end{itemize}
+    \item Mateusz Bauer
+    \begin{itemize}
+        \item Zajęcia dydaktyczne --- sprawozdanie --- rozdział 8, częściowe autorstwo
+        \item 40GBASE-T, rozdział 6
+        \item Modulacja, rozdział 5, wstęp teoretyczny do zajęć, pytania na wejściówkę,
+        zadania laboratoryjne, implementacja interfejsu graficznego oraz implementacja
+        modulacji w kodzie
+    \end{itemize}
+\end{itemize}

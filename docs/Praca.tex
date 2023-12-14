@@ -2,27 +2,67 @@
 \usepackage[a4paper, margin=3cm]{geometry}
 \usepackage[T1]{fontenc}
 \usepackage{polski}
+\usepackage{cmap}
 \usepackage{babel}
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{indentfirst}
 \usepackage{tabularx, caption, booktabs, array}
 \usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{float}
+\usepackage{pdfpages}
+\usepackage{newclude}
+\usepackage{tablefootnote}
 \graphicspath{ {./images/} }
 \linespread{1.5}
+\setcounter{secnumdepth}{4}
+\titleformat{\paragraph}
+{\normalfont\normalsize\bfseries}{\theparagraph}{1em}{}
+\titlespacing*{\paragraph}
+{0pt}{3.25ex plus 1ex minus .2ex}{1.5ex plus .2ex}
 \begin{document}
+\newcommand{\modulo}[1]{\mathbb{Z} / #1 \mathbb{Z}}
 
-\include{Title}
+%\include{Title}
+\includepdf[pages={1}]{StronaTytulowa.pdf}
 
 \tableofcontents
+
+\include{Streszczenie_PL}
+
+\include{Abstract_ENG}
 
 \include{Intro}
 
 \include{ReedSolomon}
 
+\include{Modulacja}
+
 \include{40GBASE-T}
+
+\include{Symulator}
+
+\include{Laboratorium-sprawozdanie}
+
+\include{Podsumowanie}
 
 \clearpage
 \bibliographystyle{unsrt}
 \bibliography{references}
+
+\include{Laboratorium}
+\include{Laboratorium-RS}
+
+\include{Wejsciowka}
+
+\include{Zadania}
+
+\input{Kod}
+
+\input{Instalacja}
+
+\input{Rozwiazania}
+
 \end{document}
