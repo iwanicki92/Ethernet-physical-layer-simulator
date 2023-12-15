@@ -89,10 +89,12 @@ class Converters:
         line_edit.setText(' '.join([f'{dec:0{max_bits}b}' for dec in line_bytes]))
 
 encode_decode_converters = {
-    Format.TEXT: (lambda x: x, lambda x: x),
-    Format.DEC: (lambda x: list_from_string(x), lambda x: list_to_string(x)),
-    Format.HEX: (lambda x: list_from_string(x, 16), lambda x: list_to_string(x, 16)),
-    Format.BIN: (lambda x: list_from_string(x, 2), lambda x: list_to_string(x, 2)),
+    Format.TEXT: (lambda x, _ = None: x, lambda x, _ = None: x),
+    Format.DEC: (lambda x, _ = None: list_from_string(x), lambda x, _ = None: list_to_string(x)),
+    Format.HEX: (lambda x, _ = None: list_from_string(x, 16), lambda x, bits = None: list_to_string(x, 16, math.ceil(bits/4))),
+    Format.BIN: (lambda x, _ = None,: list_from_string(x, 2),
+                 lambda x, max_bits = 0: ' '.join(
+                     [binary.rjust(max_bits, "0") for binary in list_to_string(x, 2).split()])),
 }
 
 qline_converters: Dict[Tuple[Format, Format], List[Conversion]] = {
@@ -183,9 +185,9 @@ class EncodingWorker(QObject):
                     ]
                 encoded_err = iterable_to_string(tmp_encoded)
             if not self.decode:
-                self.encoded_signal.emit(encode_decode_converters[self.format][1](encoded))
+                self.encoded_signal.emit(encode_decode_converters[self.format][1](encoded, reed_solomon.gf.degree))
             self.encoded_with_errors_signal.emit(
-                encode_decode_converters[self.format][1](encoded_err))
+                encode_decode_converters[self.format][1](encoded_err, reed_solomon.gf.degree))
             if self.detect:
                 self._detect(encoded_err, reed_solomon)
             else:
@@ -224,7 +226,8 @@ class EncodingWorker(QObject):
                                                                  not self.rs_args.bch,
                                                                  self.rs_args.force)
             decoded_message = decoded_message[-len(self.message_input):]
-            decoded = cast(str, encode_decode_converters[self.format][1](decoded_message))
+            decoded = cast(str, encode_decode_converters[self.format][1](
+                decoded_message, reed_solomon.gf.degree))
             self.decoded_signal.emit(decoded, errors, fixed)
         except Exception as ex:
             print_exc()
@@ -246,7 +249,8 @@ class RSTab(QWidget, Ui_RS_Form):
         # validators for different format and max input size
         self.validators: Dict[Format, QValidator] = {
             Format.TEXT: NoValidation(self),
-            Format.DEC: IntListValidator(2**self.rs_gf_spinBox.value() - 1, self.rs_n_spinBox.value()),
+            Format.DEC: IntListValidator(
+                max = 2**self.rs_gf_spinBox.value() - 1, max_items = self.rs_n_spinBox.value()),
             Format.HEX: HexListValidator(2**self.rs_gf_spinBox.value() - 1, self.rs_n_spinBox.value()),
             Format.BIN: BinListValidator(self.rs_gf_spinBox.value(), self.rs_n_spinBox.value())
             }
@@ -290,7 +294,13 @@ class RSTab(QWidget, Ui_RS_Form):
         self.input_lineEdit.setValidator(validator)
         self.errors_lineEdit.setValidator(validator)
         self.encoded_lineEdit.setValidator(validator)
+        self.encoded_err_lineEdit.setValidator(validator)
         self.decoded_lineEdit.setValidator(validator)
+        self.input_lineEdit.setText(validator.fixup(self.input_lineEdit.text()))
+        self.errors_lineEdit.setText(validator.fixup(self.errors_lineEdit.text()))
+        self.encoded_lineEdit.setText(validator.fixup(self.encoded_lineEdit.text()))
+        self.encoded_err_lineEdit.setText(validator.fixup(self.encoded_err_lineEdit.text()))
+        self.decoded_lineEdit.setText(validator.fixup(self.decoded_lineEdit.text()))
 
     def get_format(self) -> Format:
         if self.text_radioButton.isChecked():
@@ -336,6 +346,7 @@ class RSTab(QWidget, Ui_RS_Form):
         # clearing inputs
         self.input_lineEdit.setText("")
         self.errors_lineEdit.setText("")
+        self.update_validators()
 
     @pyqtSlot(int)
     def n_changed(self, value):
