@@ -222,7 +222,7 @@ class EthernetGuiApp(QMainWindow):
             self.pam16_simulate_button.setDisabled(False)
             return
 
-        for output in twisted_pairs_output:
+        for i, output in enumerate(twisted_pairs_output):
             print("Simulating...")
             init = SimulationInitArgs(dac=DAC(1, 2,
                                               high_symbol=encoder.high_symbol,
@@ -232,7 +232,8 @@ class EthernetGuiApp(QMainWindow):
             simulation_args.append(
                 SimulationArgs(init_args=init,
                                run_args=SimulationRunArgs(presimulation_ratio=0),
-                               input=output))
+                               input=output,
+                               index=str(i)))
 
         try:
             self.pam16_canvas.simulate(simulation_args)
@@ -244,7 +245,7 @@ class EthernetGuiApp(QMainWindow):
         self.pam_simulate_button.setDisabled(True)
         simulation_args: list[SimulationArgs] = []
 
-        for encoder in self.pam_versions:
+        for i, encoder in enumerate(self.pam_versions):
             try:
                 input = encoder.hex_to_signals(self.pam_simulator_data.text())
             except Exception as ex:
@@ -261,7 +262,8 @@ class EthernetGuiApp(QMainWindow):
             simulation_args.append(
                 SimulationArgs(init_args=init,
                                run_args=SimulationRunArgs(presimulation_ratio=0),
-                               input=input))
+                               input=input,
+                               index=str(i)))
 
         try:
             self.pam_canvas.simulate(simulation_args)
