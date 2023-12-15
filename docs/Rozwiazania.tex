@@ -54,6 +54,14 @@
     Odpowiedź 2: Kod BCH jest kodem systematycznym dlatego pierwsze $k$ symboli
     także będzie miało zera. Aby obliczyć pozostałe $n-k$ symboli musimy mnożyć
     i dodawać przez 0 w związku z czym otrzymamy same zera.
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=\textwidth]{images/rozwiazania_1.png}
+        \caption{Widok narzędzia Reed-Solomon podczas wykonywania zadania 1.}
+        \label{fig:rozwiazania_1}
+    \end{figure}
+    
     \item Zakładka: Reed-Solomon, ustawienia programu: $n = 7$, $k = 3$, $GF = 2^3$,
     kod systematyczny BCH, tryb dziesiętny, wiadomość wejściowa `1 2 3'.
     Sprawdź dla błędów `3', `3 2', `3 2 1' oraz `3 2 1 4' czy dekoder jest w stanie
@@ -80,6 +88,14 @@
             \hline
         \end{tabular}
     \end{table}
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=\textwidth]{images/rozwiazania_2.png}
+        \caption{Widok narzędzia Reed-Solomon podczas wykonywania zadania 2.}
+        \label{fig:rozwiazania_2}
+    \end{figure}
+    
     \item Zakładka: Reed-Solomon Shift Register, ustawienia programu:
     $n = 3$, $k = 2$, $GF = 2^2$. Oblicz wielomian prymitywny i generator naciskając
     przycisk `Calculate primitive poly/element'.
@@ -99,11 +115,29 @@
         \end{aligned}
     \end{equation*}
 
+    
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=\textwidth]{images/rozwiazania_3.png}
+        \caption{Widok narzędzia Reed-Solomon Shift Register podczas wykonywania zadania 3.}
+        \label{fig:rozwiazania_3}
+    \end{figure}
+    
     \item Zakładka: Reed-Solomon, ustawienia programu: $n = 15$, $k=7$, $GF = 2^4$,
     kod systematyczny BCH.
     Zakoduj dowolną niezerową $k$-symbolową wiadomość. Sprawdź czy przesunięcia słowa kodowego
     (z użyciem strzałek przy słowie `encoded') także będą słowem kodowym. \\ \\
     Odpowiedź: Dla wiadomości `1 2 3 4 5 6 7' wszystkie przesunięcia były poprawnie i bezbłędnie dekodowane.
+    
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=\textwidth]{images/rozwiazania_4.png}
+        \caption{Widok narzędzia Reed-Solomon podczas wykonywania zadania 4.}
+        \label{fig:rozwiazania_4}
+    \end{figure}
+    
     \item Zakładka: PAM, Zamień numer swojego indeksu na postać szesnastkową i wykorzystaj go jako liczbę do przesłania. Przeprowadź symulację. Zanotuj w sprawozdaniu
     przybliżony czas transmisji oraz liczbę poziomów natężenia. Opisz wnioski, które nasuwają Ci się po wykonanym ćwiczeniu. \\ \\
     Odpowiedź:
@@ -113,14 +147,43 @@
         \item PAM16: 17ns, cztery poziomy (przesyłany numer indeksu jest na tyle mały, że nie wszystkie poziomy zostaną wykorzystane)
     \end{itemize}
     Stosowanie modulacji PAM wyższych poziomów pozwala na lepsze upakowanie danych, ale różnica pomiędzy wysyłanymi symbolami maleje.
+    
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=\textwidth]{images/rozwiazania_5.png}
+        \caption{Widok narzędzia PAM podczas wykonywania zadania 5.}
+        \label{fig:rozwiazania_5}
+    \end{figure}
+    
     \item Zakładka: PAM, Prześlij ciąg składający się z samych jedynek (fffffff \dots) lub zer (000000 \dots). Popatrz na wynik symulacji. Jak nazywa się zaobserwowane zjawisko? Czy znasz sposoby,
     które zapobiegają jego wystąpieniu? Zanotuj w sprawozdaniu. \\ \\
     Odpowiedź: Na symulacji widać stałą składową. Można jej zapobiegać używając np. kodowania liniowego 64b/66b albo skramblera.
+    
+    
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=\textwidth]{images/rozwiazania_6.png}
+        \caption{Widok narzędzia PAM podczas wykonywania zadania 6.}
+        \label{fig:rozwiazania_6}
+    \end{figure}
+    
     \item Zakładka: PAM16, Zastosowanie DSQ128 nie eliminuje możliwości wystąpienia stałej składowej. Znajdź ciąg, który
     temu dowodzi i zanotuj go w sprawozdaniu. \\ \\
     Odpowiedź: Na przykład: 0x000000 \dots, 0x111111 \dots (0b000100010001 \dots),\\0x22222 \dots (0b001000100010 \dots),
     0x444444 \dots (0b010001000100 \dots).
-\end{enumerate}
+
+    
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=\textwidth]{images/rozwiazania_7.png}
+        \caption{Widok narzędzia PAM podczas wykonywania zadania 7.}
+        \label{fig:rozwiazania_7}
+    \end{figure}
+    
+    \end{enumerate}
 
 \subsection*{Wnioski}
 
