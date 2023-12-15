@@ -121,6 +121,19 @@ także dla światłowodów (przykładowo 200GBASE-DR4).
     \label{fig:diagram_oka_pam4}
 \end{figure}
 
+\subsubsection{PAM5}
+PAM5 --- pięciopoziomowa modulacja PAM --- wykorzystuje wartości $-2$, $-1$, $0$, $1$, $2$. PAM5 pojawiło się w 1000BASE-T, gdzie dane przesyłane są na czterech parach
+skrętki jednocześnie. W technologii 1000BASE-T, do mapowania bitów na symbole wykorzystywana jest technika kodowania 8B1Q4, która zamienia
+8 bitów na cztery pięciowartościowe symbole (4D-PAM4). Zauważyć można, że do takiej konwersji wystarczyłyby czterowartościowe symbole, jednakże
+jeden nadmiarowy bit pomaga przesyłać słowa kontrolne.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=\textwidth]{pam5_eye_diagram.png}
+    \caption{Diagram oka PAM5}
+    \label{fig:diagram_oka_pam5}
+\end{figure}
+
 \subsubsection{PAM16}
 
 PAM16 --- szesnastopoziomowa modulacja PAM --- analogicznie do poprzednich przypadków wykorzystuje wartości $15$, $13$, $11$, \dots , $1$, $-1$, $-3$, \dots , $-13$, $-15$. Szesnaście poziomów daje 4 bity na symbol.
