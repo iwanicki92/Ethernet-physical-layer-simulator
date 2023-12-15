@@ -1,25 +1,25 @@
-\section{40GBASE-T}
+\section{25GBASE-T, 40GBASE-T}
 
 \subsection{Wprowadzenie}
-40GBASE-T jest technologią transmitowania ramek Ethernetowych z prędkością 40 gigabitów na sekundę, wykorzystując skrętkę jako medium. Technologia została zdefiniowana po raz pierwszy jako część standardu IEEE 802.3ba w 2010 roku.
+25GBASE-T oraz 40GBASE-T to technologie transmisji ramek Ethernetowych z prędkością odpowiednio 25 i 40 gigabitów na sekundę, wykorzystując skrętkę jako medium. Technologie zostały zdefiniowane po raz pierwszy jako część standardu IEEE 802.3ba w 2010 roku.
 
-40GBASE-T zapewnia dwukierunkową komunikację przez cztery przewody skrętki. Każdy przewód transmituje ¼ zgromadzonych danych.
+25GBASE-T i 40GBASE-T zapewniają dwukierunkową komunikację przez cztery przewody skrętki. Każdy przewód transmituje ¼ zgromadzonych danych.
 
-\subsection{Położenie 40GBASE-T w modelu OSI}
+\subsection{Położenie 25GBASE-T i 40GBASE-T w modelu OSI}
 
 \begin{figure}[ht]
     \centering
     \includegraphics[width=\textwidth]{25-40-gbase-osi.png}
-    \caption{Położenie 40GBASE-T w modelu OSI}
+    \caption{Położenie 25GBASE-T i 40GBASE-T w modelu OSI}
     \label{fig:40gbase-t_osi}
 \end{figure}
 
 \subsection{Media-Independent Interface}
 MII czyli Media-Independent Interface to interfejs pomiędzy warstwą MAC oraz PHY. Powstał po to, aby warstwy MAC oraz PHY były niezależne od siebie - pozwala na pracę kontrolera MAC z warstwą PHY bez względu na to, jakie medium jest w użyciu.
-W technologii 40GBASE-T MII określany jest jako XLGMII. Składa się z dwóch wektorów 64-bitowych TXD i RXD - odpowiedzialne za przesył danych w obu kierunkach, dwóch wektorów 8-bitowych TXC i RXC - wykorzystywane do przesyłu sygnałów kontrolnych oraz TX\_CLK i RX\_CLK - którymi podawany jest sygnał zegara. XLGMII pozwala na przesył danych na poziomie 40 Gb/s, w obu kierunkach.
+W technologii 25GBASE-T MII określany jest jako 25GMII, natomiast w 40GBASE-T --- XLGMII. Składa się z dwóch wektorów 64-bitowych TXD i RXD - odpowiedzialne za przesył danych w obu kierunkach, dwóch wektorów 8-bitowych TXC i RXC - wykorzystywane do przesyłu sygnałów kontrolnych oraz TX\_CLK i RX\_CLK - którymi podawany jest sygnał zegara. XLGMII pozwala na przesył danych na poziomie 40 Gb/s, a 25GMII --- 25 Gb/s.
 
 \subsection{Warstwa PCS}\label{subsection:pcs}
-40GBASE-T PCS (Physical Coding Sublayer) jest warstwą odpowiedzialną za kodowanie i dekodowanie oraz skramblowanie i deskramblowanie.
+25GBASE-T / 40GBASE-T PCS (Physical Coding Sublayer) jest warstwą odpowiedzialną za kodowanie i dekodowanie oraz skramblowanie i deskramblowanie.
 W jej skład wchodzą m.in.:
 \begin{enumerate}
     \item skrambler, deskrambler --- urządzenie, które modyfikuje (miesza, zamienia w bardziej losowy ciąg) przesyłane dane,
@@ -32,28 +32,19 @@ W jej skład wchodzą m.in.:
 
 Dane trafiają z warstwy MAC do PCS przez XLGMII i gromadzone są w 64-bitowe bloki. Po zebraniu 50 takich bloków, pierwsze 48 z nich transkodowane są w 512-bitowe bloki, a pozostałe są do nich dołączane. Dane są następnie skramblowane i dołączany jest do nich bit pomocniczy (auxiliary bit), po czym dzielone są na dwa zbiory --- pierwszy z nich trafia do kodera Reed-Solomona, a drugi przetwarzany jest przez koder LDPC. Otrzymuje się w ten sposób $512*3$ bitów zakodowanych przez RS-FEC oraz $512*4$ bitów --- LDPC, które łączone są w 7-bitowe grupy  ($u_0$, $u_1$, $u_2$), ($c_0$, $c_1$, $c_2$, $c_3$).
 
-\subsection{Modulacja w 40GBASE-T}
+\subsection{Modulacja w 25GBASE-T i 40GBASE-T}
 
-Technologia 40GBASE-T wykorzystuje 16-poziomową modulację PAM - mając 16 różnych poziomów amplitudy możemy zakodować 16 różnych wartości co daje nam 4 bity danych.
+Technologie 25GBASE-T oraz 40GBASE-T wykorzystuje 16-poziomową modulację PAM - mając 16 różnych poziomów amplitudy możemy zakodować 16 różnych wartości co daje nam 4 bity danych.
 Oprócz bitów niosących dane, przesyła się również bity pomocnicze (auxiliary bits), przez co w rzeczywistości jeden symbol PAM16 koduje 3,125 bitów informacji.
-W ciągu każdej sekundy przesyłanych jest 3200 milionów symboli co przekłada się na prędkość transmisji równą 10 Gb/s (3,125 bit/symbol * 3200 MBd) na każdej z czterech par skrętki, co sumarycznie daje transmisję 40 Gb/s.
+
+W przypadku 25GBASE-T, w ciągu każdej sekundy przesyłanych jest 2000 milionów symboli co przekłada się na szybkość transmisji
+równą 6,25 Gb/s (3,125 bit/symbol $*$ 2000 MBd) na każdej z czterech par skrętki, co sumarycznie daje transmisję 25 Gb/s.
+
+Analogicznie dla 40GBASE-T jest to 3200 milionów symboli na sekundę co daje szybkość transmisji 10 Gb/s (3,125 bit/symbol $*$ 3200 MBd)
+na każdej z czterech par skrętki --- łącznie 40 Gb/s
 
 \subsubsection{Double Square Quadrature Amplitude Modulation}
-Jak opisano w \ref{subsection:pcs}, warstwa PCS koduje otrzymane dane w 7-bitowe grupy. W technologii 40GBASE-T symbole nadawane przez warstwę PMA wybierane są z konstelacji DSQ128 (Double Square Quadrature Amplitude Modulation).
-
-\begin{figure}
-    \centering
-    \includegraphics[scale=0.4]{64QAM-constellation-diagram.png}
-    \caption{Diagram konstelacji 64QAM}
-    \label{fig:40gbase-t-64QAM}
-\end{figure}
-
-\begin{figure}
-    \centering
-    \includegraphics[width=\textwidth]{dsq128.png}
-    \caption{Diagram konstelacji DSQ128}
-    \label{fig:40gbase-t-dsq128}
-\end{figure}
+Jak opisano w \ref{subsection:pcs}, warstwa PCS koduje otrzymane dane w 7-bitowe grupy. W technologiach 25GBASE-T oraz 40GBASE-T symbole nadawane przez warstwę PMA wybierane są z konstelacji DSQ128 (Double Square Quadrature Amplitude Modulation).
 
 Aby wyjaśnić, czym jest DSQ128, pierw spójrzmy na modulację 64QAM. 64QAM (Quadrature Amplitude Modulation) to modulacja, która jest połączeniem modulacji amplitudy oraz fazy.
 Bity zamieniane są na symbole według diagramu konstelacji rys. \ref{fig:40gbase-t-64QAM}.
@@ -62,6 +53,23 @@ Diagram podzielony jest na 4 sekcje, każda z nich zawiera 16 maksymalnie oddzie
 
 DSQ128 jest złożeniem dwóch modulacji 64QAM i składa się z ośmiu sekcji, a każda z nich zawiera 16 punktów (rys.\ref{fig:40gbase-t-dsq128}). Mając 7-bitową grupe ($u_0$, $u_1$, $u_2$), ($c_0$, $c_1$, $c_2$, $c_3$), pierwsze 3 bity definiują lewy dolny punkt w jednym z 8 regionów, natomiast na podstawie 4 kolejnych bitów wybierany jest jeden z 16 punktów w danym regionie.
 Proces ten opisany jest szczegółowo w kolejnej sekcji.
+
+
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.4]{64QAM-constellation-diagram.png}
+    \caption{Diagram konstelacji 64QAM}
+    \label{fig:40gbase-t-64QAM}
+\end{figure}
+
+\clearpage
+
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.4]{dsq128.png}
+    \caption{Diagram konstelacji DSQ128}
+    \label{fig:40gbase-t-dsq128}
+\end{figure}
 
 \subsubsection{Mapowanie ramki LDPC na DSQ128}\label{mapowanie}
 Zamianę 7-bitów ($u_0$, $u_1$, $u_2$), ($c_0$, $c_1$, $c_2$, $c_3$) pokazuje poniższy algorytm:
