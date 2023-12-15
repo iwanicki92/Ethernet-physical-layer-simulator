@@ -52,7 +52,7 @@ Interfejs składa się z kilku zakładek stworzonych, które umożliwiają prze�
     \end{itemize}
     \item PAM16:
     \begin{itemize}
-        \item PAM16 w 40GBASE-T, zadanie 1,
+        \item PAM16 w 25GBASE-T / 40GBASE-T, zadanie 1,
     \end{itemize}
     \item PAM:
     \begin{itemize}
@@ -132,7 +132,7 @@ następnie wysyłane są na medium. Wynik symulacji przedstawiony jest w dolnej 
     które zapobiegają jego wystąpieniu? Zanotuj w sprawozdaniu.
 \end{enumerate}
 
-\subsection{Ćwiczenie dydaktyczne --- PAM16 w 40GBASE-T}
+\subsection{Ćwiczenie dydaktyczne --- PAM16 w 25GBASE-T i 40GBASE-T}
 \subsubsection{Wstęp teoretyczny}
 Ciekawą kwestią w przypadku modulacji PAM jest także zamiana bitów na konkretne symbole alfabetu modulacji.
 Możemy sobie wyobrazić, że w najprostszym przypadku wartość 0 mapowana jest na najmniejszy symbol, natomiast 1111
@@ -145,7 +145,7 @@ połączeniem modulacji amplitudy oraz fazy (dane kodowane są poprzez zmianę a
 diagramu konstelacji 64QAM --- rys.~\ref{fig:lab-64QAM}.
 
 Diagram podzielony jest na cztery części. Oś X odnosi się do fazy, a oś Y --- amplitudy. Każdy symbol, który chcemy nadać,
-jest krotką (x, y), która oznacza punkt na diagramie dla danej wartości. Jak można zauwarzyć, sąsiednie punkty różnią się
+jest krotką (x, y), która oznacza punkt na diagramie dla danej wartości. Jak można zauważyć, sąsiednie punkty różnią się
 między sobą jednym bitem --- dzięki czemu, gdy nastąpi przekłamanie, najprawdopodobniej tylko jeden bit będzie zły.
 
 W standardach 25GBASE-T i 40GBASE-T symbole dobierane są na podstawie diagramu konstelacji DSQ128, który jest złożeniem dwóch
@@ -225,7 +225,7 @@ Symbole są następnie nadawane na kolejnych parach skrętki:
     \label{fig:zakladka_pam16}
 \end{figure}
 
-Program phyether, w zakładce `PAM16`, posiada symulator modulacji PAM16 standardu 40GBASE-T, który ilustruje zachowanie
+Program phyether, w zakładce `PAM16`, posiada symulator modulacji PAM16 standardu 25GBASE-T / 40GBASE-T, który ilustruje zachowanie
 sygnału w skrętce podczas transmisji na podstawie wprowadzonych danych.
 
 Narzędzie pozwala na:
