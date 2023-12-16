@@ -24,6 +24,8 @@ def init():
 
         if (dll_path := root_path / dll_name).exists():
             NgSpiceShared.LIBRARY_PATH = str(dll_path)
+        elif (dll_path := root_path / ".." / dll_name).exists():
+            NgSpiceShared.LIBRARY_PATH = str(dll_path)
         elif (dll_path := root_path / "../../lib" / dll_name).exists():
             NgSpiceShared.LIBRARY_PATH = str(dll_path)
         else:

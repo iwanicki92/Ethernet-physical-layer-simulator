@@ -236,50 +236,54 @@ class EncodingWorker(QObject):
 
 class RSTab(QWidget, Ui_RS_Form):
     def __init__(self) -> None:
-        super().__init__()
-        self.setupUi(self)
-        self.current_format = Format.TEXT
+        try:
+            super().__init__()
+            self.setupUi(self)
+            self.current_format = Format.TEXT
 
-        self.rs_param_mapping: Dict[str, ReedSolomonParams] = {
-            "RS(192,186,256) - 25/40GBASE-T": ReedSolomonParams(192, 186, 8),
-            "RS(360,326,1024) - 2.5/5/10GBASE-T1": ReedSolomonParams(360, 326, 10),
-        }
-        self.standardsComboBox.addItems(self.rs_param_mapping.keys())
-
-        # validators for different format and max input size
-        self.validators: Dict[Format, QValidator] = {
-            Format.TEXT: NoValidation(self),
-            Format.DEC: IntListValidator(
-                max = 2**self.rs_gf_spinBox.value() - 1, max_items = self.rs_n_spinBox.value()),
-            Format.HEX: HexListValidator(2**self.rs_gf_spinBox.value() - 1, self.rs_n_spinBox.value()),
-            Format.BIN: BinListValidator(self.rs_gf_spinBox.value(), self.rs_n_spinBox.value())
+            self.rs_param_mapping: Dict[str, ReedSolomonParams] = {
+                "RS(192,186,256) - 25/40GBASE-T": ReedSolomonParams(192, 186, 8),
+                "RS(360,326,1024) - 2.5/5/10GBASE-T1": ReedSolomonParams(360, 326, 10),
             }
+            self.standardsComboBox.addItems(self.rs_param_mapping.keys())
 
-        self.update_validators()
+            # validators for different format and max input size
+            self.validators: Dict[Format, QValidator] = {
+                Format.TEXT: NoValidation(self),
+                Format.DEC: IntListValidator(
+                    max = 2**self.rs_gf_spinBox.value() - 1, max_items = self.rs_n_spinBox.value()),
+                Format.HEX: HexListValidator(2**self.rs_gf_spinBox.value() - 1, self.rs_n_spinBox.value()),
+                Format.BIN: BinListValidator(self.rs_gf_spinBox.value(), self.rs_n_spinBox.value())
+                }
 
-        bch = self.bch_checkBox.isChecked()
-        self.encoding_worker = EncodingWorker(
-            rs_args=ReedSolomonArgs(
-                n=self.rs_n_spinBox.value(),
-                k=self.rs_k_spinBox.value(),
-                gf=2**self.rs_gf_spinBox.value(),
-                systematic=self.systematic_checkBox.isChecked(),
-                bch=bch,
-                force=self.force_checkBox.isChecked() if not bch else False
-                ),
-            format=self.get_format(),
-            message_input=self.input_lineEdit.text(),
-            error_input=self.errors_lineEdit.text())
+            self.update_validators()
 
-        self.worker_thread = QThread(self)
-        self.encoding_worker.encoded_signal.connect(self._encoded)
-        self.encoding_worker.encoded_with_errors_signal.connect(self._encoded_errors)
-        self.encoding_worker.decoded_signal.connect(self._decoded)
-        self.encoding_worker.detected_signal.connect(self._detected)
-        self.encoding_worker.error_signal.connect(self._error_msg)
-        self.encoding_worker.moveToThread(self.worker_thread)
-        self.worker_thread.started.connect(self.encoding_worker.run) # type: ignore
-        self.worker_thread.start()
+            bch = self.bch_checkBox.isChecked()
+            self.encoding_worker = EncodingWorker(
+                rs_args=ReedSolomonArgs(
+                    n=self.rs_n_spinBox.value(),
+                    k=self.rs_k_spinBox.value(),
+                    gf=2**self.rs_gf_spinBox.value(),
+                    systematic=self.systematic_checkBox.isChecked(),
+                    bch=bch,
+                    force=self.force_checkBox.isChecked() if not bch else False
+                    ),
+                format=self.get_format(),
+                message_input=self.input_lineEdit.text(),
+                error_input=self.errors_lineEdit.text())
+
+            self.worker_thread = QThread(self)
+            self.encoding_worker.encoded_signal.connect(self._encoded)
+            self.encoding_worker.encoded_with_errors_signal.connect(self._encoded_errors)
+            self.encoding_worker.decoded_signal.connect(self._decoded)
+            self.encoding_worker.detected_signal.connect(self._detected)
+            self.encoding_worker.error_signal.connect(self._error_msg)
+            self.encoding_worker.moveToThread(self.worker_thread)
+            self.worker_thread.started.connect(self.encoding_worker.run) # type: ignore
+            self.worker_thread.start()
+        except Exception as ex:
+            create_msg_box(f"RSTab init error: {ex}", "error")
+            raise ex from None
 
     def on_close(self):
         self.encoding_worker.mutex.lock()

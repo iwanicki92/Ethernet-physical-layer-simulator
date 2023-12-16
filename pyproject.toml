@@ -18,7 +18,8 @@ dependencies = [
     "pyqt5",
     "attrs >= 20.0.0",
     "distro >= 1.7.0",
-    "bitarray >= 2.0.0"
+    "bitarray >= 2.0.0",
+    "matplotlib >= 3.8.0"
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
@@ -27,7 +28,7 @@ classifiers = [
 [project.optional-dependencies]
 dev = [
     "hatch >= 1.7.0",
-    "matplotlib >= 3.8.0"
+    "pyinstaller >= 6.0.0"
 ]
 
 [project.gui-scripts]

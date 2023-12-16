@@ -33,33 +33,37 @@ class ReedSolomonRegisterArguments:
 
 class RSRegisterTab(QWidget, Ui_rsRegisterForm):
     def __init__(self) -> None:
-        super().__init__()
-        self.rs_param_mapping: dict[str, ReedSolomonRegisterArguments] = {
-            "RS(192,186,256) - 25/40GBASE-T": ReedSolomonRegisterArguments(192, 186, 2**8, 0x11D),
-            "RS(360,326,1024) - 2.5/5/10GBASE-T1": ReedSolomonRegisterArguments(360, 326, 2**10, 0x409),
-            "RS(528,514,1024) - 10/25GBASE-R, 100GBASE-(C/K/S)R4": ReedSolomonRegisterArguments(528, 514, 2**10, 0x409),
-            "RS(544,514,1024) - 100GBASE-KP4, 100GBASE-(C/K/S)R2": ReedSolomonRegisterArguments(544, 514, 2**10, 0x409),
-        }
-        self.current_arguments = self.rs_param_mapping["RS(192,186,256) - 25/40GBASE-T"].copy()
+        try:
+            super().__init__()
+            self.rs_param_mapping: dict[str, ReedSolomonRegisterArguments] = {
+                "RS(192,186,256) - 25/40GBASE-T": ReedSolomonRegisterArguments(192, 186, 2**8, 0x11D),
+                "RS(360,326,1024) - 2.5/5/10GBASE-T1": ReedSolomonRegisterArguments(360, 326, 2**10, 0x409),
+                "RS(528,514,1024) - 10/25GBASE-R, 100GBASE-(C/K/S)R4": ReedSolomonRegisterArguments(528, 514, 2**10, 0x409),
+                "RS(544,514,1024) - 100GBASE-KP4, 100GBASE-(C/K/S)R2": ReedSolomonRegisterArguments(544, 514, 2**10, 0x409),
+            }
+            self.current_arguments = self.rs_param_mapping["RS(192,186,256) - 25/40GBASE-T"].copy()
 
-        self.setupUi(self)
-        self.delay_elements: list[QLineEdit] = []
-        current_dir = Path(__file__).parent
-        images = current_dir / "../resources/img"
-        self.imageLabel: QLabel
-        self.imageLabel.setPixmap(QPixmap(str(images / "RS_shift_register.png")))
-        self.imageLabel.setScaledContents(True)
-        if len(sys.argv) >= 3:
-            try:
-                self.imageLabel.setMaximumSize(int(sys.argv[1]), int(sys.argv[2]))
-            except Exception as ex:
-                create_msg_box(f"Couldn't parse arguments: {ex}", "Error")
-        self.standardsComboBox.addItems(self.rs_param_mapping.keys())
-        self._calculate_gen_poly()
-        self.bch = BCH_RS(self.current_arguments.n, self.current_arguments.k, self.current_arguments.gf, self.current_arguments.generating_poly)
-        self.update_n_k_max(self.current_arguments.gf.degree)
-        self.update_validators()
-        self._clear()
+            self.setupUi(self)
+            self.delay_elements: list[QLineEdit] = []
+            current_dir = Path(__file__).parent
+            images = current_dir / "../resources/img"
+            self.imageLabel: QLabel
+            self.imageLabel.setPixmap(QPixmap(str(images / "RS_shift_register.png")))
+            self.imageLabel.setScaledContents(True)
+            if len(sys.argv) >= 3:
+                try:
+                    self.imageLabel.setMaximumSize(int(sys.argv[1]), int(sys.argv[2]))
+                except Exception as ex:
+                    create_msg_box(f"Couldn't parse arguments: {ex}", "Error")
+            self.standardsComboBox.addItems(self.rs_param_mapping.keys())
+            self._calculate_gen_poly()
+            self.bch = BCH_RS(self.current_arguments.n, self.current_arguments.k, self.current_arguments.gf, self.current_arguments.generating_poly)
+            self.update_n_k_max(self.current_arguments.gf.degree)
+            self.update_validators()
+            self._clear()
+        except Exception as ex:
+            create_msg_box(f"RSRegisterTab init error: {ex}", "error")
+            raise ex from None
 
 
     @pyqtSlot(str)

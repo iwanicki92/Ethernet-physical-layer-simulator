@@ -7,6 +7,8 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QPushButton,
                              QScrollArea, QLabel, QHBoxLayout, QCheckBox,
                              QMessageBox, QFrame
                              )
+from PyQt5.QtCore import Qt
+
 from phyether.dac import DAC
 from phyether.gui.pam_simulation import PAMSimulationCanvas, PAM16SimulationCanvas
 from phyether.gui.rs_register_tab import RSRegisterTab
@@ -22,12 +24,15 @@ from phyether.gui.util import create_msg_box
 
 class EthernetGuiApp(QMainWindow):
     def __init__(self):
-        super().__init__()
-
-        self.tabs: Optional[tuple[RSTab, QWidget, QWidget, QWidget, RSRegisterTab]] = None
-        self.tp_simulation_forms: list[SimulationFormWidget]
-        simulation_enable = self.init_ngspice()
-        self.init_ui(simulation_enable)
+        try:
+            super().__init__()
+            self.tabs: Optional[tuple[RSTab, QWidget, QWidget, QWidget, RSRegisterTab]] = None
+            self.tp_simulation_forms: list[SimulationFormWidget]
+            simulation_enable = self.init_ngspice()
+            self.init_ui(simulation_enable)
+        except Exception as ex:
+            create_msg_box(f"Error creating app: {ex}", "Error")
+            raise ex from None
 
     def init_ngspice(self):
         init_success = False
@@ -72,14 +77,11 @@ class EthernetGuiApp(QMainWindow):
 
     def init_ui(self, enable_simulation_tab):
         self.setWindowTitle("EthernetSimulator")
-        from PyQt5.QtCore import Qt
         self.setWindowState(Qt.WindowState.WindowMaximized)
-
         central_widget = QWidget(self)
         self.setCentralWidget(central_widget)
 
         self.main_layout = QVBoxLayout(central_widget)
-
         self.tabs = (RSTab(), QWidget(), QWidget(), QWidget(), RSRegisterTab())
         if not enable_simulation_tab:
             self.tabs[3].setDisabled(True)
