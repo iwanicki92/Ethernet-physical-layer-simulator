@@ -1,6 +1,6 @@
 from __future__ import annotations
 import random
-from typing import Iterable, Optional, Sequence
+from typing import Iterable, Sequence, List, Tuple
 
 from PySpice.Unit import *
 from PySpice.Unit.Unit import UnitValue  # pylint: disable=unused-wildcard-import, wildcard-import
@@ -61,7 +61,7 @@ class DAC:
             Sequence[Tuple[float, float]]: PWL data
         """
         voltages = self.to_voltage(data)
-        pwl: list[Tuple[UnitValue, UnitValue]] = [(u_ns(0), u_V(0))]
+        pwl: List[Tuple[UnitValue, UnitValue]] = [(u_ns(0), u_V(0))]
         time = self.rise_time
         for voltage in voltages:
             pwl.append((time, u_V(voltage)))
@@ -71,7 +71,7 @@ class DAC:
 
         return pwl
 
-    def random_signals(self, number_of_signals: int) -> list[int]:
+    def random_signals(self, number_of_signals: int) -> List[int]:
             return random.choices(
                 self.possible_symbols,
                 k=number_of_signals - 1

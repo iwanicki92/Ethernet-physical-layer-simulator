@@ -1,6 +1,6 @@
 import sys
 import platform
-from typing import Optional
+from typing import Optional, List
 
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QPushButton,
                              QLineEdit, QVBoxLayout, QFormLayout, QTabWidget,
@@ -27,7 +27,7 @@ class EthernetGuiApp(QMainWindow):
         try:
             super().__init__()
             self.tabs: Optional[tuple[RSTab, QWidget, QWidget, QWidget, RSRegisterTab]] = None
-            self.tp_simulation_forms: list[SimulationFormWidget]
+            self.tp_simulation_forms: List[SimulationFormWidget]
             simulation_enable = self.init_ngspice()
             self.init_ui(simulation_enable)
         except Exception as ex:
@@ -125,7 +125,7 @@ class EthernetGuiApp(QMainWindow):
         self.tabs[1].layout().addWidget(self.pam16_canvas)
 
     def init_pam(self):
-        self.pam_versions: list[PAM] = [NRZ(), PAM4(), PAM16()]
+        self.pam_versions: List[PAM] = [NRZ(), PAM4(), PAM16()]
 
         self.pam_simulator_data = QLineEdit()
         main_layout = QVBoxLayout()
@@ -171,7 +171,7 @@ class EthernetGuiApp(QMainWindow):
         options_layout.addWidget(self.tp_scroll_area)
 
         checkbox_layout = QHBoxLayout()
-        self.plot_checkboxes: list[QCheckBox] = []
+        self.plot_checkboxes: List[QCheckBox] = []
         for plot in SimulationDisplay:
             checkbox = QCheckBox(plot.value)
             checkbox.toggled.connect(self.checkbox_toggled)
@@ -215,7 +215,7 @@ class EthernetGuiApp(QMainWindow):
 
     def pam16_simulate(self):
         self.pam16_simulate_button.setDisabled(True)
-        simulation_args: list[SimulationArgs] = []
+        simulation_args: List[SimulationArgs] = []
         encoder = PAM16()
         try:
             twisted_pairs_output = encoder.hex_to_signals(hex_data=self.pam16_simulator_data.text(), use_dsq128=True)
@@ -245,7 +245,7 @@ class EthernetGuiApp(QMainWindow):
 
     def pam_simulate(self):
         self.pam_simulate_button.setDisabled(True)
-        simulation_args: list[SimulationArgs] = []
+        simulation_args: List[SimulationArgs] = []
 
         for i, encoder in enumerate(self.pam_versions):
             try:
@@ -280,7 +280,7 @@ class EthernetGuiApp(QMainWindow):
         # Fixing forms
         self.tp_simulation_forms = [f for f in self.tp_simulation_forms if f.parent()]
 
-        simulation_args: list[SimulationArgs] = []
+        simulation_args: List[SimulationArgs] = []
         for i, form in enumerate(self.tp_simulation_forms):
             # Fixing labels
             form.name_label.setText(f"{i+1}. Simulation parameters")

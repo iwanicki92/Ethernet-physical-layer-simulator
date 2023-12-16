@@ -1,9 +1,9 @@
-from typing import Optional, Type
+from typing import Optional, Type, List
 from galois import GF, Poly, FieldArray
 
 class BCH_RS:
     def __init__(self, n: int, k: int, gf: Type[FieldArray], generator: Poly):
-        self.parity: list[FieldArray] = []
+        self.parity: List[FieldArray] = []
         self.i = 0
         self.n = n
         self.k = k

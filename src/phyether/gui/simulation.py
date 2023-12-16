@@ -3,7 +3,7 @@ from typing import Literal, Optional, TypedDict, Union, cast, Dict, Tuple, List
 from attr import define
 
 from PyQt5.QtCore import QObject, QThread, pyqtSlot, pyqtSignal, Qt
-from PyQt5.QtWidgets import (QMessageBox, QWidget, QVBoxLayout, QHBoxLayout,
+from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout,
                              QFormLayout, QLabel, QSpinBox, QRadioButton,
                              QFrame, QDoubleSpinBox, QComboBox, QPushButton
                              )
@@ -20,7 +20,7 @@ import numpy
 from phyether.dac import DAC
 from phyether.gui.util import DoubleSpinBoxNoWheel, SpinBoxNoWheel, create_msg_box
 from phyether.twisted_pair import TwistedPair
-from phyether.util import DictMapping
+from phyether.util import DictMapping, removeprefix
 
 matplotlib.use('QtAgg')
 
@@ -77,7 +77,7 @@ class PairSimulation(QObject):
                      index: str):
         twisted_pair = TwistedPair(**init_args)
         symbols = [int(symbol) for symbol in input.split()
-                                if symbol.removeprefix('-').isdecimal()]
+                                if removeprefix(symbol, '-').isdecimal()]
 
         try:
             analysis = twisted_pair.simulate(symbols, **run_args)

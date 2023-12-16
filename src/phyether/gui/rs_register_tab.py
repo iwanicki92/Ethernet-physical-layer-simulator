@@ -1,6 +1,6 @@
 import sys
 from pathlib import Path
-from typing import Literal, Union
+from typing import Literal, List, Dict
 
 from PyQt5.QtWidgets import QWidget, QLineEdit, QLabel
 from PyQt5.QtGui import QPixmap
@@ -35,7 +35,7 @@ class RSRegisterTab(QWidget, Ui_rsRegisterForm):
     def __init__(self) -> None:
         try:
             super().__init__()
-            self.rs_param_mapping: dict[str, ReedSolomonRegisterArguments] = {
+            self.rs_param_mapping: Dict[str, ReedSolomonRegisterArguments] = {
                 "RS(192,186,256) - 25/40GBASE-T": ReedSolomonRegisterArguments(192, 186, 2**8, 0x11D),
                 "RS(360,326,1024) - 2.5/5/10GBASE-T1": ReedSolomonRegisterArguments(360, 326, 2**10, 0x409),
                 "RS(528,514,1024) - 10/25GBASE-R, 100GBASE-(C/K/S)R4": ReedSolomonRegisterArguments(528, 514, 2**10, 0x409),
@@ -44,7 +44,7 @@ class RSRegisterTab(QWidget, Ui_rsRegisterForm):
             self.current_arguments = self.rs_param_mapping["RS(192,186,256) - 25/40GBASE-T"].copy()
 
             self.setupUi(self)
-            self.delay_elements: list[QLineEdit] = []
+            self.delay_elements: List[QLineEdit] = []
             current_dir = Path(__file__).parent
             images = current_dir / "../resources/img"
             self.imageLabel: QLabel
