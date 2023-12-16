@@ -1,4 +1,4 @@
-from typing import Iterable, Literal, Optional, overload
+from typing import Iterable, Literal, overload, Tuple
 from PySpice.Probe.WaveForm import TransientAnalysis
 
 from PySpice.Spice.Netlist import Circuit
@@ -64,7 +64,7 @@ class EthernetCable:
                        f'{pair.name}_vout+', f'{pair.name}_vout-', 'offset+')
 
     def simulate(self,
-                 data: tuple[Iterable[int], Iterable[int],
+                 data: Tuple[Iterable[int], Iterable[int],
                              Iterable[int], Iterable[int]],
                  presimulation_ratio: int = 0,
                  voltage_offset: float = 0) -> TransientAnalysis:

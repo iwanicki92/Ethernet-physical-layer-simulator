@@ -1,4 +1,4 @@
-from typing import Tuple, cast
+from typing import Tuple, cast, List
 from PySpice.Probe.WaveForm import TransientAnalysis
 from matplotlib.axes import Axes
 from matplotlib.ticker import EngFormatter
@@ -11,8 +11,8 @@ from phyether.pam import PAM
 class PAM16SimulationCanvas(SimulatorCanvas):
     def __init__(self):
         super().__init__(init_axes=False)
-        self.subplot_axes: list[Axes] = cast(
-            list[Axes],
+        self.subplot_axes: List[Axes] = cast(
+            List[Axes],
             self.figure.subplots(4, 1, sharex=True, sharey=True))
         for ax in self.subplot_axes:
             ax.grid(True)
@@ -49,8 +49,8 @@ class PAM16SimulationCanvas(SimulatorCanvas):
 class PAMSimulationCanvas(SimulatorCanvas):
     def __init__(self):
         super().__init__(init_axes=False)
-        self.subplot_axes: list[Axes] = cast(
-            list[Axes],
+        self.subplot_axes: List[Axes] = cast(
+            List[Axes],
             self.figure.subplots(len(PAM.__subclasses__()), 1, sharex=True, sharey=True))
         for ax in self.subplot_axes:
             ax.grid(True)

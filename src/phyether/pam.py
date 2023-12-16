@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Tuple
 from bitarray import bitarray
 import re
 
@@ -64,7 +65,7 @@ class PAM16(PAM):
                 for hex_symbol in removeprefix(hex_data, "0x"))
 
     @staticmethod
-    def _bits_to_dsq128(bits: bitarray) -> tuple[int, int]:
+    def _bits_to_dsq128(bits: bitarray) -> Tuple[int, int]:
             """
             converts 7-bit frame into 2D DSQ128 symbol
             """
