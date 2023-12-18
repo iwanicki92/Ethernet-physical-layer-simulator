@@ -40,7 +40,7 @@ Interfejs składa się z kilku zakładek (Rysunek~\ref{fig:zakladki_sim_image}),
     \label{fig:zakladki_sim_image}
 \end{figure}
 
-Wykresy przedstawione na Rysunku~\ref{fig:sim_png} są tworzone przy pomocy biblioteki Matplotlib. Została dodatkowo stworzona klasa, która zawiera stworzone wykresy i może być użyta jako element graficznego interfejsu użytkownika, a więc dodana do niego.
+Wykresy są tworzone przy pomocy biblioteki Matplotlib. Została dodatkowo stworzona klasa, która zawiera stworzone wykresy i może być użyta jako element graficznego interfejsu użytkownika, a więc dodana do niego.
 
 \subsection{Symulacje wybranych rozwiązań}
 Aplikacja umożliwa symulowanie wybranych rozwiązań fizycznej warstwy sieci Ethernet. W każdym przypadku użytkownik ma swobodę podawania własnych parametrów wejściowych, zmieniania ich, co ma na celu lepsze zrozumienie działania tych rozwiązań.
@@ -99,38 +99,6 @@ Zakładka PAM (Rysunek ~\ref{fig:pam_sim_png}) przedstawia różnice modulacji: 
     \caption{Zakładka z różnymi modulacjami}
     \label{fig:pam_sim_png}
 \end{figure}
-
-\subsubsection{Symulacja przesyłu sygnału}
-Zakładka Twisted-pair simulation (Rysunek ~\ref{fig:sim_png}) pozwala na śledzenie zmian napięć podczas przesyłu danych przez pojedynczą skrętkę. W tym przypadku wykorzystana została biblioteka PySpice. Dzięki niej można nadać wykorzystywanemu przewodowi pożądane parametry, między innymi: opór, długość i indukcyjność.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\textwidth]{images/sim.png}
-    \caption{Zakładka z symulacją}
-    \label{fig:sim_png}
-\end{figure}
-
-Użytkownik ma możliwość podawania tych parametrów w przewijalnym oknie, gdzie może dodawać również kolejne przewodniki. Patrz Tabela~\ref{tab:parametry}.
-
-\begin{table}[H]
-    \captionof{table}{Parametry symulacji}
-    \centering
-    \begin{tabular}{|c|c|c|c|}
-        \hline
-        \textbf{Parametr} & \textbf{Od} & \textbf{Do} & \textbf{Domyślnie} \\
-        \hline
-        Voltage offset\tablefootnote{Napięcie niezrównoważnienia - napięcie, które musi być przyłożone do wejścia, aby wyjście wynosiło 0.} [V] & <0 & 10> & 0 \\
-        Output impedance\tablefootnote{Impendacja wyjściowa - stosunek napięcia wyjściowego do natężenia prądu wyjściowego układu.} [$\Omega$] & (0 & 200> & 100 \\
-        Length\tablefootnote{Długość skrętki.} [m] & <1 & 100> & 2 \\
-        Resistence\tablefootnote{Rezystancja - wielkość charakteryzująca relację między napięciem a natężeniem prądu elektrycznego w obwodach.} [$\Omega$] & (0 & 100> & 0.19 \\
-        Inductance\tablefootnote{Indukcyjność - zdolność obwodu do wytwarzania strumienia pola magnetycznego powstającego w wyniku przepływu przez obwód prądu elektrycznego.} [nH] & (0 & 1000> & 525 \\
-        Capacitance\tablefootnote{Pojemność elektryczna – wielkość fizyczna opisująca zdolność ciała do gromadzenia ładunku elektrycznego.} [pF] & (0 & 100> & 52 \\
-        \hline
-    \end{tabular}
-    \label{tab:parametry}
-\end{table}
-
-Symulacja wykonywana jest w osobnym wątku. Dodatkowo możliwa jest jednoczesna symulacja wielu przewodów o różnych parametrach, które następnie przedstawiane są na jednym wykresie. Opcjonalnie można ukrywać lub pokazywać wybrane symulacji zaznaczając odpowiednie pola przy listach parametrów odpowiednich przewodów.
 
 \subsubsection{Uruchamianie}
 W celu uruchomienia poprawnie zainstalowanego symulatora wystarczy wpisać w terminalu: phyether. Dodatkowo możliwe jest podanie dwóch parametrów określających wielkość okna: \\ phyether <szerokość> <wysokość>.
