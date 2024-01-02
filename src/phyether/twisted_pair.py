@@ -1,16 +1,13 @@
 from math import sqrt
-import random
 from typing import Iterable, Literal, Optional, Sequence, overload, Tuple
 
-from PySpice.Logging import Logging
 from PySpice.Probe.WaveForm import TransientAnalysis
-from PySpice.Spice.Netlist import Circuit, SubCircuit, SubCircuitFactory
+from PySpice.Spice.Netlist import Circuit, SubCircuit
 from PySpice.Unit import *
 from PySpice.Unit.Unit import UnitValue  # pylint: disable=unused-wildcard-import, wildcard-import
 
 from phyether.dac import DAC
 
-Logging.setup_logging(logging_level='DEBUG')
 
 class TwistedPair(SubCircuit):
     __nodes__ = ('vin+', 'vin-', 'vout+', 'vout-', 'offset+')
@@ -79,6 +76,7 @@ class TwistedPair(SubCircuit):
         self.R('negativeR', 'vout-', 'vin-', u_GOhm(1000))
         self.R('load', 'vout+', 'vout-', u_Ohm(output_impedance))
         self.transmission_delay: UnitValue
+        self.cable_length = length
         if transmission_type == 'lossy':
             self.transmission_delay = length * u_ns(u_s(sqrt(u_nH(inductance) * u_pF(capacitance))))
             self.raw_spice = "O1 vin+ vin- vout+ vout- ltra"
@@ -119,14 +117,18 @@ class TwistedPair(SubCircuit):
         presignals, pwl = self._get_pwl(data, presimulation_ratio)
         self.PieceWiseLinearVoltageSource('signal', 'vin+', 'vin-', values = pwl)
         end_time = pwl[-1][0] + self.transmission_delay + self.dac.rise_time
-        step_time = self.dac.rise_time / 10
+        step_time = self.dac.rise_time
         simulator = circuit.simulator(temperature=25,
-                                           nominal_temperature=25,
-                                           simulator="ngspice-shared")
+                                      nominal_temperature=25,
+                                      simulator="ngspice-shared")
         simulation = simulator.transient(
             step_time=step_time,
             end_time=end_time,
             start_time=presignals * self.dac.symbol_time)
         simulation._time = simulation.time.as_ndarray() - simulation._time[0]
+        for i, vout in enumerate(simulation["vout+"]):
+            simulation["vout+"][i] = self.dac.signal_after_loss(vout, self.cable_length)
+        for i, vout in enumerate(simulation["vout-"]):
+            simulation["vout-"][i] = self.dac.signal_after_loss(vout, self.cable_length)
         self.Vsignal.detach()
         return simulation

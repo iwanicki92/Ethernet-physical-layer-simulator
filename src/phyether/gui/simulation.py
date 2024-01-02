@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Literal, Optional, TypedDict, Union, cast, Dict, Tuple, List
+from typing import Literal, NamedTuple, Optional, TypedDict, Union, cast, Dict, Tuple, List
 from attr import define
 
 from PyQt5.QtCore import QObject, QThread, pyqtSlot, pyqtSignal, Qt
@@ -17,7 +17,7 @@ from PySpice.Probe.WaveForm import TransientAnalysis
 
 import numpy
 
-from phyether.dac import DAC
+from phyether.dac import DAC, Attenuation, Cat5, Cat5e, Cat6, Cat7
 from phyether.gui.util import DoubleSpinBoxNoWheel, SpinBoxNoWheel, create_msg_box
 from phyether.twisted_pair import TwistedPair
 from phyether.util import DictMapping, removeprefix
@@ -28,7 +28,7 @@ matplotlib.use('QtAgg')
 @define(kw_only=True, slots=False)
 class SimulationInitArgs(DictMapping):
     dac: DAC
-    transmission_type: Literal['lossy', 'lossless']
+    transmission_type: Literal['lossy', 'lossless'] = 'lossy'
     output_impedance: float = 100
     characteristic_impedance: float = 100
     length: int = 1
@@ -49,7 +49,7 @@ class SimulationArgs(DictMapping):
     init_args: SimulationInitArgs
     run_args: SimulationRunArgs
     input: str
-    index: int
+    index: str
 
 
 class SimulationDisplay(str, Enum):
@@ -121,49 +121,69 @@ class SimulationFormWidget(QFrame):
             arg: str
             type: str
             default: object
+            min: float
+            max: float
+
+        self.cable_mapping: Dict[str, Attenuation] = {
+                "Cat5": Cat5(),
+                "Cat5e": Cat5e(),
+                "Cat6": Cat6(),
+                "Cat7": Cat7(),
+            }
+
+        class StandardSpeed(NamedTuple):
+            rise_time: float
+            on_time: float
+
+        self.standards_mapping: Dict[str, StandardSpeed] = {
+                "40GBASE-T": StandardSpeed(0.1, 0.625),
+                "10GBASE-T": StandardSpeed(0.1, 1.2),
+                "1000BASE-T": StandardSpeed(2, 8)
+            }
 
         self.combobox_widget = QWidget()
         self.combobox_layout = QHBoxLayout()
-        self.combobox1 = QComboBox()
-        self.combobox2 = QComboBox()
-        self.combobox1.addItems(["40GBASE-T", "1000BASE-T"])
-        self.combobox2.addItems(["CAT 5e", "Cat 6", "Cat 7"])
-        self.combobox_layout.addWidget(self.combobox1)
-        self.combobox_layout.addWidget(self.combobox2)
+        self.standards_combobox = QComboBox()
+        self.cable_combobox = QComboBox()
+        self.standards_combobox.addItems(self.standards_mapping.keys())
+        self.standards_combobox.currentTextChanged.connect(self.standards_combobox_changed)
+        self.cable_combobox.addItems(self.cable_mapping.keys())
+        self.cable_combobox.currentTextChanged.connect(self.cable_combobox_changed)
+        self.combobox_layout.addWidget(self.standards_combobox)
+        self.combobox_layout.addWidget(self.cable_combobox)
         self.combobox_widget.setLayout(self.combobox_layout)
         self.form_layout.addRow(self.combobox_widget)
 
         # Create 8 number inputs using QSpinBox
         self.parameter_labels: List[Parameters] = [
-            {"label" : "Rise time [ns]", "arg": "rise_time", "type" : "float", "default": 0.1},
-            {"label" : "Signal width [ns]", "arg": "on_time", "type" : "float", "default": 1},
-            {"label" : "Voltage offset [V]", "arg": "voltage_offset", "type" : "float", "default": 0},
-            {"label" : "Output impedance [Ohm]", "arg": "output_impedance", "type" : "float", "default": 100},
-            {"label" : "Length [m]", "arg": "length", "type" : "int", "default": 2},
-            {"label" : "Resistance [Ohm]", "arg": "resistance", "type" : "float", "default": 0.188},
-            {"label" : "Inductance [nH]", "arg": "inductance", "type" : "float", "default": 525},
-            {"label" : "Capacitance [pF]", "arg": "capacitance", "type" : "float", "default": 52},
+            {"label" : "Rise time [ns]", "arg": "rise_time", "type" : "float", "default": 0.1,
+             "min": 0.01, "max": 100},
+            {"label" : "Signal width [ns]", "arg": "on_time", "type" : "float", "default": 1,
+             "min": 0.05, "max": 100},
+            {"label" : "Voltage offset [V]", "arg": "voltage_offset", "type" : "int", "default": 0, "min": 0, "max": 60},
+            {"label" : "Length [m]", "arg": "length", "type" : "int", "default": 2, "min": 0, "max": 100},
+            {"label" : "Characteristic impedance [Ohm]", "arg": "characteristic_impedance", "type" : "int", "default": 100, "min": 50, "max": 100},
+            {"label" : "Skin effect loss constant", "arg": "k1", "type" : "float", "default": 0, "min": 0, "max": 10},
+            {"label" : "Vibration/material loss constant", "arg": "k2", "type" : "float", "default": 0, "min": 0, "max": 1},
+            {"label" : "Shield loss constant", "arg": "k3", "type" : "float", "default": 0, "min": 0, "max": 5},
         ]
         self.number_inputs: Dict[str, Union[QDoubleSpinBox, QSpinBox]] = {}
         for i, parameter in enumerate(self.parameter_labels):
             arg = parameter["arg"]
             if parameter["type"] == "float":
                 self.number_inputs[arg] = DoubleSpinBoxNoWheel()
+                self.number_inputs[arg].setMaximum(parameter["max"]) # type: ignore
+                self.number_inputs[arg].setMinimum(parameter["min"]) # type: ignore
+                self.number_inputs[arg].setDecimals(3)
             elif parameter["type"] == "int":
                 self.number_inputs[arg] = SpinBoxNoWheel()
-            self.number_inputs[arg].setMaximum(1000)
+                self.number_inputs[arg].setMaximum(int(parameter["max"]))
+                self.number_inputs[arg].setMinimum(int(parameter["min"]))
             self.number_inputs[arg].setValue(parameter['default']) # type: ignore
             self.form_layout.addRow(parameter['label'], self.number_inputs[arg])
 
-        self.radio_button = QWidget()
-        self.radio_layout = QHBoxLayout()
-        self.lossy_option = QRadioButton("lossy")
-        self.lossy_option.setChecked(True)
-        self.lossless_option = QRadioButton("lossless")
-        self.radio_layout.addWidget(self.lossy_option)
-        self.radio_layout.addWidget(self.lossless_option)
-        self.radio_button.setLayout(self.radio_layout)
-        self.form_layout.addRow("Select an option:", self.radio_button)
+        self.standards_combobox_changed(self.standards_combobox.currentText())
+        self.cable_combobox_changed(self.cable_combobox.currentText())
 
         self.frame_layout = QVBoxLayout(self)
         self.frame_layout.addWidget(self.form)
@@ -173,6 +193,17 @@ class SimulationFormWidget(QFrame):
     def delete(self):
         print("Deleting form...")
         self.setParent(None)
+
+    def standards_combobox_changed(self, new_text: str):
+        new_standard = self.standards_mapping[new_text]
+        self.number_inputs["rise_time"].setValue(new_standard.rise_time) # type: ignore
+        self.number_inputs["on_time"].setValue(new_standard.on_time) # type: ignore
+
+    def cable_combobox_changed(self, new_text: str):
+        new_cable = self.cable_mapping[new_text]
+        self.number_inputs["k1"].setValue(new_cable.k1) # type: ignore
+        self.number_inputs["k2"].setValue(new_cable.k2) # type: ignore
+        self.number_inputs["k3"].setValue(new_cable.k3) # type: ignore
 
 class SimulatorCanvas(FigureCanvasQTAgg):
     simulation_stopped_signal = pyqtSignal()
@@ -199,7 +230,6 @@ class SimulatorCanvas(FigureCanvasQTAgg):
         self._draw_plot()
 
     def _add_simulation(self, analysis: TransientAnalysis, transmission_delay: float, index: str):
-        #index = len(self.simulations)
         self.simulations.append((analysis, transmission_delay))
         self.plot_labels.append(index)
         print(f"Draw simulation: {index}")
@@ -227,7 +257,7 @@ class SimulatorCanvas(FigureCanvasQTAgg):
                 plot_x = self._get_vin_x(analysis, transmission_delay)
                 plot_y = analysis['vin+'][:len(plot_x)]
             elif display_param == SimulationDisplay.VIN_MINUS:
-                plot_x = plot_x = self._get_vin_x(analysis, transmission_delay)
+                plot_x = self._get_vin_x(analysis, transmission_delay)
                 plot_y = analysis['vin-'][:len(plot_x)]
             elif display_param == SimulationDisplay.VOUT_PLUS:
                 plot_x = cast(numpy.ndarray, analysis.time - transmission_delay)
@@ -248,7 +278,7 @@ class SimulatorCanvas(FigureCanvasQTAgg):
     def _draw_plot(self):
         self.clear_plot()
         for index, simulation in zip(self.plot_labels, self.simulations):
-            self._draw_add(simulation, index)
+            self._draw_add(simulation, int(index))
 
     def simulation_error(self):
         create_msg_box("There was error during simulation, change parameters", "error")

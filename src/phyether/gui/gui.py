@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QPushButton,
                              )
 from PyQt5.QtCore import Qt
 
-from phyether.dac import DAC
+from phyether.dac import DAC, Attenuation
 from phyether.gui.pam_simulation import PAMSimulationCanvas, PAM16SimulationCanvas
 from phyether.gui.rs_register_tab import RSRegisterTab
 from phyether.gui.rs_tab import RSTab
@@ -181,7 +181,7 @@ class EthernetGuiApp(QMainWindow):
         options_layout.addLayout(checkbox_layout)
 
         self.simulator_signals = QLineEdit()
-        self.simulator_signals.setValidator(IntListValidator(min=-16, max=16))
+        self.simulator_signals.setValidator(IntListValidator(min=-15, max=15))
         signals_layout = QHBoxLayout()
         signals_layout.addWidget(QLabel(f"Signals separated with spaces:"))
         signals_layout.addWidget(self.simulator_signals)
@@ -285,18 +285,20 @@ class EthernetGuiApp(QMainWindow):
             # Fixing labels
             form.name_label.setText(f"{i+1}. Simulation parameters")
             args = {key: val.value() for key, val in form.number_inputs.items() }
-            init = SimulationInitArgs(dac=DAC(1, 2, 15),
-                                        transmission_type="lossy",
-                                        output_impedance=args["output_impedance"],
-                                        length=args["length"], # type: ignore
-                                        resistance=args["resistance"],
-                                        inductance=args["inductance"],
-                                        capacitance=args["capacitance"])
-            run = SimulationRunArgs(voltage_offset=args["voltage_offset"]) # type: ignore
-            simulation_args.append(SimulationArgs(init_args=init,
-                                                  run_args=run,
-                                                  input=self.simulator_signals.text(),
-                                                  index=form.name_label.text().split('.')[0]))
+            capacitance = 1000 * 525 / (args["characteristic_impedance"] ** 2)
+            init = SimulationInitArgs(
+                dac=DAC(args["rise_time"], args["on_time"], 15,
+                        attenuation=Attenuation(args["k1"], args["k2"], args["k3"])),
+                transmission_type="lossy",
+                capacitance=capacitance,
+                length=args["length"] # type: ignore
+                )
+            run = SimulationRunArgs(presimulation_ratio=2, voltage_offset=args["voltage_offset"]) # type: ignore
+            simulation_args.append(
+                SimulationArgs(init_args=init,
+                               run_args=run,
+                               input=self.simulator_signals.text(),
+                               index=form.name_label.text().split('.')[0]))
 
         try:
             self.tp_canvas.simulate(simulation_args)
