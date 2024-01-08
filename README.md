@@ -2,33 +2,35 @@
 
 ## Requirements
 
-* Python, tested on version 3.9
+* Python >=3.8 & <3.12
+* pip >=21 (might work with earlier versions)
 
-Linux:
+On Linux:
 
-* libngspice
+* libngspice - install with
 
     ```sh
     sudo apt install libngspice0
     ```
 
-## Instalation
+## Installation
 
-From main
+Start terminal/command line and use this command
 
 ```sh
 pip install git+https://github.com/iwanicki92/Ethernet-physical-layer-simulator.git
 ```
 
-From dev
+Or download and extract repository and use (change `<path>` to path to extracted repository)
 
 ```sh
-pip install git+https://github.com/iwanicki92/Ethernet-physical-layer-simulator.git@dev
+pip install <path>
 ```
 
-## Development
+## Start
+
+Type in terminal/command line to start application.
 
 ```sh
-git clone -b dev https://github.com/iwanicki92/Ethernet-physical-layer-simulator.git
-pip install -e ./phyether[dev]
+phyether
 ```
