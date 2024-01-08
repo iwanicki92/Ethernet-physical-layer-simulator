@@ -10,18 +10,39 @@ authors = [
     { name = "Michał Iwanicki", email = "iwanicki92@gmail.com" },
 ]
 keywords = ["ethernet", "simulator"]
-requires-python = ">=3.9"
+requires-python = ">=3.8, <3.12"
+dependencies = [
+    "pyspice >= 1.5",
+    "galois >= 0.3.0",
+    "numpy >= 1.21.0",
+    "pyqt5",
+    "attrs >= 20.0.0",
+    "distro >= 1.7.0",
+    "bitarray >= 2.0.0",
+    "matplotlib >= 3.7.0"
+]
 classifiers = [
     "Programming Language :: Python :: 3",
 ]
 
+[project.optional-dependencies]
+dev = [
+    "hatch >= 1.7.0",
+    "pyinstaller >= 6.0.0"
+]
+
 [project.gui-scripts]
-phyether = "phyether.phyether:main"
+phyether = "phyether.main:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/phyether"]
+
+# uses hatch_build.py to include ngspice.dll and license when installing on Windows
+[tool.hatch.build.hooks.custom]
+enable-by-default = true
 
 [tool.mypy]
 python_version = "3.9"
 warn_return_any = true
 check_untyped_defs = true
+mypy_path = "$MYPY_CONFIG_FILE_DIR/stubs"

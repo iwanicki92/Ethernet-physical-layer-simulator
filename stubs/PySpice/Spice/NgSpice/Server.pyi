@@ -1,0 +1,6 @@
+from .RawFile import RawFile as RawFile
+
+class SpiceServer:
+    SPICE_COMMAND: str
+    def __init__(self, **kwargs) -> None: ...
+    def __call__(self, spice_input): ...

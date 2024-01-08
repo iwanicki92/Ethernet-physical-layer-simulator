@@ -1,0 +1,3 @@
+GIT_TAG: str
+
+def show_version() -> None: ...
