@@ -1,0 +1,37 @@
+\setcounter{secnumdepth}{0}
+\section*{Dodatek G: Symulacja tłumienia}
+\addcontentsline{toc}{section}{\protect\numberline{}Dodatek G: Symulacja tłumienia}
+
+\subsection{Wstęp}
+Symulacja przejścia sygnału przez kanał została zrealizowana za pomocą symulatora
+SPICE jednak użyty model linii transmisyjnej nie symulował tłumienia.
+Próba zaimplementowania własnego modelu skończyła się niepowodzeniem z powodu
+dużych częstotliwości co powodowało bardzo długie działanie programu ngspice i
+ewentualne nagłe zakończenie działania programu z powodu błędów.
+
+\subsection{Obliczanie tłumienia}
+Tłumienie zostało obliczone za pomocą wzoru~(\ref{tlumienie})~\cite[sekcja 4.3.4.7]{TIA/EIA-568-B}
+\begin{align}
+    k_1 \cdot \sqrt{f} + k_2 \cdot f + \frac{k_3}{\sqrt{f}}\label{tlumienie}
+\end{align}
+gdzie $f$ to częstotliwość, $k_1$ to straty spowodowane efektem naskórkowości,
+$k_2$ to straty spowodowane materiałem przewodnika a $k_3$ to straty spowodowane
+przez użycie ekranowania
+
+Wartości $k_1$, $k_2$, $k_3$ dla różnych kabli podane są w tabeli~\ref{tab:tlumienie}
+\begin{table}
+    \captionof{table}{Stałe tłumienia}
+    \centering
+    \begin{tabular}{c c c c}
+        \toprule
+        \textbf{Kabel} & \textbf{$k_1$} & \textbf{$k_2$} & \textbf{$k_3$} \\
+        \toprule
+        Cat5~\cite{IEEE-cabling} & 1.9108 & 0.0222 & 0.2 \\
+        \midrule
+        Cat5e~\cite[sekcja 4.3.4.7]{TIA/EIA-568-B} & 1.967 & 0.023 & 0.05 \\
+        \midrule
+        Cat6~\cite{IEEE-cabling} & 1.82 & 0.0169 & 0.25 \\
+        \midrule
+        Cat7~\cite{IEEE-cabling} & 1.8 & 0.01 & 0.2
+    \end{tabular}\label{tab:tlumienie}
+\end{table}

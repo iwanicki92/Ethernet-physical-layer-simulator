@@ -119,12 +119,16 @@ Użytkownik ma możliwość podawania tych parametrów w przewijalnym oknie, gdz
         \hline
         \textbf{Parametr} & \textbf{Od} & \textbf{Do} & \textbf{Domyślnie} \\
         \hline
+        Rise time\tablefootnote{Czas przejścia pomiędzy dwoma napięciami}
+        [ns] & <0,01 & 100> & 0,1 \\
+        Signal width\tablefootnote{Czas przejścia pomiędzy dwoma napięciami}
+        [ns] & <0,01 & 100> & 0,625 \\
         Voltage offset\tablefootnote{Napięcie niezrównoważnienia - napięcie, które musi być przyłożone do wejścia, aby wyjście wynosiło 0.} [V] & <0 & 10> & 0 \\
-        Output impedance\tablefootnote{Impendacja wyjściowa - stosunek napięcia wyjściowego do natężenia prądu wyjściowego układu.} [$\Omega$] & (0 & 200> & 100 \\
+        Characteristic impedance\tablefootnote{Impendacja wyjściowa - stosunek napięcia wyjściowego do natężenia prądu wyjściowego układu.} [$\Omega$] & (0 & 200> & 100 \\
         Length\tablefootnote{Długość skrętki.} [m] & <1 & 100> & 2 \\
-        Resistence\tablefootnote{Rezystancja - wielkość charakteryzująca relację między napięciem a natężeniem prądu elektrycznego w obwodach.} [$\Omega$] & (0 & 100> & 0.19 \\
-        Inductance\tablefootnote{Indukcyjność - zdolność obwodu do wytwarzania strumienia pola magnetycznego powstającego w wyniku przepływu przez obwód prądu elektrycznego.} [nH] & (0 & 1000> & 525 \\
-        Capacitance\tablefootnote{Pojemność elektryczna – wielkość fizyczna opisująca zdolność ciała do gromadzenia ładunku elektrycznego.} [pF] & (0 & 100> & 52 \\
+        Skin effect loss constant\tablefootnote{Straty spowodowane efektem naskórkowości} & <0 & 10 & 1,91 \\
+        Vibration/material loss constant\tablefootnote{Straty spowodowane materiałem przewodnika} & <0 & 10 & 0,022 \\
+        Shield loss constant\tablefootnote{Straty spowodowane przez ekran (skrętka ekranowana)} & <0 & 10 & 0,2 \\
         \hline
     \end{tabular}
     \label{tab:parametry}
